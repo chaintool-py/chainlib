@@ -1,0 +1,13 @@
+cryptocurrency-cli-tools==0.0.4
+giftable-erc20-token==0.0.7b6
+eth-accounts-index==0.0.10a6
+erc20-single-shot-faucet==0.2.0a5
+erc20-approval-escrow==0.3.0a4
+cic-eth==0.10.0a21+build.e4161b3e
+vobject==0.9.6.1
+faker==4.17.1
+eth-address-index==0.1.0a5
+crypto-dev-signer==0.4.13rc2
+pysha3==1.0.2
+hexathon==0.0.1a2
+eth-abi==2.1.1
