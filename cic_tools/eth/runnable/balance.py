@@ -25,7 +25,7 @@ import sha3
 from eth_abi import encode_single
 
 # local imports
-from cic_tools.eth.checksum import to_checksum
+from cic_tools.eth.address import to_checksum
 from cic_tools.eth.method import (
         jsonrpc_template,
         erc20_balance,

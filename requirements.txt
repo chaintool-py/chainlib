@@ -11,3 +11,4 @@ crypto-dev-signer==0.4.13rc2
 pysha3==1.0.2
 hexathon==0.0.1a2
 eth-abi==2.1.1
+eth-keys==0.3.3

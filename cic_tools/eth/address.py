@@ -7,7 +7,6 @@ from hexathon import (
 
 
 def to_checksum(address_hex):
-    
         address_hex = strip_0x(address_hex)
         address_hex = uniform(address_hex)
         h = sha3.keccak_256()
