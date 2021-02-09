@@ -62,8 +62,8 @@ if args.vv:
 elif args.v:
     logg.setLevel(logging.INFO)
 
-block_last = args.w
 block_all = args.ww
+block_last = args.w or block_all
 
 signer_address = None
 keystore = DictKeystore()
@@ -80,6 +80,10 @@ gas_oracle = DefaultGasOracle(conn)
 chain_pair = args.i.split(':')
 chain_id = int(chain_pair[1])
 
+value = args.amount
+
+g = GasTxFactory(signer=signer, gas_oracle=gas_oracle, nonce_oracle=nonce_oracle, chain_id=chain_id)
+
 
 def balance(address):
     o = gas_balance(address)
@@ -93,17 +97,17 @@ def main():
     if not args.u and recipient != add_0x(args.recipient):
         raise ValueError('invalid checksum address')
 
-    value = args.amount
-
+    logg.info('gas transfer from {} to {} value {}'.format(signer_address, recipient, value))
     logg.debug('sender {} balance before: {}'.format(signer_address, balance(signer_address)))
     logg.debug('recipient {} balance before: {}'.format(recipient, balance(recipient)))
  
-    g = GasTxFactory(signer=signer, gas_oracle=gas_oracle, nonce_oracle=nonce_oracle, chain_id=chain_id)
     (tx_hash_hex, o) = g.create(signer_address, recipient, value)
     conn.do(o)
 
-    logg.debug('sender {} balance after: {}'.format(signer_address, balance(signer_address)))
-    logg.debug('recipient {} balance after: {}'.format(recipient, balance(recipient)))
+    if block_last:
+        conn.wait(tx_hash_hex)
+        logg.debug('sender {} balance after: {}'.format(signer_address, balance(signer_address)))
+        logg.debug('recipient {} balance after: {}'.format(recipient, balance(recipient)))
  
 
     print(tx_hash_hex)

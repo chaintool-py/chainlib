@@ -66,7 +66,7 @@ def main():
     r = None
     decimals = 18
     if args.t != None:
-        g = ERC20TxFactory()
+        g = ERC20TxFactory(gas_oracle=gas_oracle)
         # determine decimals
         decimals_o = g.erc20_decimals(args.t)
         r = conn.do(decimals_o)

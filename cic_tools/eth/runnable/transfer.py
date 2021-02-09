@@ -79,8 +79,11 @@ gas_oracle = DefaultGasOracle(conn)
 
 chain_pair = args.i.split(':')
 chain_id = int(chain_pair[1])
-#g = ERC20TxFactory(signer=signer, gas_oracle=gas_oracle, nonce_oracle=nonce_oracle, chain_id=chain_id)
-g = ERC20TxFactory()
+
+value = args.amount
+
+g = ERC20TxFactory(signer=signer, gas_oracle=gas_oracle, nonce_oracle=nonce_oracle, chain_id=chain_id)
+
 
 def balance(token_address, address):
     o = g.erc20_balance(token_address, address)
@@ -94,19 +97,18 @@ def main():
     if not args.u and recipient != add_0x(args.recipient):
         raise ValueError('invalid checksum address')
 
-    value = args.amount
-
     logg.debug('sender {} balance before: {}'.format(signer_address, balance(args.t, signer_address)))
     logg.debug('recipient {} balance before: {}'.format(recipient, balance(args.t, recipient)))
 
-    logg.debug('sender {} balance after: {}'.format(signer_address, balance(args.t, signer_address)))
-    logg.debug('recipient {} balance after: {}'.format(recipient, balance(args.t, recipient)))
-
+    (tx_hash_hex, o) = g.erc20_transfer(args.t, signer_address, recipient, value)
+    conn.do(o)
 
     if block_last:
-        helper.wait_for()
+        conn.wait(tx_hash_hex)
+        logg.debug('sender {} balance after: {}'.format(signer_address, balance(args.t, signer_address)))
+        logg.debug('recipient {} balance after: {}'.format(recipient, balance(args.t, recipient)))
 
-    print(tx_hash)
+    print(tx_hash_hex)
 
 
 if __name__ == '__main__':

@@ -2,6 +2,10 @@ class EthException(Exception):
     pass
 
 
+class RevertEthException(EthException):
+    pass
+
+
 class DefaultErrorParser:
 
     def translate(self, error):

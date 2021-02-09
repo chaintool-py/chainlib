@@ -28,6 +28,7 @@ class GasTxFactory(TxFactory):
 
     def create(self, sender, recipient, value):
         tx = self.template(sender, recipient)
+        tx['value'] = value
         txe = EIP155Transaction(tx, tx['nonce'], tx['chainId'])
         self.signer.signTransaction(txe)
         tx_raw = txe.rlp_serialize()
