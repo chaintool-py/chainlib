@@ -7,10 +7,14 @@ from eth_keys import KeyAPI
 from eth_keys.backends import NativeECCBackend
 from rlp import decode as rlp_decode
 from rlp import encode as rlp_encode
+from crypto_dev_signer.eth.transaction import EIP155Transaction
 
 # local imports
 from .address import to_checksum
-from .constant import MINIMUM_FEE_UNITS
+from .constant import (
+        MINIMUM_FEE_UNITS,
+        MINIMUM_FEE_PRICE,
+        )
 
 logg = logging.getLogger(__name__)
 
@@ -84,7 +88,7 @@ def unpack_signed(tx_raw_bytes, chain_id=1):
 
 class TxFactory:
 
-    def __init__(self, signer, gas_oracle, nonce_oracle, chain_id=1):
+    def __init__(self, signer=None, gas_oracle=None, nonce_oracle=None, chain_id=1):
         self.gas_oracle = gas_oracle
         self.nonce_oracle = nonce_oracle
         self.chain_id = chain_id
@@ -92,9 +96,13 @@ class TxFactory:
 
 
     def template(self, sender, recipient):
-        gas_price = self.gas_oracle.get()
+        gas_price = MINIMUM_FEE_PRICE
+        if self.gas_oracle != None:
+            gas_price = self.gas_oracle.get()
         logg.debug('using gas price {}'.format(gas_price))
-        nonce = self.nonce_oracle.next()
+        nonce = 0
+        if self.nonce_oracle != None:
+            nonce = self.nonce_oracle.next()
         logg.debug('using nonce {} for address {}'.format(nonce, sender))
         return {
                 'from': sender,
@@ -106,3 +114,24 @@ class TxFactory:
                 'gas': MINIMUM_FEE_UNITS,
                 'chainId': self.chain_id,
                 }
+
+
+    def normalize(self, tx):
+        txe = EIP155Transaction(tx, tx['nonce'], tx['chainId'])
+        txes = txe.serialize()
+        print(txes)
+        return {
+            'from': tx['from'],
+            'to': txes['to'],
+            'gasPrice': txes['gasPrice'],
+            'gas': txes['gas'],
+            'data': txes['data'],
+                }
+
+
+    def set_code(self, tx, data, update_fee=True):
+        tx['data'] = data
+        if update_fee:
+            logg.debug('using hardcoded gas limit of 8000000 until we have reliable vm executor')
+            tx['gas'] = 8000000
+        return tx

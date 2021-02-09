@@ -6,7 +6,7 @@ from urllib.request import (
         )
 
 from .error import DefaultErrorParser
-from .method import jsonrpc_result
+from .rpc import jsonrpc_result
 
 error_parser = DefaultErrorParser()
 logg = logging.getLogger(__name__)

@@ -5,9 +5,7 @@ from hexathon import (
         )
 
 # local imports
-from cic_tools.eth.method import (
-        jsonrpc_template,
-        )
+from cic_tools.eth.rpc import jsonrpc_template
 
 
 def nonce(address):

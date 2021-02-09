@@ -26,14 +26,14 @@ from eth_abi import encode_single
 
 # local imports
 from cic_tools.eth.address import to_checksum
-from cic_tools.eth.method import (
+from cic_tools.eth.rpc import (
         jsonrpc_template,
-        erc20_balance,
-        erc20_decimals,
         jsonrpc_result,
         )
+from cic_tools.eth.erc20 import ERC20TxFactory
 from cic_tools.eth.connection import HTTPConnection
-
+from cic_tools.eth.nonce import DefaultNonceOracle
+from cic_tools.eth.gas import DefaultGasOracle
 
 logging.basicConfig(level=logging.WARNING)
 logg = logging.getLogger()
@@ -55,22 +55,25 @@ if args.v:
     logg.setLevel(logging.DEBUG)
 
 conn = HTTPConnection(args.p)
+gas_oracle = DefaultGasOracle(conn)
+
 
 def main():
     account = to_checksum(args.account)
     if not args.u and account != add_0x(args.account):
         raise ValueError('invalid checksum address')
-    
+
     r = None
     decimals = 18
     if args.t != None:
+        g = ERC20TxFactory()
         # determine decimals
-        decimals_o = erc20_decimals(args.t)
+        decimals_o = g.erc20_decimals(args.t)
         r = conn.do(decimals_o)
         decimals = int(strip_0x(r), 16)
 
         # get balance
-        balance_o = erc20_balance(args.t, account)
+        balance_o = g.erc20_balance(args.t, account)
         r = conn.do(balance_o)
 
     else:
