@@ -1,6 +1,7 @@
 - 0.0.1
 	* Add eth tx decode
-	* Add eth balance query
+	* Add eth balance query with erc20 option
 	* Add eth checksum address
 	* Add eth subscribe monitor
-	* Add gas send script
+	* Add eth erc20 transfer script
+	* Add eth gas send script
