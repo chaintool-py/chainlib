@@ -13,3 +13,4 @@ hexathon==0.0.1a2
 eth-abi==2.1.1
 eth-keys==0.3.3
 websocket-client==0.57.0
+redis==3.5.3

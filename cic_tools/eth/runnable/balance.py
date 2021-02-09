@@ -57,9 +57,6 @@ if args.v:
 conn = HTTPConnection(args.p)
 
 def main():
-#    w3 = web3.Web3(web3.Web3.HTTPProvider(args.p))
-# REPLACE WITH URLLIB
-  
     account = to_checksum(args.account)
     if not args.u and account != add_0x(args.account):
         raise ValueError('invalid checksum address')

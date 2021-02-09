@@ -10,6 +10,7 @@ from rlp import encode as rlp_encode
 
 # local imports
 from .address import to_checksum
+from .constant import MINIMUM_FEE_UNITS
 
 logg = logging.getLogger(__name__)
 
@@ -81,3 +82,27 @@ def unpack_signed(tx_raw_bytes, chain_id=1):
             }
 
 
+class TxFactory:
+
+    def __init__(self, signer, gas_oracle, nonce_oracle, chain_id=1):
+        self.gas_oracle = gas_oracle
+        self.nonce_oracle = nonce_oracle
+        self.chain_id = chain_id
+        self.signer = signer
+
+
+    def template(self, sender, recipient):
+        gas_price = self.gas_oracle.get()
+        logg.debug('using gas price {}'.format(gas_price))
+        nonce = self.nonce_oracle.next()
+        logg.debug('using nonce {} for address {}'.format(nonce, sender))
+        return {
+                'from': sender,
+                'to': recipient,
+                'value': 0,
+                'data': '0x',
+                'nonce': nonce,
+                'gasPrice': gas_price,
+                'gas': MINIMUM_FEE_UNITS,
+                'chainId': self.chain_id,
+                }
