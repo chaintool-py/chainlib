@@ -5,7 +5,7 @@ from eth_abi import encode_single
 from crypto_dev_signer.eth.transaction import EIP155Transaction
 
 # local imports
-from .hash import (
+from chainlib.hash import (
         keccak256_hex_to_hex,
         keccak256_string_to_hex,
         )

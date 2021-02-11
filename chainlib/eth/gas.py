@@ -8,7 +8,7 @@ from crypto_dev_signer.eth.transaction import EIP155Transaction
 # local imports
 from chainlib.eth.rpc import jsonrpc_template
 from chainlib.eth.tx import TxFactory
-from chainlib.eth.hash import keccak256_hex_to_hex
+from chainlib.hash import keccak256_hex_to_hex
 
 
 def price():

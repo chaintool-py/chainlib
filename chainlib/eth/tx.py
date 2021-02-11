@@ -15,6 +15,7 @@ from .address import to_checksum
 from .constant import (
         MINIMUM_FEE_UNITS,
         MINIMUM_FEE_PRICE,
+        ZERO_ADDRESS,
         )
 
 logg = logging.getLogger(__name__)
@@ -142,10 +143,31 @@ class Tx:
 
     def __init__(self, src, block):
         self.index = int(strip_0x(src['transactionIndex']), 16)
-        self.nonce = src['nonce']
-        self.hash = src['hash']
+        self.value = int(strip_0x(src['value']), 16)
+        self.nonce = int(strip_0x(src['nonce']), 16)
+        self.hash = strip_0x(src['hash'])
+        self.outputs = [strip_0x(src['from'])]
+
+        inpt = src['input']
+        if inpt != '0x':
+            inpt = strip_0x(inpt)
+        else:
+            inpt = None
+        self.payload = inpt
+
+        to = src['to']
+        if to == None:
+            to = ZERO_ADDRESS
+        self.inputs = [strip_0x(to)]
+
         self.block = block
+        self.wire = src['raw']
+        self.src = src
+
+
+    def __repr__(self):
+        return 'block {} tx {} {}'.format(self.block.number, self.index, self.hash)
 
 
     def __str__(self):
-        return 'block {} tx {} {}'.format(self.block.number, self.index, self.hash)
+        return 'from {} to {} value {} input {}'.format(self.outputs[0], self.inputs[0], self.value, self.payload)
