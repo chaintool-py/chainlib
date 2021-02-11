@@ -3,20 +3,26 @@ import logging
 
 # third-party imports
 import sha3
-from hexathon import strip_0x
+from hexathon import (
+        strip_0x,
+        add_0x,
+        )
 from eth_keys import KeyAPI
 from eth_keys.backends import NativeECCBackend
 from rlp import decode as rlp_decode
 from rlp import encode as rlp_encode
 from crypto_dev_signer.eth.transaction import EIP155Transaction
 
+
 # local imports
+from chainlib.hash import keccak256_hex_to_hex
 from .address import to_checksum
 from .constant import (
         MINIMUM_FEE_UNITS,
         MINIMUM_FEE_PRICE,
         ZERO_ADDRESS,
         )
+from .rpc import jsonrpc_template
 
 logg = logging.getLogger(__name__)
 
@@ -97,6 +103,20 @@ class TxFactory:
         self.signer = signer
 
 
+    def build(self, tx):
+        txe = EIP155Transaction(tx, tx['nonce'], tx['chainId'])
+        self.signer.signTransaction(txe)
+        tx_raw = txe.rlp_serialize()
+        tx_raw_hex = add_0x(tx_raw.hex())
+        tx_hash_hex = add_0x(keccak256_hex_to_hex(tx_raw_hex))
+
+        o = jsonrpc_template()
+        o['method'] = 'eth_sendRawTransaction'
+        o['params'].append(tx_raw_hex)
+
+        return (tx_hash_hex, o)
+
+
     def template(self, sender, recipient):
         gas_price = MINIMUM_FEE_PRICE
         if self.gas_oracle != None:
@@ -121,7 +141,6 @@ class TxFactory:
     def normalize(self, tx):
         txe = EIP155Transaction(tx, tx['nonce'], tx['chainId'])
         txes = txe.serialize()
-        print(txes)
         return {
             'from': tx['from'],
             'to': txes['to'],
@@ -141,12 +160,18 @@ class TxFactory:
 
 class Tx:
 
-    def __init__(self, src, block):
-        self.index = int(strip_0x(src['transactionIndex']), 16)
+    def __init__(self, src, block=None):
+        self.index = -1
+        self.status = -1
+        if block != None:
+            self.index = int(strip_0x(src['transactionIndex']), 16)
         self.value = int(strip_0x(src['value']), 16)
         self.nonce = int(strip_0x(src['nonce']), 16)
         self.hash = strip_0x(src['hash'])
-        self.outputs = [strip_0x(src['from'])]
+        address_from = strip_0x(src['from'])
+        self.gasPrice = int(strip_0x(src['gasPrice']), 16)
+        self.gasLimit = int(strip_0x(src['gas']), 16)
+        self.outputs = [to_checksum(address_from)]
 
         inpt = src['input']
         if inpt != '0x':
@@ -158,7 +183,7 @@ class Tx:
         to = src['to']
         if to == None:
             to = ZERO_ADDRESS
-        self.inputs = [strip_0x(to)]
+        self.inputs = [to_checksum(strip_0x(to))]
 
         self.block = block
         self.wire = src['raw']
@@ -170,4 +195,18 @@ class Tx:
 
 
     def __str__(self):
-        return 'from {} to {} value {} input {}'.format(self.outputs[0], self.inputs[0], self.value, self.payload)
+        return """from {}
+to {}
+value {}
+nonce {}
+gasPrice {}
+gasLimit {}
+input {}""".format(
+        self.outputs[0],
+        self.inputs[0],
+        self.value,
+        self.nonce,
+        self.gasPrice,
+        self.gasLimit,
+        self.payload,
+        )

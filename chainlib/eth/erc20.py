@@ -22,19 +22,7 @@ erc20_transfer_signature = keccak256_string_to_hex('transfer(address,uint256)')[
 
 class ERC20TxFactory(TxFactory):
 
-    def build(self, tx):
-        txe = EIP155Transaction(tx, tx['nonce'], tx['chainId'])
-        self.signer.signTransaction(txe)
-        tx_raw = txe.rlp_serialize()
-        tx_raw_hex = add_0x(tx_raw.hex())
-        tx_hash_hex = add_0x(keccak256_hex_to_hex(tx_raw_hex))
-
-        o = jsonrpc_template()
-        o['method'] = 'eth_sendRawTransaction'
-        o['params'].append(tx_raw_hex)
-
-        return (tx_hash_hex, o)
-
+    
 
     def erc20_balance(self, contract_address, address, sender_address=ZERO_ADDRESS):
         o = jsonrpc_template()

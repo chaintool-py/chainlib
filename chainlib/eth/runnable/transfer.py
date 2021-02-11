@@ -18,7 +18,6 @@ import logging
 # third-party imports
 from crypto_dev_signer.eth.signer import ReferenceSigner as EIP155Signer
 from crypto_dev_signer.keystore import DictKeystore
-from crypto_dev_signer.eth.helper import EthTxExecutor
 from hexathon import (
         add_0x,
         strip_0x,

@@ -7,7 +7,7 @@ from hexathon import (
         even,
         )
 
-def block():
+def block_latest():
     o = jsonrpc_template()
     o['method'] = 'eth_blockNumber'
     return o

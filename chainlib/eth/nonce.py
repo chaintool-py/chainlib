@@ -21,10 +21,17 @@ class DefaultNonceOracle:
     def __init__(self, address, conn):
         self.address = address
         self.conn = conn
+        self.nonce = self.get()
 
 
-    def next(self):
+    def get(self):
         o = nonce(self.address)
         r = self.conn.do(o)
         n = strip_0x(r)
         return int(n, 16)
+
+
+    def next(self):
+        n = self.nonce
+        self.nonce += 1
+        return n
