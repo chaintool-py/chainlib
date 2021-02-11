@@ -16,7 +16,7 @@ import argparse
 import logging
 
 # third-party imports
-from cic_tools.eth.tx import unpack_signed
+from chainlib.eth.tx import unpack_signed
 
 
 logging.basicConfig(level=logging.WARNING)

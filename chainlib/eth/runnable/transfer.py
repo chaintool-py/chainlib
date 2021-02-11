@@ -25,12 +25,12 @@ from hexathon import (
         )
 
 # local imports
-from cic_tools.eth.address import to_checksum
-from cic_tools.eth.connection import HTTPConnection
-from cic_tools.eth.rpc import jsonrpc_template
-from cic_tools.eth.nonce import DefaultNonceOracle
-from cic_tools.eth.gas import DefaultGasOracle
-from cic_tools.eth.erc20 import ERC20TxFactory
+from chainlib.eth.address import to_checksum
+from chainlib.eth.connection import HTTPConnection
+from chainlib.eth.rpc import jsonrpc_template
+from chainlib.eth.nonce import DefaultNonceOracle
+from chainlib.eth.gas import DefaultGasOracle
+from chainlib.eth.erc20 import ERC20TxFactory
 
 
 logging.basicConfig(level=logging.WARNING)

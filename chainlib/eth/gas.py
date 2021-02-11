@@ -6,9 +6,9 @@ from hexathon import (
 from crypto_dev_signer.eth.transaction import EIP155Transaction
 
 # local imports
-from cic_tools.eth.rpc import jsonrpc_template
-from cic_tools.eth.tx import TxFactory
-from cic_tools.eth.hash import keccak256_hex_to_hex
+from chainlib.eth.rpc import jsonrpc_template
+from chainlib.eth.tx import TxFactory
+from chainlib.eth.hash import keccak256_hex_to_hex
 
 
 def price():

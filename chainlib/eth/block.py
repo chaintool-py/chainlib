@@ -1,4 +1,4 @@
-from cic_tools.eth.rpc import jsonrpc_template
+from chainlib.eth.rpc import jsonrpc_template
 
 
 def block(self):

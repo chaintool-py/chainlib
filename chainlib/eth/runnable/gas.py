@@ -25,15 +25,15 @@ from hexathon import (
         )
 
 # local imports
-from cic_tools.eth.address import to_checksum
-from cic_tools.eth.connection import HTTPConnection
-from cic_tools.eth.rpc import jsonrpc_template
-from cic_tools.eth.nonce import DefaultNonceOracle
-from cic_tools.eth.gas import (
+from chainlib.eth.address import to_checksum
+from chainlib.eth.connection import HTTPConnection
+from chainlib.eth.rpc import jsonrpc_template
+from chainlib.eth.nonce import DefaultNonceOracle
+from chainlib.eth.gas import (
         DefaultGasOracle,
         GasTxFactory,
         )
-from cic_tools.eth.gas import balance as gas_balance
+from chainlib.eth.gas import balance as gas_balance
 
 logging.basicConfig(level=logging.WARNING)
 logg = logging.getLogger()
