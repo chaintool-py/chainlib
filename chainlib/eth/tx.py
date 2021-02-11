@@ -3,6 +3,7 @@ import logging
 
 # third-party imports
 import sha3
+from hexathon import strip_0x
 from eth_keys import KeyAPI
 from eth_keys.backends import NativeECCBackend
 from rlp import decode as rlp_decode
@@ -135,3 +136,16 @@ class TxFactory:
             logg.debug('using hardcoded gas limit of 8000000 until we have reliable vm executor')
             tx['gas'] = 8000000
         return tx
+
+
+class Tx:
+
+    def __init__(self, src, block):
+        self.index = int(strip_0x(src['transactionIndex']), 16)
+        self.nonce = src['nonce']
+        self.hash = src['hash']
+        self.block = block
+
+
+    def __str__(self):
+        return 'block {} tx {} {}'.format(self.block.number, self.index, self.hash)
