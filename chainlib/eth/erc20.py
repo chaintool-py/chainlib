@@ -1,7 +1,6 @@
 # third-party imports
 import sha3
 from hexathon import add_0x
-from eth_abi import encode_single
 from crypto_dev_signer.eth.transaction import EIP155Transaction
 
 # local imports
@@ -12,6 +11,7 @@ from chainlib.hash import (
 from .constant import ZERO_ADDRESS
 from .rpc import jsonrpc_template
 from .tx import TxFactory
+from .encoding import abi_encode
         
 
 # TODO: move to cic-contracts
@@ -21,14 +21,13 @@ erc20_transfer_signature = keccak256_string_to_hex('transfer(address,uint256)')[
 
 
 class ERC20TxFactory(TxFactory):
-
     
 
     def erc20_balance(self, contract_address, address, sender_address=ZERO_ADDRESS):
         o = jsonrpc_template()
         o['method'] = 'eth_call'
         data = erc20_balance_signature
-        data += encode_single('address', address).hex()
+        data += abi_encode('address', address).hex()
         data = add_0x(data)
         tx = self.template(sender_address, contract_address)
         tx = self.set_code(tx, data)
@@ -50,8 +49,8 @@ class ERC20TxFactory(TxFactory):
 
     def erc20_transfer(self, contract_address, sender_address, recipient_address, value):
         data = erc20_transfer_signature
-        data += encode_single('address', recipient_address).hex()
-        data += encode_single('uint256', value).hex()
+        data += abi_encode('address', recipient_address).hex()
+        data += abi_encode('uint256', value).hex()
         data = add_0x(data)
         tx = self.template(sender_address, contract_address)
         tx = self.set_code(tx, data)
