@@ -135,7 +135,7 @@ class TxFactory:
         if self.nonce_oracle != None and use_nonce:
             nonce = self.nonce_oracle.next()
             logg.debug('using nonce {} for address {}'.format(nonce, sender))
-            o['nonce'] = nonce
+        o['nonce'] = nonce
         return o
 
 
