@@ -52,6 +52,6 @@ class ERC20TxFactory(TxFactory):
         data += abi_encode('address', recipient_address).hex()
         data += abi_encode('uint256', value).hex()
         data = add_0x(data)
-        tx = self.template(sender_address, contract_address)
+        tx = self.template(sender_address, contract_address, use_nonce=True)
         tx = self.set_code(tx, data)
         return self.build(tx)

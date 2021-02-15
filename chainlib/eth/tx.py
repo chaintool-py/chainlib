@@ -117,25 +117,26 @@ class TxFactory:
         return (tx_hash_hex, o)
 
 
-    def template(self, sender, recipient):
+    def template(self, sender, recipient, use_nonce=False):
         gas_price = MINIMUM_FEE_PRICE
         if self.gas_oracle != None:
             gas_price = self.gas_oracle.get()
         logg.debug('using gas price {}'.format(gas_price))
         nonce = 0
-        if self.nonce_oracle != None:
-            nonce = self.nonce_oracle.next()
-        logg.debug('using nonce {} for address {}'.format(nonce, sender))
-        return {
+        o = {
                 'from': sender,
                 'to': recipient,
                 'value': 0,
                 'data': '0x',
-                'nonce': nonce,
                 'gasPrice': gas_price,
                 'gas': MINIMUM_FEE_UNITS,
                 'chainId': self.chain_id,
                 }
+        if self.nonce_oracle != None and use_nonce:
+            nonce = self.nonce_oracle.next()
+            logg.debug('using nonce {} for address {}'.format(nonce, sender))
+            o['nonce'] = nonce
+        return o
 
 
     def normalize(self, tx):
