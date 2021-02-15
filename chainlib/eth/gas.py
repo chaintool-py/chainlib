@@ -27,7 +27,7 @@ def balance(address):
 class GasTxFactory(TxFactory):
 
     def create(self, sender, recipient, value):
-        tx = self.template(sender, recipient)
+        tx = self.template(sender, recipient, use_nonce=True)
         tx['value'] = value
         txe = EIP155Transaction(tx, tx['nonce'], tx['chainId'])
         self.signer.signTransaction(txe)
