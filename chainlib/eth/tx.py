@@ -39,7 +39,7 @@ field_debugs = [
         's',
         ]
 
-def unpack_signed(tx_raw_bytes, chain_id=1):
+def unpack(tx_raw_bytes, chain_id=1):
     d = rlp_decode(tx_raw_bytes)
 
     logg.debug('decoding using chain id {}'.format(chain_id))
@@ -94,6 +94,13 @@ def unpack_signed(tx_raw_bytes, chain_id=1):
             }
 
 
+def receipt(hsh):
+    o = jsonrpc_template()
+    o['method'] = 'eth_getTransactionReceipt'
+    o['params'].append(hsh)
+    return o
+
+
 class TxFactory:
 
     def __init__(self, signer=None, gas_oracle=None, nonce_oracle=None, chain_id=1):
@@ -103,12 +110,16 @@ class TxFactory:
         self.signer = signer
 
 
-    def build(self, tx):
+    def build_raw(self, tx):
         txe = EIP155Transaction(tx, tx['nonce'], tx['chainId'])
         self.signer.signTransaction(txe)
         tx_raw = txe.rlp_serialize()
         tx_raw_hex = add_0x(tx_raw.hex())
         tx_hash_hex = add_0x(keccak256_hex_to_hex(tx_raw_hex))
+        return (tx_hash_hex, tx_raw_hex)
+
+    def build(self, tx):
+        (tx_hash_hex, tx_raw_hex) = self.build_raw(tx) 
 
         o = jsonrpc_template()
         o['method'] = 'eth_sendRawTransaction'

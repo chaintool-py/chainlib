@@ -1,8 +1,8 @@
-cryptocurrency-cli-tools==0.0.4
+cryptocurrency-cli-tools~=0.0.4
 faker==4.17.1
 crypto-dev-signer~=0.4.13rc2
 pysha3==1.0.2
-hexathon==0.0.1a2
+hexathon~=0.0.1a3
 eth-abi==2.1.1
 eth-keys==0.3.3
 websocket-client==0.57.0

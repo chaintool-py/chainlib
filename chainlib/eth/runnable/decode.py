@@ -16,7 +16,7 @@ import argparse
 import logging
 
 # third-party imports
-from chainlib.eth.tx import unpack_signed
+from chainlib.eth.tx import unpack
 
 
 logging.basicConfig(level=logging.WARNING)
@@ -42,7 +42,7 @@ def main():
     if tx_raw[:2] == '0x':
         tx_raw = tx_raw[2:]
     tx_raw_bytes = bytes.fromhex(tx_raw)
-    tx = unpack_signed(tx_raw_bytes, int(chain_id))
+    tx = unpack(tx_raw_bytes, int(chain_id))
     for k in tx.keys():
         print('{}: {}'.format(k, tx[k]))
 
