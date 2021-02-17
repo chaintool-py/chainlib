@@ -35,3 +35,15 @@ class DefaultNonceOracle:
         n = self.nonce
         self.nonce += 1
         return n
+
+
+class OverrideNonceOracle(DefaultNonceOracle):
+
+
+    def __init__(self, address, nonce):
+        self.nonce = nonce
+        super(OverrideNonceOracle, self).__init__(address, None)
+
+
+    def get(self):
+        return self.nonce

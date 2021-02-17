@@ -6,9 +6,12 @@ from hexathon import (
 from crypto_dev_signer.eth.transaction import EIP155Transaction
 
 # local imports
+from chainlib.hash import keccak256_hex_to_hex
 from chainlib.eth.rpc import jsonrpc_template
 from chainlib.eth.tx import TxFactory
-from chainlib.hash import keccak256_hex_to_hex
+from chainlib.eth.constant import (
+        MINIMUM_FEE_UNITS,
+    )
 
 
 def price():
@@ -48,8 +51,20 @@ class DefaultGasOracle:
         self.conn = conn
 
 
-    def get(self):
+    def get(self, code=None):
         o = price()
         r = self.conn.do(o)
         n = strip_0x(r)
-        return int(n, 16)
+        return (int(n, 16), MINIMUM_FEE_UNITS)
+
+
+class OverrideGasOracle:
+
+    def __init__(self, price, limit=None):
+        if limit == None:
+            limit = MINIMUM_FEE_UNITS
+        self.limit = limit
+        self.price = price
+
+    def get(self):
+        return (self.price, self.limit)

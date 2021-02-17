@@ -44,7 +44,15 @@ def main():
     tx_raw_bytes = bytes.fromhex(tx_raw)
     tx = unpack(tx_raw_bytes, int(chain_id))
     for k in tx.keys():
-        print('{}: {}'.format(k, tx[k]))
+        x = None
+        if k == 'value':
+            x = '{:.18f} eth'.format(tx[k] / (10**18))
+        elif k == 'gasPrice':
+            x = '{} gwei'.format(int(tx[k] / (10**12)))
+        if x != None:
+            print('{}: {} ({})'.format(k, tx[k], x))
+        else:
+            print('{}: {}'.format(k, tx[k]))
 
 
 if __name__ == '__main__':

@@ -130,9 +130,10 @@ class TxFactory:
 
     def template(self, sender, recipient, use_nonce=False):
         gas_price = MINIMUM_FEE_PRICE
+        gas_limit = MINIMUM_FEE_UNITS
         if self.gas_oracle != None:
-            gas_price = self.gas_oracle.get()
-        logg.debug('using gas price {}'.format(gas_price))
+            (gas_price, gas_limit) = self.gas_oracle.get()
+        logg.debug('using gas price {} limit {}'.format(gas_price, gas_limit))
         nonce = 0
         o = {
                 'from': sender,
@@ -140,7 +141,7 @@ class TxFactory:
                 'value': 0,
                 'data': '0x',
                 'gasPrice': gas_price,
-                'gas': MINIMUM_FEE_UNITS,
+                'gas': gas_limit,
                 'chainId': self.chain_id,
                 }
         if self.nonce_oracle != None and use_nonce:

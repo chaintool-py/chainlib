@@ -48,6 +48,7 @@ argparser.add_argument('--token-address', required='True', dest='t', type=str, h
 argparser.add_argument('-a', '--sender-address', dest='s', type=str, help='Sender account address')
 argparser.add_argument('-y', '--key-file', dest='y', type=str, help='Ethereum keystore file to use for signing')
 argparser.add_argument('--abi-dir', dest='abi_dir', type=str, default=default_abi_dir, help='Directory containing bytecode and abi (default {})'.format(default_abi_dir))
+argparser.add_argument('--env-prefix', default=os.environ.get('CONFINI_ENV_PREFIX'), dest='env_prefix', type=str, help='environment prefix for variables to overwrite configuration')
 argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Auto-convert address to checksum adddress')
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
@@ -63,6 +64,14 @@ elif args.v:
 
 block_all = args.ww 
 block_last = args.w or block_all
+
+passphrase_env = 'ETH_PASSPHRASE'
+if args.env_prefix != None:
+    passphrase_env = args.env_prefix + '_' + passphrase_env
+passphrase = os.environ.get(passphrase_env)
+logg.error('pass {}'.format(passphrase_env))
+if passphrase == None:
+    logg.warning('no passphrase given')
 
 signer_address = None
 keystore = DictKeystore()

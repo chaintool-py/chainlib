@@ -51,6 +51,4 @@ class Block:
 
 
     def __str__(self):
-        return 'block {} {}'.format(self.number, self.hash)
-
-
+        return 'block {} {} ({} txs)'.format(self.number, self.hash, len(self.txs))
