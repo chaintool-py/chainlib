@@ -30,6 +30,7 @@ from chainlib.eth.rpc import jsonrpc_template
 from chainlib.eth.nonce import DefaultNonceOracle
 from chainlib.eth.gas import DefaultGasOracle
 from chainlib.eth.erc20 import ERC20TxFactory
+from chainlib.chain import ChainSpec
 
 
 logging.basicConfig(level=logging.WARNING)
@@ -85,8 +86,8 @@ conn = HTTPConnection(args.p)
 nonce_oracle = DefaultNonceOracle(signer_address, conn)
 gas_oracle = DefaultGasOracle(conn)
 
-chain_pair = args.i.split(':')
-chain_id = int(chain_pair[1])
+chain_spec = ChainSpec.from_chain_str(args.i)
+chain_id = chain_spec.network_id()
 
 value = args.amount
 

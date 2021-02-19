@@ -17,6 +17,7 @@ import logging
 
 # third-party imports
 from chainlib.eth.tx import unpack
+from chainlib.chain import ChainSpec
 
 
 logging.basicConfig(level=logging.WARNING)
@@ -34,7 +35,8 @@ args = argparser.parse_args()
 if args.v:
     logg.setLevel(logging.DEBUG)
 
-(chain_name, chain_id) = args.i.split(':')
+chain_spec = ChainSpec.from_chain_str(args.i)
+chain_id = chain_spec.network_id()
 
 
 def main():
