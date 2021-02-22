@@ -88,7 +88,7 @@ def main():
 
     balance_str = str(balance)
     balance_len = len(balance_str)
-    if balance_len < 19:
+    if balance_len < decimals + 1:
         print('0.{}'.format(balance_str.zfill(decimals)))
     else:
         offset = balance_len-decimals

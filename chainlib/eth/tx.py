@@ -16,6 +16,7 @@ from crypto_dev_signer.eth.transaction import EIP155Transaction
 
 # local imports
 from chainlib.hash import keccak256_hex_to_hex
+from chainlib.status import Status
 from .address import to_checksum
 from .constant import (
         MINIMUM_FEE_UNITS,
@@ -97,7 +98,7 @@ def unpack(tx_raw_bytes, chain_id=1):
 def receipt(hsh):
     o = jsonrpc_template()
     o['method'] = 'eth_getTransactionReceipt'
-    o['params'].append(hsh)
+    o['params'].append(add_0x(hsh))
     return o
 
 
@@ -173,9 +174,8 @@ class TxFactory:
 
 class Tx:
 
-    def __init__(self, src, block=None):
+    def __init__(self, src, block=None, rcpt=None):
         self.index = -1
-        self.status = -1
         if block != None:
             self.index = int(strip_0x(src['transactionIndex']), 16)
         self.value = int(strip_0x(src['value']), 16)
@@ -201,6 +201,20 @@ class Tx:
         self.block = block
         self.wire = src['raw']
         self.src = src
+
+        self.status = Status.PENDING
+        self.logs = None
+
+        if rcpt != None:
+            self.apply_receipt(rcpt)
+   
+
+    def apply_receipt(self, rcpt):
+        if rcpt['status'] == 1:
+            self.status = Status.SUCCESS
+        elif rcpt['status'] == 0:
+            self.status = Status.PENDING
+        self.logs = rcpt['logs']
 
 
     def __repr__(self):
