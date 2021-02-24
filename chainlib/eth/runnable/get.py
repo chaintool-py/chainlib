@@ -73,6 +73,7 @@ def main():
 
     tx = None
     status = -1
+    rcpt = None
     if tx_src['blockHash'] != None:
         o = jsonrpc_template()
         o['method'] = 'eth_getBlockByHash'
@@ -88,13 +89,13 @@ def main():
         o['method'] = 'eth_getTransactionReceipt'
         o['params'].append(tx_hash)
         rcpt = conn.do(o)
-        status = int(strip_0x(rcpt['status']), 16)
+        #status = int(strip_0x(rcpt['status']), 16)
 
     if tx == None:
         tx = Tx(tx_src)
+    if rcpt != None:
+        tx.apply_receipt(rcpt)
     print(tx)
-    status_name = Status(status).name
-    print('status {}'.format(status_name))
 
 
 if __name__ == '__main__':

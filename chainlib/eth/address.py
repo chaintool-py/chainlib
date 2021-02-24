@@ -6,9 +6,29 @@ from hexathon import (
     )
 
 
+def is_address(address_hex):
+    try:
+        address_hex = strip_0x(address_hex)    
+    except ValueError:
+        return False
+    return len(address_hex) == 40
+
+
+def is_checksum_address(address_hex):
+    hx = None
+    try:
+        hx = to_checksum(address_hex)
+    except ValueError:
+        return False
+    print('{} {}'.format(hx, address_hex))
+    return hx == address_hex
+
+
 def to_checksum(address_hex):
         address_hex = strip_0x(address_hex)
         address_hex = uniform(address_hex)
+        if len(address_hex) != 40:
+            raise ValueError('Invalid address length')
         h = sha3.keccak_256()
         h.update(address_hex.encode('utf-8'))
         z = h.digest()

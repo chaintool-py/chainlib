@@ -44,6 +44,7 @@ class HTTPConnection:
         logg.debug('(HTTP) send {}'.format(data))
         res = urlopen(req, data=data.encode('utf-8'))
         o = json.load(res)
+        logg.debug('(HTTP) recv {}'.format(o))
         return jsonrpc_result(o, error_parser)
 
     

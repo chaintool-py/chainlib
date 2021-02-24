@@ -112,6 +112,8 @@ class TxFactory:
 
 
     def build_raw(self, tx):
+        if tx['to'] == None or tx['to'] == '':
+            tx['to'] = '0x'
         txe = EIP155Transaction(tx, tx['nonce'], tx['chainId'])
         self.signer.signTransaction(txe)
         tx_raw = txe.rlp_serialize()
