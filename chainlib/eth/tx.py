@@ -210,10 +210,11 @@ class Tx:
    
 
     def apply_receipt(self, rcpt):
-        if rcpt['status'] == 1:
+        status_number = int(strip_0x(rcpt['status']))
+        if status_number == 1:
             self.status = Status.SUCCESS
-        elif rcpt['status'] == 0:
-            self.status = Status.PENDING
+        elif status_number == 0:
+            self.status = Status.ERROR
         self.logs = rcpt['logs']
 
 
@@ -222,13 +223,17 @@ class Tx:
 
 
     def __str__(self):
-        return """from {}
+        return """hash {}
+from {}
 to {}
 value {}
 nonce {}
 gasPrice {}
 gasLimit {}
-input {}""".format(
+input {}
+status {}
+""".format(
+        self.hash,
         self.outputs[0],
         self.inputs[0],
         self.value,
@@ -236,4 +241,5 @@ input {}""".format(
         self.gasPrice,
         self.gasLimit,
         self.payload,
+        self.status.name,
         )
