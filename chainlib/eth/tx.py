@@ -1,17 +1,18 @@
 # standard imports
 import logging
+import enum
 
-# third-party imports
+# external imports
+import coincurve
 import sha3
 from hexathon import (
         strip_0x,
         add_0x,
         )
-from eth_keys import KeyAPI
-from eth_keys.backends import NativeECCBackend
 from rlp import decode as rlp_decode
 from rlp import encode as rlp_encode
 from crypto_dev_signer.eth.transaction import EIP155Transaction
+from crypto_dev_signer.encoding import public_key_to_address
 
 
 # local imports
@@ -23,10 +24,20 @@ from .constant import (
         MINIMUM_FEE_PRICE,
         ZERO_ADDRESS,
         )
-from .rpc import jsonrpc_template
+from chainlib.jsonrpc import jsonrpc_template
 
-logg = logging.getLogger(__name__)
+logg = logging.getLogger().getChild(__name__)
 
+
+class TxFormat(enum.IntEnum):
+    DICT = 0x00
+    RAW = 0x01
+    RAW_SIGNED = 0x02
+    RAW_ARGS = 0x03
+    RLP = 0x10
+    RLP_SIGNED = 0x11
+    JSONRPC = 0x10
+     
 
 field_debugs = [
         'nonce',
@@ -40,20 +51,65 @@ field_debugs = [
         's',
         ]
 
-def unpack(tx_raw_bytes, chain_id=1):
+def count(address, confirmed=False):
+    o = jsonrpc_template()
+    o['method'] = 'eth_getTransactionCount'
+    o['params'].append(address)
+    if confirmed:
+        o['params'].append('latest')
+    else:
+        o['params'].append('pending')
+    return o
+
+count_pending = count
+
+def count_confirmed(address):
+    return count(address, True)
+
+
+def unpack(tx_raw_bytes, chain_spec):
+    chain_id = chain_spec.chain_id()
+    tx = __unpack_raw(tx_raw_bytes, chain_id)
+    tx['nonce'] = int.from_bytes(tx['nonce'], 'big')
+    tx['gasPrice'] = int.from_bytes(tx['gasPrice'], 'big')
+    tx['gas'] = int.from_bytes(tx['gas'], 'big')
+    tx['value'] = int.from_bytes(tx['value'], 'big')
+    return tx
+
+
+def unpack_hex(tx_raw_bytes, chain_spec):
+    chain_id = chain_spec.chain_id()
+    tx = __unpack_raw(tx_raw_bytes, chain_id)
+    tx['nonce'] = add_0x(hex(tx['nonce']))
+    tx['gasPrice'] = add_0x(hex(tx['gasPrice']))
+    tx['gas'] = add_0x(hex(tx['gas']))
+    tx['value'] = add_0x(hex(tx['value']))
+    tx['chainId'] = add_0x(hex(tx['chainId']))
+    return tx
+
+
+def __unpack_raw(tx_raw_bytes, chain_id=1):
     d = rlp_decode(tx_raw_bytes)
 
-    logg.debug('decoding using chain id {}'.format(chain_id))
+    logg.debug('decoding using chain id {}'.format(str(chain_id)))
+    
     j = 0
     for i in d:
-        logg.debug('decoded {}: {}'.format(field_debugs[j], i.hex()))
+        v = i.hex()
+        if j != 3 and v == '':
+            v = '00'
+        logg.debug('decoded {}: {}'.format(field_debugs[j], v))
         j += 1
     vb = chain_id
     if chain_id != 0:
         v = int.from_bytes(d[6], 'big')
         vb = v - (chain_id * 2) - 35
-    s = b''.join([d[7], d[8], bytes([vb])])
-    so = KeyAPI.Signature(signature_bytes=s)
+    r = bytearray(32)
+    r[32-len(d[7]):] = d[7]
+    s = bytearray(32)
+    s[32-len(d[8]):] = d[8]
+    sig = b''.join([r, s, bytes([vb])])
+    #so = KeyAPI.Signature(signature_bytes=sig)
 
     h = sha3.keccak_256()
     h.update(rlp_encode(d))
@@ -67,8 +123,10 @@ def unpack(tx_raw_bytes, chain_id=1):
     h.update(rlp_encode(d))
     unsigned_hash = h.digest()
     
-    p = so.recover_public_key_from_msg_hash(unsigned_hash)
-    a = p.to_checksum_address()
+    #p = so.recover_public_key_from_msg_hash(unsigned_hash)
+    #a = p.to_checksum_address()
+    pubk = coincurve.PublicKey.from_signature_and_message(sig, unsigned_hash, hasher=None)
+    a = public_key_to_address(pubk)
     logg.debug('decoded recovery byte {}'.format(vb))
     logg.debug('decoded address {}'.format(a))
     logg.debug('decoded signed hash {}'.format(signed_hash.hex()))
@@ -78,21 +136,41 @@ def unpack(tx_raw_bytes, chain_id=1):
     if to != None:
         to = to_checksum(to)
 
+    data = d[5].hex()
+    try:
+        data = add_0x(data)
+    except:
+        data = '0x'
+
     return {
         'from': a,
-        'nonce': int.from_bytes(d[0], 'big'),
-        'gasPrice': int.from_bytes(d[1], 'big'),
-        'gas': int.from_bytes(d[2], 'big'),
         'to': to, 
-        'value': int.from_bytes(d[4], 'big'),
-        'data': '0x' + d[5].hex(),
+        'nonce': d[0],
+        'gasPrice': d[1],
+        'gas': d[2],
+        'value': d[4],
+        'data': data,
         'v': chain_id,
-        'r': '0x' + s[:32].hex(),
-        's': '0x' + s[32:64].hex(),
+        'r': add_0x(sig[:32].hex()),
+        's': add_0x(sig[32:64].hex()),
         'chainId': chain_id,
-        'hash': '0x' + signed_hash.hex(),
-        'hash_unsigned': '0x' + unsigned_hash.hex(),
+        'hash': add_0x(signed_hash.hex()),
+        'hash_unsigned': add_0x(unsigned_hash.hex()),
             }
+
+
+def transaction(hsh):
+    o = jsonrpc_template()
+    o['method'] = 'eth_getTransactionByHash'
+    o['params'].append(add_0x(hsh))
+    return o
+
+def transaction_by_block(hsh, idx):
+    o = jsonrpc_template()
+    o['method'] = 'eth_getTransactionByBlockHashAndIndex'
+    o['params'].append(add_0x(hsh))
+    o['params'].append(hex(idx))
+    return o
 
 
 def receipt(hsh):
@@ -102,12 +180,21 @@ def receipt(hsh):
     return o
 
 
+def raw(tx_raw_hex):
+    o = jsonrpc_template()
+    o['method'] = 'eth_sendRawTransaction'
+    o['params'].append(tx_raw_hex)
+    return o
+
+
 class TxFactory:
 
-    def __init__(self, signer=None, gas_oracle=None, nonce_oracle=None, chain_id=1):
+    fee = 8000000
+
+    def __init__(self, chain_spec, signer=None, gas_oracle=None, nonce_oracle=None):
         self.gas_oracle = gas_oracle
         self.nonce_oracle = nonce_oracle
-        self.chain_id = chain_id
+        self.chain_spec = chain_spec
         self.signer = signer
 
 
@@ -115,19 +202,15 @@ class TxFactory:
         if tx['to'] == None or tx['to'] == '':
             tx['to'] = '0x'
         txe = EIP155Transaction(tx, tx['nonce'], tx['chainId'])
-        self.signer.signTransaction(txe)
-        tx_raw = txe.rlp_serialize()
+        tx_raw = self.signer.sign_transaction_to_rlp(txe)
         tx_raw_hex = add_0x(tx_raw.hex())
         tx_hash_hex = add_0x(keccak256_hex_to_hex(tx_raw_hex))
         return (tx_hash_hex, tx_raw_hex)
 
+
     def build(self, tx):
         (tx_hash_hex, tx_raw_hex) = self.build_raw(tx) 
-
-        o = jsonrpc_template()
-        o['method'] = 'eth_sendRawTransaction'
-        o['params'].append(tx_raw_hex)
-
+        o = raw(tx_raw_hex)
         return (tx_hash_hex, o)
 
 
@@ -135,7 +218,7 @@ class TxFactory:
         gas_price = MINIMUM_FEE_PRICE
         gas_limit = MINIMUM_FEE_UNITS
         if self.gas_oracle != None:
-            (gas_price, gas_limit) = self.gas_oracle.get()
+            (gas_price, gas_limit) = self.gas_oracle.get_gas()
         logg.debug('using gas price {} limit {}'.format(gas_price, gas_limit))
         nonce = 0
         o = {
@@ -145,10 +228,10 @@ class TxFactory:
                 'data': '0x',
                 'gasPrice': gas_price,
                 'gas': gas_limit,
-                'chainId': self.chain_id,
+                'chainId': self.chain_spec.chain_id(),
                 }
         if self.nonce_oracle != None and use_nonce:
-            nonce = self.nonce_oracle.next()
+            nonce = self.nonce_oracle.next_nonce()
             logg.debug('using nonce {} for address {}'.format(nonce, sender))
         o['nonce'] = nonce
         return o
@@ -166,11 +249,22 @@ class TxFactory:
                 }
 
 
+    def finalize(self, tx, tx_format=TxFormat.JSONRPC):
+        if tx_format == TxFormat.JSONRPC:
+            return self.build(tx)
+        elif tx_format == TxFormat.RLP_SIGNED:
+            return self.build_raw(tx)
+        raise NotImplementedError('tx formatting {} not implemented'.format(tx_format))
+
+
     def set_code(self, tx, data, update_fee=True):
         tx['data'] = data
         if update_fee:
-            logg.debug('using hardcoded gas limit of 8000000 until we have reliable vm executor')
-            tx['gas'] = 8000000
+            tx['gas'] = TxFactory.fee
+            if self.gas_oracle != None:
+                (price, tx['gas']) = self.gas_oracle.get_gas(code=data)
+            else:
+                logg.debug('using hardcoded gas limit of 8000000 until we have reliable vm executor')
         return tx
 
 
@@ -187,6 +281,7 @@ class Tx:
         self.gasPrice = int(strip_0x(src['gasPrice']), 16)
         self.gasLimit = int(strip_0x(src['gas']), 16)
         self.outputs = [to_checksum(address_from)]
+        self.contract = None
 
         inpt = src['input']
         if inpt != '0x':
@@ -201,7 +296,11 @@ class Tx:
         self.inputs = [to_checksum(strip_0x(to))]
 
         self.block = block
-        self.wire = src['raw']
+        try:
+            self.wire = src['raw']
+        except KeyError:
+            logg.warning('no inline raw tx src, and no raw rendering implemented, field will be "None"')
+
         self.src = src
 
         self.status = Status.PENDING
@@ -217,6 +316,12 @@ class Tx:
             self.status = Status.SUCCESS
         elif status_number == 0:
             self.status = Status.ERROR
+        # TODO: replace with rpc receipt/transaction translator when available
+        contract_address = rcpt.get('contractAddress')
+        if contract_address == None:
+            contract_address = rcpt.get('contract_address')
+        if contract_address != None:
+            self.contract = contract_address
         self.logs = rcpt['logs']
 
 
@@ -225,7 +330,7 @@ class Tx:
 
 
     def __str__(self):
-        return """hash {}
+        s = """hash {}
 from {}
 to {}
 value {}
@@ -245,3 +350,11 @@ status {}
         self.payload,
         self.status.name,
         )
+
+        if self.contract != None:
+            s += """contract {}
+""".format(
+        self.contract,
+        )
+        return s
+
