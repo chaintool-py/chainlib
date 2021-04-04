@@ -1,3 +1,7 @@
+# standard imports
+import copy
+
+
 class ChainSpec:
 
     def __init__(self, engine, common_name, network_id, tag=None):
@@ -33,6 +37,15 @@ class ChainSpec:
         if len(o) == 4:
             tag = o[3]
         return ChainSpec(o[0], o[1], int(o[2]), tag)
+
+
+    @staticmethod
+    def from_dict(o):
+        return ChainSpec(o['engine'], o['common_name'], o['network_id'], tag=o['tag'])
+
+  
+    def asdict(self):
+        return copy.copy(self.o)
 
 
     def __str__(self):

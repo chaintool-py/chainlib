@@ -1,6 +1,12 @@
-# third-party imports
+# standard imports
+import logging
+
+# external imports
 import sha3
-from hexathon import add_0x
+from hexathon import (
+        add_0x,
+        strip_0x,
+        )
 from crypto_dev_signer.eth.transaction import EIP155Transaction
 
 # local imports
@@ -9,26 +15,33 @@ from chainlib.hash import (
         keccak256_string_to_hex,
         )
 from .constant import ZERO_ADDRESS
-from .rpc import jsonrpc_template
-from .tx import TxFactory
-from .encoding import abi_encode
-        
+from .tx import (
+        TxFactory,
+        TxFormat,
+        )
+from .contract import (
+        ABIContractEncoder,
+        ABIContractDecoder,
+        ABIContractType,
+        abi_decode_single,
+        )
+from chainlib.jsonrpc import jsonrpc_template
+from .error import RequestMismatchException
 
-# TODO: move to cic-contracts
-erc20_balance_signature = keccak256_string_to_hex('balanceOf(address)')[:8]
-erc20_decimals_signature = keccak256_string_to_hex('decimals()')[:8]
-erc20_transfer_signature = keccak256_string_to_hex('transfer(address,uint256)')[:8]
+logg = logging.getLogger()
 
 
-class ERC20TxFactory(TxFactory):
+class ERC20(TxFactory):
     
 
-    def erc20_balance(self, contract_address, address, sender_address=ZERO_ADDRESS):
+    def balance_of(self, contract_address, address, sender_address=ZERO_ADDRESS):
         o = jsonrpc_template()
         o['method'] = 'eth_call'
-        data = erc20_balance_signature
-        data += abi_encode('address', address).hex()
-        data = add_0x(data)
+        enc = ABIContractEncoder()
+        enc.method('balanceOf')
+        enc.typ(ABIContractType.ADDRESS)
+        enc.address(address)
+        data = add_0x(enc.get())
         tx = self.template(sender_address, contract_address)
         tx = self.set_code(tx, data)
         o['params'].append(self.normalize(tx))
@@ -36,10 +49,16 @@ class ERC20TxFactory(TxFactory):
         return o
 
 
-    def erc20_decimals(self, contract_address, sender_address=ZERO_ADDRESS):
+    def balance(self, contract_address, address, sender_address=ZERO_ADDRESS):
+        return self.balance_of(contract_address, address, sender_address=ZERO_ADDRESS)
+
+
+    def symbol(self, contract_address, sender_address=ZERO_ADDRESS):
         o = jsonrpc_template()
         o['method'] = 'eth_call'
-        data = add_0x(erc20_decimals_signature)
+        enc = ABIContractEncoder()
+        enc.method('symbol')
+        data = add_0x(enc.get())
         tx = self.template(sender_address, contract_address)
         tx = self.set_code(tx, data)
         o['params'].append(self.normalize(tx))
@@ -47,11 +66,173 @@ class ERC20TxFactory(TxFactory):
         return o
 
 
-    def erc20_transfer(self, contract_address, sender_address, recipient_address, value):
-        data = erc20_transfer_signature
-        data += abi_encode('address', recipient_address).hex()
-        data += abi_encode('uint256', value).hex()
-        data = add_0x(data)
+    def name(self, contract_address, sender_address=ZERO_ADDRESS):
+        o = jsonrpc_template()
+        o['method'] = 'eth_call'
+        enc = ABIContractEncoder()
+        enc.method('name')
+        data = add_0x(enc.get())
+        tx = self.template(sender_address, contract_address)
+        tx = self.set_code(tx, data)
+        o['params'].append(self.normalize(tx))
+        o['params'].append('latest')
+        return o
+
+    
+    def decimals(self, contract_address, sender_address=ZERO_ADDRESS):
+        o = jsonrpc_template()
+        o['method'] = 'eth_call'
+        enc = ABIContractEncoder()
+        enc.method('decimals')
+        data = add_0x(enc.get())
+        tx = self.template(sender_address, contract_address)
+        tx = self.set_code(tx, data)
+        o['params'].append(self.normalize(tx))
+        o['params'].append('latest')
+        return o
+
+
+    def transfer(self, contract_address, sender_address, recipient_address, value, tx_format=TxFormat.JSONRPC):
+        enc = ABIContractEncoder()
+        enc.method('transfer')
+        enc.typ(ABIContractType.ADDRESS)
+        enc.typ(ABIContractType.UINT256)
+        enc.address(recipient_address)
+        enc.uint256(value)
+        data = add_0x(enc.get())
         tx = self.template(sender_address, contract_address, use_nonce=True)
         tx = self.set_code(tx, data)
-        return self.build(tx)
+        tx = self.finalize(tx, tx_format)
+        return tx
+
+
+    def transfer_from(self, contract_address, sender_address, holder_address, recipient_address, value, tx_format=TxFormat.JSONRPC):
+        enc = ABIContractEncoder()
+        enc.method('transfer')
+        enc.typ(ABIContractType.ADDRESS)
+        enc.typ(ABIContractType.ADDRESS)
+        enc.typ(ABIContractType.UINT256)
+        enc.address(holder_address)
+        enc.address(recipient_address)
+        enc.uint256(value)
+        data = add_0x(enc.get())
+        tx = self.template(sender_address, contract_address, use_nonce=True)
+        tx = self.set_code(tx, data)
+        tx = self.finalize(tx, tx_format)
+        return tx
+
+
+    def approve(self, contract_address, sender_address, recipient_address, value, tx_format=TxFormat.JSONRPC):
+        enc = ABIContractEncoder()
+        enc.method('approve')
+        enc.typ(ABIContractType.ADDRESS)
+        enc.typ(ABIContractType.UINT256)
+        enc.address(recipient_address)
+        enc.uint256(value)
+        data = add_0x(enc.get())
+        tx = self.template(sender_address, contract_address, use_nonce=True)
+        tx = self.set_code(tx, data)
+        tx = self.finalize(tx, tx_format)
+        return tx
+
+
+    @classmethod
+    def parse_symbol(self, v):
+        return abi_decode_single(ABIContractType.STRING, v)
+
+
+    @classmethod
+    def parse_name(self, v):
+        return abi_decode_single(ABIContractType.STRING, v)
+
+
+    @classmethod
+    def parse_decimals(self, v):
+        return abi_decode_single(ABIContractType.UINT256, v)
+
+
+    @classmethod
+    def parse_balance(self, v):
+        return abi_decode_single(ABIContractType.UINT256, v)
+
+
+    @classmethod
+    def parse_transfer_request(self, v):
+        v = strip_0x(v)
+        cursor = 0
+        enc = ABIContractEncoder()
+        enc.method('transfer')
+        enc.typ(ABIContractType.ADDRESS)
+        enc.typ(ABIContractType.UINT256)
+        r = enc.get()
+        l = len(r)
+        m = v[:l]
+        if m != r:
+            logg.error('method mismatch, expected {}, got {}'.format(r, m))
+            raise RequestMismatchException(v)
+        cursor += l
+
+        dec = ABIContractDecoder()
+        dec.typ(ABIContractType.ADDRESS)
+        dec.typ(ABIContractType.UINT256)
+        dec.val(v[cursor:cursor+64])
+        cursor += 64
+        dec.val(v[cursor:cursor+64])
+        r = dec.decode()
+        return r 
+
+
+    @classmethod
+    def parse_transfer_from_request(self, v):
+        v = strip_0x(v)
+        cursor = 0
+        enc = ABIContractEncoder()
+        enc.method('transferFrom')
+        enc.typ(ABIContractType.ADDRESS)
+        enc.typ(ABIContractType.ADDRESS)
+        enc.typ(ABIContractType.UINT256)
+        r = enc.get()
+        l = len(r)
+        m = v[:l]
+        if m != r:
+            logg.error('method mismatch, expected {}, got {}'.format(r, m))
+            raise RequestMismatchException(v)
+        cursor += l
+
+        dec = ABIContractDecoder()
+        dec.typ(ABIContractType.ADDRESS)
+        dec.typ(ABIContractType.ADDRESS)
+        dec.typ(ABIContractType.UINT256)
+        dec.val(v[cursor:cursor+64])
+        cursor += 64
+        dec.val(v[cursor:cursor+64])
+        cursor += 64
+        dec.val(v[cursor:cursor+64])
+        r = dec.decode()
+        return r 
+
+
+    @classmethod
+    def parse_approve_request(self, v):
+        v = strip_0x(v)
+        cursor = 0
+        enc = ABIContractEncoder()
+        enc.method('approve')
+        enc.typ(ABIContractType.ADDRESS)
+        enc.typ(ABIContractType.UINT256)
+        r = enc.get()
+        l = len(r)
+        m = v[:l]
+        if m != r:
+            logg.error('method mismatch, expected {}, got {}'.format(r, m))
+            raise RequestMismatchException(v)
+        cursor += l
+
+        dec = ABIContractDecoder()
+        dec.typ(ABIContractType.ADDRESS)
+        dec.typ(ABIContractType.UINT256)
+        dec.val(v[cursor:cursor+64])
+        cursor += 64
+        dec.val(v[cursor:cursor+64])
+        r = dec.decode()
+        return r 

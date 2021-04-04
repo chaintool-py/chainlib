@@ -5,7 +5,7 @@ from hexathon import (
         )
 
 # local imports
-from chainlib.eth.rpc import jsonrpc_template
+from chainlib.jsonrpc import jsonrpc_template
 
 
 def nonce(address):
@@ -16,34 +16,47 @@ def nonce(address):
     return o
 
 
-class DefaultNonceOracle:
+class NonceOracle:
+
+    def __init__(self, address):
+        self.address = address
+        self.nonce = self.get_nonce()
+
+
+    def get_nonce(self):
+        raise NotImplementedError('Class must be extended')
+
+
+    def next_nonce(self):
+        n = self.nonce
+        self.nonce += 1
+        return n
+
+
+class RPCNonceOracle(NonceOracle):
 
     def __init__(self, address, conn):
-        self.address = address
         self.conn = conn
-        self.nonce = self.get()
+        super(RPCNonceOracle, self).__init__(address)
 
 
-    def get(self):
+    def get_nonce(self):
         o = nonce(self.address)
         r = self.conn.do(o)
         n = strip_0x(r)
         return int(n, 16)
 
 
-    def next(self):
-        n = self.nonce
-        self.nonce += 1
-        return n
-
-
-class OverrideNonceOracle(DefaultNonceOracle):
+class OverrideNonceOracle(NonceOracle):
 
 
     def __init__(self, address, nonce):
         self.nonce = nonce
-        super(OverrideNonceOracle, self).__init__(address, None)
+        super(OverrideNonceOracle, self).__init__(address)
 
 
-    def get(self):
+    def get_nonce(self):
         return self.nonce
+
+
+DefaultNonceOracle = RPCNonceOracle
