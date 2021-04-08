@@ -42,10 +42,16 @@ class Block:
     
     def __init__(self, src):
         self.hash = src['hash']
-        self.number = int(strip_0x(src['number']), 16)
+        try:
+            self.number = int(strip_0x(src['number']), 16)
+        except TypeError:
+            self.number = int(src['number'])
         self.txs = src['transactions']
         self.block_src = src
-        self.timestamp = int(strip_0x(src['timestamp']), 16)
+        try:
+            self.timestamp = int(strip_0x(src['timestamp']), 16)
+        except TypeError:
+            self.timestamp = int(src['timestamp'])
 
 
     def src(self):

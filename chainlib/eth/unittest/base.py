@@ -80,6 +80,11 @@ class TestRPCConnection(RPCConnection):
         return jsonrpc_result(r, error_parser)
 
 
+    def eth_blockNumber(self, p):
+        block = self.backend.get_block_by_number('latest')
+        return block['number']
+
+
     def eth_getBlockByNumber(self, p):
         b = bytes.fromhex(strip_0x(p[0]))
         n = int.from_bytes(b, 'big')

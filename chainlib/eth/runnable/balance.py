@@ -36,6 +36,7 @@ from chainlib.eth.gas import (
         OverrideGasOracle,
         balance,
         )
+from chainlib.chain import ChainSpec
 
 logging.basicConfig(level=logging.WARNING)
 logg = logging.getLogger()
@@ -48,7 +49,6 @@ argparser.add_argument('-p', '--provider', dest='p', default=default_eth_provide
 argparser.add_argument('-a', '--token-address', dest='a', type=str, help='Token address. If not set, will return gas balance')
 argparser.add_argument('-i', '--chain-spec', dest='i', type=str, default='evm:ethereum:1', help='Chain specification string')
 argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Auto-convert address to checksum adddress')
-argparser.add_argument('--abi-dir', dest='abi_dir', type=str, default=default_abi_dir, help='Directory containing bytecode and abi (default {})'.format(default_abi_dir))
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
 argparser.add_argument('address', type=str, help='Account address')

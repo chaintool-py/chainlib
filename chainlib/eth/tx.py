@@ -1,6 +1,7 @@
 # standard imports
 import logging
 import enum
+import re
 
 # external imports
 import coincurve
@@ -270,20 +271,56 @@ class TxFactory:
 
 class Tx:
 
+    re_camel_snake = re.compile(r'([a-z0-9]+)([A-Z])')
+
+    # TODO: force tx type schema parser (whether expect hex or int etc)
     def __init__(self, src, block=None, rcpt=None):
+        logg.debug('src {}'.format(src))
+        self.src = self.src_normalize(src)
         self.index = -1
+        tx_hash = add_0x(src['hash'])
         if block != None:
-            self.index = int(strip_0x(src['transactionIndex']), 16)
-        self.value = int(strip_0x(src['value']), 16)
-        self.nonce = int(strip_0x(src['nonce']), 16)
-        self.hash = strip_0x(src['hash'])
+            i = 0
+            for tx in block.txs:
+                tx_hash_block = None
+                try:
+                    tx_hash_block = tx['hash']
+                except TypeError:
+                    tx_hash_block = add_0x(tx)
+                logg.debug('tx {} cmp {}'.format(tx, tx_hash))
+                if tx_hash_block == tx_hash:
+                    self.index = i
+                    break
+                i += 1
+            if self.index == -1:
+                raise AttributeError('tx {} not found in block {}'.format(tx_hash, block.hash))
+        self.block = block
+        self.hash = strip_0x(tx_hash)
+        try:
+            self.value = int(strip_0x(src['value']), 16)
+        except TypeError:
+            self.value = int(src['value'])
+        try:
+            self.nonce = int(strip_0x(src['nonce']), 16)
+        except TypeError:
+            self.nonce = int(src['nonce'])
         address_from = strip_0x(src['from'])
-        self.gasPrice = int(strip_0x(src['gasPrice']), 16)
-        self.gasLimit = int(strip_0x(src['gas']), 16)
+        try:
+            self.gas_price = int(strip_0x(src['gasPrice']), 16)
+        except TypeError:
+            self.gas_price = int(src['gasPrice'])
+        try:
+            self.gas_limit = int(strip_0x(src['gas']), 16)
+        except TypeError:
+            self.gas_limit = int(src['gas'])
         self.outputs = [to_checksum(address_from)]
         self.contract = None
 
-        inpt = src['input']
+        try:
+            inpt = src['input']
+        except KeyError:
+            inpt = src['data']
+
         if inpt != '0x':
             inpt = strip_0x(inpt)
         else:
@@ -308,10 +345,33 @@ class Tx:
 
         if rcpt != None:
             self.apply_receipt(rcpt)
-   
+  
+    
+    @classmethod
+    def src_normalize(self, src):
+        src_normal = {}
+        for k in src.keys():
+            s = ''
+            right_pos = 0
+            for m in self.re_camel_snake.finditer(k):
+                g = m.group(0)
+                s += g[:len(g)-1]
+                s += '_' + g[len(g)-1].lower()
+                right_pos = m.span()[1]
+
+
+            s += k[right_pos:]
+            src_normal[k] = src[k]
+            if s != k:
+                logg.debug('adding snake {} for camel {}'.format(s, k))
+                src_normal[s] = src[k]
+
+        return src_normal
+
 
     def apply_receipt(self, rcpt):
-        status_number = int(strip_0x(rcpt['status']))
+        logg.debug('rcpt {}'.format(rcpt))
+        status_number = int(rcpt['status'], 16)
         if status_number == 1:
             self.status = Status.SUCCESS
         elif status_number == 0:
@@ -323,6 +383,7 @@ class Tx:
         if contract_address != None:
             self.contract = contract_address
         self.logs = rcpt['logs']
+        self.gas_used = int(rcpt['gasUsed'], 16)
 
 
     def __repr__(self):
@@ -338,18 +399,24 @@ nonce {}
 gasPrice {}
 gasLimit {}
 input {}
-status {}
 """.format(
         self.hash,
         self.outputs[0],
         self.inputs[0],
         self.value,
         self.nonce,
-        self.gasPrice,
-        self.gasLimit,
+        self.gas_price,
+        self.gas_limit,
         self.payload,
-        self.status.name,
         )
+
+        if self.status != Status.PENDING:
+            s += """gasUsed {}
+""".format(
+        self.gas_used,
+        )
+
+        s += 'status ' + self.status.name
 
         if self.contract != None:
             s += """contract {}
