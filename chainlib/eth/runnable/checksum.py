@@ -2,7 +2,7 @@
 import sys
 
 # local imports
-from chainlib.eth.address import to_checksum
+from chainlib.eth.address import to_checksum_address
 
 
-print(to_checksum(sys.argv[1]))
+print(to_checksum_address(sys.argv[1]))

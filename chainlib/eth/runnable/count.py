@@ -11,6 +11,7 @@ import logging
 from chainlib.eth.address import to_checksum
 from chainlib.eth.connection import EthHTTPConnection
 from chainlib.eth.tx import count
+from chainlib.chain import ChainSpec
 from crypto_dev_signer.keystore.dict import DictKeystore
 from crypto_dev_signer.eth.signer import ReferenceSigner as EIP155Signer
 
