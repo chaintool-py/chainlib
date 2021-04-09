@@ -55,11 +55,13 @@ class Gas(TxFactory):
         return (tx_hash_hex, o)
 
 
+
 class RPCGasOracle:
 
-    def __init__(self, conn, code_callback=None):
+    def __init__(self, conn, code_callback=None, min_price=1):
         self.conn = conn
         self.code_callback = code_callback
+        self.min_price = min_price
 
 
     def get_gas(self, code=None):
@@ -69,7 +71,17 @@ class RPCGasOracle:
         fee_units = MINIMUM_FEE_UNITS
         if self.code_callback != None:
             fee_units = self.code_callback(code)
-        return (int(n, 16), fee_units)
+        price = int(n, 16)
+        if price < self.min_price:
+            logg.debug('adjusting price {} to set minimum {}'.format(price, self.min_price))
+            price = self.min_price
+        return (price, fee_units)
+
+
+class RPCPureGasOracle(RPCGasOracle):
+
+    def __init__(self, conn, code_callback=None):
+        super(RPCPureGasOracle, self).__init__(conn, code_callback=code_callback, min_price=0)
 
 
 class OverrideGasOracle(RPCGasOracle):
@@ -77,12 +89,14 @@ class OverrideGasOracle(RPCGasOracle):
     def __init__(self, price=None, limit=None, conn=None, code_callback=None):
         self.conn = None
         self.code_callback = None
-        if conn != None:
-            logg.debug('override gas oracle with rpc fallback')
-            super(OverrideGasOracle, self).__init__(conn, code_callback)
         self.limit = limit
         self.price = price
 
+        if self.limit == None or self.price == None:
+            if conn != None:
+                logg.debug('override gas oracle with rpc fallback')
+                super(OverrideGasOracle, self).__init__(conn, code_callback)
+        
 
     def get_gas(self, code=None):
         r = None

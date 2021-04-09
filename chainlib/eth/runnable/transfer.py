@@ -58,8 +58,8 @@ argparser.add_argument('--env-prefix', default=os.environ.get('CONFINI_ENV_PREFI
 argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Auto-convert address to checksum adddress')
 argparser.add_argument('-s', '--send', dest='s', action='store_true', help='Send to network')
 argparser.add_argument('--nonce', type=int, help='Override nonce')
-argparser.add_argument('--gas-price', dest='gas_price', type=int, help='Override gas price')
-argparser.add_argument('--gas-limit', dest='gas_limit', type=int, help='Override gas limit')
+argparser.add_argument('--price', type=int, help='Override gas price')
+argparser.add_argument('--limit', type=int, help='Override gas limit')
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
 argparser.add_argument('recipient', type=str, help='Recipient account address')
@@ -104,8 +104,8 @@ def _max_gas(code=None):
     return 8000000
 
 gas_oracle = None
-if args.gas_price != None:
-    gas_oracle = OverrideGasOracle(args.gas_price, args.gas_limit)
+if args.price != None:
+    gas_oracle = OverrideGasOracle(args.price, args.limit)
 else:
     gas_oracle = RPCGasOracle(conn, code_callback=_max_gas)
 

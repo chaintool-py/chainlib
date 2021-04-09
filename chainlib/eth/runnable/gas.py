@@ -16,8 +16,9 @@ import os
 import json
 import argparse
 import logging
+import urllib
 
-# third-party imports
+# external imports
 from crypto_dev_signer.eth.signer import ReferenceSigner as EIP155Signer
 from crypto_dev_signer.keystore.dict import DictKeystore
 from hexathon import (
@@ -57,7 +58,7 @@ argparser.add_argument('-y', '--key-file', dest='y', type=str, help='Ethereum ke
 argparser.add_argument('--env-prefix', default=os.environ.get('CONFINI_ENV_PREFIX'), dest='env_prefix', type=str, help='environment prefix for variables to overwrite configuration')
 argparser.add_argument('--nonce', type=int, help='override nonce')
 argparser.add_argument('--price', type=int, help='override gas price')
-argparser.add_argument('--gas', type=int, help='override gas limit')
+argparser.add_argument('--limit', type=int, help='override gas limit')
 argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Auto-convert address to checksum adddress')
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
@@ -100,8 +101,8 @@ else:
     nonce_oracle = RPCNonceOracle(signer_address, conn)
 
 gas_oracle = None
-if args.price or args.gas != None:
-    gas_oracle = OverrideGasOracle(price=args.price, limit=args.gas, conn=conn)
+if args.price or args.limit != None:
+    gas_oracle = OverrideGasOracle(price=args.price, limit=args.limit, conn=conn)
 else:
     gas_oracle = RPCGasOracle(conn)
 
@@ -129,8 +130,11 @@ def main():
 
     logg.info('gas transfer from {} to {} value {}'.format(signer_address, recipient, value))
     if logg.isEnabledFor(logging.DEBUG):
-        logg.debug('sender {} balance before: {}'.format(signer_address, balance(signer_address)))
-        logg.debug('recipient {} balance before: {}'.format(recipient, balance(recipient)))
+        try:
+            logg.debug('sender {} balance before: {}'.format(signer_address, balance(signer_address)))
+            logg.debug('recipient {} balance before: {}'.format(recipient, balance(recipient)))
+        except urllib.error.URLError:
+            pass
      
     (tx_hash_hex, o) = g.create(signer_address, recipient, value)
 

@@ -10,6 +10,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 # standard imports
+import datetime
 import sys
 import os
 import json
@@ -34,7 +35,11 @@ from chainlib.jsonrpc import (
         jsonrpc_template,
         jsonrpc_result,
         )
-from chainlib.eth.block import block_latest
+from chainlib.eth.block import (
+        block_latest,
+        block_by_number,
+        Block,
+        )
 from chainlib.eth.tx import count
 from chainlib.eth.erc20 import ERC20
 from chainlib.eth.connection import EthHTTPConnection
@@ -44,6 +49,8 @@ from chainlib.eth.gas import (
         price,
         )
 from chainlib.chain import ChainSpec
+
+BLOCK_SAMPLES = 10
 
 logging.basicConfig(level=logging.WARNING)
 logg = logging.getLogger()
@@ -56,6 +63,7 @@ argparser.add_argument('-p', '--provider', dest='p', default=default_eth_provide
 argparser.add_argument('-i', '--chain-spec', dest='i', type=str, default='evm:ethereum:1', help='Chain specification string')
 argparser.add_argument('-H', '--human', dest='human', action='store_true', help='Use human-friendly formatting')
 argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Auto-convert address to checksum adddress')
+argparser.add_argument('-l', '--long', dest='l', action='store_true', help='Calculate averages through sampling of blocks and txs')
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
 argparser.add_argument('-y', '--key-file', dest='y', type=str, help='Include summary for keyfile')
@@ -71,33 +79,14 @@ elif args.v:
 signer = None
 holder_address = None
 if args.address != None:
-    if not args.u and is_checksum_address(args.address):
+    if not args.u and not is_checksum_address(args.address):
         raise ValueError('invalid checksum address {}'.format(args.address))
-        holder_address = add_0x(args.address)
+    holder_address = add_0x(args.address)
 elif args.y != None:
     f = open(args.y, 'r')
     o = json.load(f)
     f.close()
     holder_address = add_0x(to_checksum_address(o['address']))
-
-
-#if holder_address != None:
-#    passphrase_env = 'ETH_PASSPHRASE'
-#    if args.env_prefix != None:
-#        passphrase_env = args.env_prefix + '_' + passphrase_env
-#    passphrase = os.environ.get(passphrase_env)
-#    logg.error('pass {}'.format(passphrase_env))
-#    if passphrase == None:
-#        logg.warning('no passphrase given')
-#        passphrase=''
-#
-#    holder_address = None
-#    keystore = DictKeystore()
-#    if args.y != None:
-#        logg.debug('loading keystore file {}'.format(args.y))
-#        signer_address = keystore.import_keystore_file(args.y, password=passphrase)
-#        logg.debug('now have key for signer address {}'.format(signer_address))
-#    signer = EIP155Signer(keystore)
 
 conn = EthHTTPConnection(args.p)
 gas_oracle = OverrideGasOracle(conn)
@@ -108,14 +97,44 @@ chain_spec = ChainSpec.from_chain_str(args.i)
 
 human = args.human
 
+longmode = args.l
 
 def main():
+
     o = block_latest()
     r = conn.do(o)
     n = int(r, 16)
+    first_block_number = n
     if human:
         n = format(n, ',')
     sys.stdout.write('Block: {}\n'.format(n))
+
+    o = block_by_number(first_block_number, False)
+    r = conn.do(o)
+    last_block = Block(r)
+    last_timestamp = last_block.timestamp
+
+    if longmode:
+        aggr_time = 0.0
+        aggr_gas = 0
+        for i in range(BLOCK_SAMPLES): 
+            o = block_by_number(first_block_number-i, False)
+            r = conn.do(o)
+            block = Block(r)
+            aggr_time += last_block.timestamp - block.timestamp
+        
+            gas_limit = int(r['gasLimit'], 16)
+            aggr_gas += gas_limit
+
+            last_block = block
+            last_timestamp = block.timestamp
+
+        n = int(aggr_gas / BLOCK_SAMPLES)
+        if human:
+            n = format(n, ',')
+
+        sys.stdout.write('Gaslimit: {}\n'.format(n))
+        sys.stdout.write('Blocktime: {}\n'.format(aggr_time / BLOCK_SAMPLES))
 
     o = price()
     r = conn.do(o)
