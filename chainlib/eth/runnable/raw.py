@@ -37,9 +37,8 @@ from chainlib.eth.nonce import (
 from chainlib.eth.gas import (
         RPCGasOracle,
         OverrideGasOracle,
-        Gas,
         )
-from chainlib.eth.gas import balance as gas_balance
+from chainlib.eth.tx import TxFactory
 from chainlib.chain import ChainSpec
 from chainlib.eth.runnable.util import decode_for_puny_humans
 
@@ -54,17 +53,17 @@ argparser.add_argument('-p', '--provider', dest='p', default='http://localhost:8
 argparser.add_argument('-w', action='store_true', help='Wait for the last transaction to be confirmed')
 argparser.add_argument('-ww', action='store_true', help='Wait for every transaction to be confirmed')
 argparser.add_argument('-i', '--chain-spec', dest='i', type=str, default='evm:ethereum:1', help='Chain specification string')
-argparser.add_argument('-y', '--key-file', dest='y', type=str, help='Ethereum keystore file to use for signing')
+argparser.add_argument('-y', '--key-file', required=True, dest='y', type=str, help='Ethereum keystore file to use for signing')
 argparser.add_argument('--env-prefix', default=os.environ.get('CONFINI_ENV_PREFIX'), dest='env_prefix', type=str, help='environment prefix for variables to overwrite configuration')
 argparser.add_argument('--nonce', type=int, help='override nonce')
 argparser.add_argument('--gas-price', dest='gas_price', type=int, help='override gas price')
 argparser.add_argument('--gas-limit', dest='gas_limit', type=int, help='override gas limit')
-argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Auto-convert address to checksum adddress')
+argparser.add_argument('-a', '--recipient', dest='a', type=str, help='recipient address (None for contract creation)')
+argparser.add_argument('-value', type=int, help='gas value of transaction in wei')
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
 argparser.add_argument('-s', '--send', dest='s', action='store_true', help='Send to network')
-argparser.add_argument('recipient', type=str, help='ethereum address of recipient')
-argparser.add_argument('amount', type=int, help='gas value in wei')
+argparser.add_argument('data', nargs='?', type=str, help='Transaction data')
 args = argparser.parse_args()
 
 
@@ -109,54 +108,27 @@ else:
 
 chain_spec = ChainSpec.from_chain_str(args.i)
 
-value = args.amount
+value = args.value
 
 send = args.s
 
-g = Gas(chain_spec, signer=signer, gas_oracle=gas_oracle, nonce_oracle=nonce_oracle)
-
-
-def balance(address):
-    o = gas_balance(address)
-    r = conn.do(o)
-    hx = strip_0x(r)
-    return int(hx, 16)
-
+g = TxFactory(chain_spec, signer=signer, gas_oracle=gas_oracle, nonce_oracle=nonce_oracle)
 
 def main():
-    recipient = to_checksum(args.recipient)
-    if not args.u and recipient != add_0x(args.recipient):
-        raise ValueError('invalid checksum address')
+    recipient = None
+    if args.a != None:
+        recipient = add_0x(to_checksum(args.a))
+        if not args.u and recipient != add_0x(recipient):
+            raise ValueError('invalid checksum address')
 
-    logg.info('gas transfer from {} to {} value {}'.format(signer_address, recipient, value))
-    if logg.isEnabledFor(logging.DEBUG):
-        try:
-            logg.debug('sender {} balance before: {}'.format(signer_address, balance(signer_address)))
-            logg.debug('recipient {} balance before: {}'.format(recipient, balance(recipient)))
-        except urllib.error.URLError:
-            pass
-     
-    (tx_hash_hex, o) = g.create(signer_address, recipient, value)
+    tx = g.template(signer_address, recipient, use_nonce=True)
+    if args.data != None:
+        tx = g.set_code(tx, add_0x(args.data))
 
-    if send:
-        conn.do(o)
-        if block_last:
-            r = conn.wait(tx_hash_hex)
-            if logg.isEnabledFor(logging.DEBUG):
-                logg.debug('sender {} balance after: {}'.format(signer_address, balance(signer_address)))
-                logg.debug('recipient {} balance after: {}'.format(recipient, balance(recipient)))
-            if r['status'] == 0:
-                logg.critical('VM revert. Wish I could tell you more')
-                sys.exit(1)
-        print(tx_hash_hex)
-    else:
-        if logg.isEnabledFor(logging.INFO):
-            io_str = io.StringIO()
-            decode_for_puny_humans(o['params'][0], chain_spec, io_str)
-            print(io_str.getvalue())
-        else:
-            print(o['params'][0])
- 
+    (tx_hash_hex, o) = g.finalize(tx)
+   
+    print(o)
+    print(tx_hash_hex)
 
 
 if __name__ == '__main__':
