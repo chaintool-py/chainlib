@@ -65,17 +65,19 @@ class RPCGasOracle:
 
 
     def get_gas(self, code=None):
-        o = price()
-        r = self.conn.do(o)
-        n = strip_0x(r)
+        gas_price = 0
+        if self.conn != None:
+            o = price()
+            r = self.conn.do(o)
+            n = strip_0x(r)
+            gas_price = int(n, 16)
         fee_units = MINIMUM_FEE_UNITS
         if self.code_callback != None:
             fee_units = self.code_callback(code)
-        price = int(n, 16)
-        if price < self.min_price:
-            logg.debug('adjusting price {} to set minimum {}'.format(price, self.min_price))
-            price = self.min_price
-        return (price, fee_units)
+        if gas_price < self.min_price:
+            logg.debug('adjusting price {} to set minimum {}'.format(gas_price, self.min_price))
+            gas_price = self.min_price
+        return (gas_price, fee_units)
 
 
 class RPCPureGasOracle(RPCGasOracle):
@@ -93,9 +95,11 @@ class OverrideGasOracle(RPCGasOracle):
         self.price = price
 
         if self.limit == None or self.price == None:
-            if conn != None:
-                logg.debug('override gas oracle with rpc fallback')
-                super(OverrideGasOracle, self).__init__(conn, code_callback)
+            price_conn = None
+            if self.price == None:
+                price_conn = conn
+            logg.debug('override gas oracle with rpc fallback; price {} limit {}'.format(self.price, self.limit))
+            super(OverrideGasOracle, self).__init__(price_conn, code_callback)
         
 
     def get_gas(self, code=None):
@@ -103,9 +107,7 @@ class OverrideGasOracle(RPCGasOracle):
         fee_units = None
         fee_price = None
 
-        rpc_results = None
-        if self.conn != None:
-            rpc_results = super(OverrideGasOracle, self).get_gas(code)
+        rpc_results = super(OverrideGasOracle, self).get_gas(code)
  
         if self.limit != None:
             fee_units = self.limit
@@ -122,10 +124,10 @@ class OverrideGasOracle(RPCGasOracle):
         if fee_units == None:
             if rpc_results != None:
                 fee_units = rpc_results[1]
-                logg.debug('override gas oracle without explicit limit, setting from rpc {}'.format(fee_limit))
+                logg.debug('override gas oracle without explicit limit, setting from rpc {}'.format(fee_units))
             else:
                 fee_units = MINIMUM_FEE_UNITS
-                logg.debug('override gas oracle without explicit limit, setting default {}'.format(fee_limit))
+                logg.debug('override gas oracle without explicit limit, setting default {}'.format(fee_units))
         
         return (fee_price, fee_units)
 

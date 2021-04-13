@@ -416,7 +416,7 @@ input {}
         self.gas_used,
         )
 
-        s += 'status ' + self.status.name
+        s += 'status ' + self.status.name + '\n'
 
         if self.contract != None:
             s += """contract {}
