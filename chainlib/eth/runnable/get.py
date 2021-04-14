@@ -60,7 +60,7 @@ elif args.v:
 
 conn = EthHTTPConnection(args.p)
 
-tx_hash = args.tx_hash
+tx_hash = add_0x(args.tx_hash)
 
 
 class Status(enum.Enum):

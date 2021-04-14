@@ -3,7 +3,7 @@ import unittest
 import datetime
 
 # external imports
-from chainlib.stat import Stat
+from chainlib.stat import ChainStat
 from chainlib.eth.block import Block
 
 

@@ -104,7 +104,7 @@ def _max_gas(code=None):
     return 8000000
 
 gas_oracle = None
-if args.price != None:
+if args.gas_price != None or args.gas_limit != None:
     gas_oracle = OverrideGasOracle(price=args.gas_price, limit=args.gas_limit)
 else:
     gas_oracle = RPCGasOracle(conn, code_callback=_max_gas)

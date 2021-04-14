@@ -122,7 +122,6 @@ class TestRPCConnection(RPCConnection):
 
     def eth_getTransactionReceipt(self, p):
         rcpt = self.backend.get_transaction_receipt(p[0])
-        # TODO: use camelcase to snake case converter
         if rcpt.get('block_number') == None:
             rcpt['block_number'] = rcpt['blockNumber']
         else:

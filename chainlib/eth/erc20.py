@@ -108,7 +108,7 @@ class ERC20(TxFactory):
 
     def transfer_from(self, contract_address, sender_address, holder_address, recipient_address, value, tx_format=TxFormat.JSONRPC):
         enc = ABIContractEncoder()
-        enc.method('transfer')
+        enc.method('transferFrom')
         enc.typ(ABIContractType.ADDRESS)
         enc.typ(ABIContractType.ADDRESS)
         enc.typ(ABIContractType.UINT256)
@@ -122,12 +122,12 @@ class ERC20(TxFactory):
         return tx
 
 
-    def approve(self, contract_address, sender_address, recipient_address, value, tx_format=TxFormat.JSONRPC):
+    def approve(self, contract_address, sender_address, spender_address, value, tx_format=TxFormat.JSONRPC):
         enc = ABIContractEncoder()
         enc.method('approve')
         enc.typ(ABIContractType.ADDRESS)
         enc.typ(ABIContractType.UINT256)
-        enc.address(recipient_address)
+        enc.address(spender_address)
         enc.uint256(value)
         data = add_0x(enc.get())
         tx = self.template(sender_address, contract_address, use_nonce=True)

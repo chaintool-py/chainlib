@@ -14,6 +14,7 @@ from rlp import decode as rlp_decode
 from rlp import encode as rlp_encode
 from crypto_dev_signer.eth.transaction import EIP155Transaction
 from crypto_dev_signer.encoding import public_key_to_address
+from potaahto.symbols import snake_and_camel
 
 
 # local imports
@@ -28,6 +29,7 @@ from .constant import (
 from chainlib.jsonrpc import jsonrpc_template
 
 logg = logging.getLogger().getChild(__name__)
+
 
 
 class TxFormat(enum.IntEnum):
@@ -271,8 +273,6 @@ class TxFactory:
 
 class Tx:
 
-    re_camel_snake = re.compile(r'([a-z0-9]+)([A-Z])')
-
     # TODO: force tx type schema parser (whether expect hex or int etc)
     def __init__(self, src, block=None, rcpt=None):
         logg.debug('src {}'.format(src))
@@ -324,7 +324,7 @@ class Tx:
         if inpt != '0x':
             inpt = strip_0x(inpt)
         else:
-            inpt = None
+            inpt = ''
         self.payload = inpt
 
         to = src['to']
@@ -349,29 +349,14 @@ class Tx:
     
     @classmethod
     def src_normalize(self, src):
-        src_normal = {}
-        for k in src.keys():
-            s = ''
-            right_pos = 0
-            for m in self.re_camel_snake.finditer(k):
-                g = m.group(0)
-                s += g[:len(g)-1]
-                s += '_' + g[len(g)-1].lower()
-                right_pos = m.span()[1]
-
-
-            s += k[right_pos:]
-            src_normal[k] = src[k]
-            if s != k:
-                logg.debug('adding snake {} for camel {}'.format(s, k))
-                src_normal[s] = src[k]
-
-        return src_normal
-
+        return snake_and_camel(src) 
 
     def apply_receipt(self, rcpt):
         logg.debug('rcpt {}'.format(rcpt))
-        status_number = int(rcpt['status'], 16)
+        try:
+            status_number = int(rcpt['status'], 16)
+        except TypeError:
+            status_number = int(rcpt['status'])
         if status_number == 1:
             self.status = Status.SUCCESS
         elif status_number == 0:
@@ -383,7 +368,10 @@ class Tx:
         if contract_address != None:
             self.contract = contract_address
         self.logs = rcpt['logs']
-        self.gas_used = int(rcpt['gasUsed'], 16)
+        try:
+            self.gas_used = int(rcpt['gasUsed'], 16)
+        except TypeError:
+            self.gas_used = int(rcpt['gasUsed'])
 
 
     def __repr__(self):

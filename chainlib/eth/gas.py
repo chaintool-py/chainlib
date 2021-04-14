@@ -94,12 +94,14 @@ class OverrideGasOracle(RPCGasOracle):
         self.limit = limit
         self.price = price
 
+        price_conn = None
+
         if self.limit == None or self.price == None:
-            price_conn = None
             if self.price == None:
                 price_conn = conn
             logg.debug('override gas oracle with rpc fallback; price {} limit {}'.format(self.price, self.limit))
-            super(OverrideGasOracle, self).__init__(price_conn, code_callback)
+
+        super(OverrideGasOracle, self).__init__(price_conn, code_callback)
         
 
     def get_gas(self, code=None):
