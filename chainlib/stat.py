@@ -21,7 +21,6 @@ class ChainStat:
             self.block_avg_aggregate += block.timestamp - self.block_timestamp_last
             self.block_avg_aggregate /= (self.block_avg_count + 1)
 
-        print('aggr {}'.format(type(self.block_avg_aggregate)))
         self.block_avg_count += 1
 
         self.block_timestamp_last = block.timestamp
