@@ -17,11 +17,10 @@ import argparse
 import logging
 import enum
 
-# third-party imports
+# external imports
 from hexathon import (
         add_0x,
         strip_0x,
-        even,
         )
 import sha3
 
@@ -33,8 +32,10 @@ from chainlib.jsonrpc import (
         )
 from chainlib.eth.connection import EthHTTPConnection
 from chainlib.eth.tx import Tx
+from chainlib.eth.address import to_checksum_address
 from chainlib.eth.block import Block
 from chainlib.chain import ChainSpec
+from chainlib.status import Status
 
 logging.basicConfig(level=logging.WARNING)
 logg = logging.getLogger()
@@ -50,7 +51,7 @@ argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Au
 argparser.add_argument('--abi-dir', dest='abi_dir', type=str, default=default_abi_dir, help='Directory containing bytecode and abi (default {})'.format(default_abi_dir))
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
-argparser.add_argument('tx_hash', type=str, help='Transaction hash')
+argparser.add_argument('item', type=str, help='Item to get information for (address og transaction)')
 args = argparser.parse_args()
 
 if args.vv:
@@ -60,16 +61,11 @@ elif args.v:
 
 conn = EthHTTPConnection(args.p)
 
-tx_hash = add_0x(args.tx_hash)
+#tx_hash = add_0x(args.tx_hash)
+item = add_0x(args.item)
 
 
-class Status(enum.Enum):
-    UNCONFIRMED = -1
-    REVERTED = 0
-    SUCCESS = 1
-
-
-def main():
+def get_transaction(conn, tx_hash):
     o = jsonrpc_template()
     o['method'] = 'eth_getTransactionByHash'
     o['params'].append(tx_hash)
@@ -92,7 +88,30 @@ def main():
         tx = Tx(tx_src)
     if rcpt != None:
         tx.apply_receipt(rcpt)
-    print(tx)
+    return tx
+
+
+def get_address(conn, address):
+    o = jsonrpc_template()
+    o['method'] = 'eth_getCode'
+    o['params'].append(address)
+    o['params'].append('latest')
+    code = conn.do(o)
+    
+    content = strip_0x(code, allow_empty=True)
+    if len(content) == 0:
+        return None
+
+    return content
+
+
+def main():
+    r = None
+    if len(item) > 42:
+        r = get_transaction(conn, item)
+    elif args.u or to_checksum_address(item):
+        r = get_address(conn, item)
+    print(r)
 
 
 if __name__ == '__main__':
