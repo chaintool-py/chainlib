@@ -25,6 +25,8 @@ from .sign import (
         sign_transaction,
         )
 from chainlib.connection import (
+        ConnType,
+        RPCConnection,
         JSONRPCHTTPConnection,
         JSONRPCUnixConnection,
         error_parser,
@@ -82,23 +84,47 @@ class EthUnixConnection(JSONRPCUnixConnection):
         raise NotImplementedError('Not yet implemented for unix socket')
 
 
+def sign_transaction_to_rlp(chain_spec, doer, tx):
+    txs = tx.serialize()
+    logg.debug('serializing {}'.format(txs))
+    # TODO: because some rpc servers may fail when chainId is included, we are forced to spend cpu here on this
+    chain_id = txs.get('chainId') or 1
+    if chain_spec != None:
+        chain_id = chain_spec.chain_id()
+    txs['chainId'] = add_0x(chain_id.to_bytes(2, 'big').hex())
+    txs['from'] = add_0x(tx.sender)
+    o = sign_transaction(txs)
+    r = doer(o)
+    logg.debug('sig got {}'.format(r))
+    return bytes.fromhex(strip_0x(r))
+
+
+def sign_message(doer, msg):
+    o = sign_message(msg)
+    return doer(o)
+
+
 class EthUnixSignerConnection(EthUnixConnection):
    
     def sign_transaction_to_rlp(self, tx):
-        txs = tx.serialize()
-        logg.debug('serializing {}'.format(txs))
-        # TODO: because some rpc servers may fail when chainId is included, we are forced to spend cpu here on this
-        chain_id = txs.get('chainId') or 1
-        if self.chain_spec != None:
-            chain_id = self.chain_spec.chain_id()
-        txs['chainId'] = add_0x(chain_id.to_bytes(2, 'big').hex())
-        txs['from'] = add_0x(tx.sender)
-        o = sign_transaction(txs)
-        r = self.do(o)
-        logg.debug('sig got {}'.format(r))
-        return bytes.fromhex(strip_0x(r))
+        return sign_transaction_to_rlp(self.chain_spec, self.do, tx)
 
 
-    def sign_message(self, msg):
-        o = sign_message(msg)
-        return self.do(o)
+    def sign_message(self, tx):
+        return sign_message(self.do, tx)
+
+
+class EthHTTPSignerConnection(EthHTTPConnection):
+   
+    def sign_transaction_to_rlp(self, tx):
+        return sign_transaction_to_rlp(self.chain_spec, self.do, tx)
+
+
+    def sign_message(self, tx):
+        return sign_message(self.do, tx)
+
+
+
+RPCConnection.register_constructor(ConnType.HTTP, EthHTTPConnection, tag='eth_default')
+RPCConnection.register_constructor(ConnType.HTTP_SSL, EthHTTPConnection, tag='eth_default')
+RPCConnection.register_constructor(ConnType.UNIX, EthUnixConnection, tag='eth_default')

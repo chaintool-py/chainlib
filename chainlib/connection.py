@@ -22,7 +22,7 @@ from .jsonrpc import (
         )
 from .http import PreemptiveBasicAuthHandler
 
-logg = logging.getLogger(__name__)
+logg = logging.getLogger().getChild(__name__)
 
 error_parser = DefaultErrorParser()
 
@@ -65,19 +65,14 @@ def str_to_connspec(s):
     raise ValueError('unknown connection type {}'.format(s))
 
 
-def from_conntype(t):
-    if t in [ConnType.HTTP, ConnType.HTTP_SSL]:
-        return JSONRPCHTTPConnection
-    elif t in [ConnType.UNIX]:
-        return JSONRPCUnixConnection
-    raise NotImplementedError(t)
-
-
-
 class RPCConnection():
 
     __locations = {}
-    __constructors = {}
+    __constructors = {
+        'default': {
+            },
+        }
+    __constructors_for_chains = {}
 
     def __init__(self, url=None, chain_spec=None):
         self.chain_spec = chain_spec
@@ -104,34 +99,40 @@ class RPCConnection():
         logg.debug('parsed url {} to location {}'.format(url, self.location))
 
 
+    @staticmethod
+    def from_conntype(t, tag='default'):
+        return RPCConnection.__constructors[tag][t]
+
+
+    @staticmethod
+    def register_constructor(t, c, tag='default'):
+        if RPCConnection.__constructors.get(tag) == None:
+            RPCConnection.__constructors[tag] = {}
+        RPCConnection.__constructors[tag][t] = c
+        logg.info('registered RPC connection constructor {} for type {} tag {}'.format(c, t, tag))
+
+
     # TODO: constructor needs to be constructor-factory, that itself can select on url type
     @staticmethod
-    def register_location(location, chain_spec, tag='default', constructor=None, exist_ok=False):
+    def register_location(location, chain_spec, tag='default', exist_ok=False):
         chain_str = str(chain_spec)
         if RPCConnection.__locations.get(chain_str) == None:
             RPCConnection.__locations[chain_str] = {}
-            RPCConnection.__constructors[chain_str] = {}
         elif not exist_ok:
             v = RPCConnection.__locations[chain_str].get(tag)
             if v != None:
                 raise ValueError('duplicate registration of tag {}:{}, requested {} already had {}'.format(chain_str, tag, location, v))
         conntype = str_to_connspec(location)
         RPCConnection.__locations[chain_str][tag] = (conntype, location)
-        if constructor != None:
-            RPCConnection.__constructors[chain_str][tag] = constructor
-            logg.info('registered rpc connection {} ({}:{}) as {} with custom constructor {}'.format(location, chain_str, tag, conntype, constructor))
-        else:
-            logg.info('registered rpc connection {} ({}:{}) as {}'.format(location, chain_str, tag, conntype))
+        logg.info('registered rpc connection {} ({}/{}) as {}'.format(location, chain_str, tag, conntype))
 
 
     @staticmethod
     def connect(chain_spec, tag='default'):
         chain_str = str(chain_spec)
         c = RPCConnection.__locations[chain_str][tag]
-        constructor = RPCConnection.__constructors[chain_str].get(tag)
-        if constructor == None:
-            constructor = from_conntype(c[0])
-        logg.debug('cons {} {}'.format(constructor, c))
+        constructor = RPCConnection.from_conntype(c[0], tag=tag)
+        logg.debug('rpc connect {} {} {}'.format(constructor, c, tag))
         return constructor(url=c[1], chain_spec=chain_spec)
 
 
@@ -215,3 +216,7 @@ class JSONRPCUnixConnection(UnixConnection):
 
         return jsonrpc_result(result, error_parser)
 
+
+RPCConnection.register_constructor(ConnType.HTTP, JSONRPCHTTPConnection, tag='default')
+RPCConnection.register_constructor(ConnType.HTTP_SSL, JSONRPCHTTPConnection, tag='default')
+RPCConnection.register_constructor(ConnType.UNIX, JSONRPCUnixConnection, tag='default')
