@@ -12,6 +12,7 @@ from crypto_dev_signer.keystore.dict import DictKeystore
 from chainlib.eth.unittest.base import *
 from chainlib.connection import (
         RPCConnection,
+        ConnType,
         )
 from chainlib.eth.unittest.ethtester import create_tester_signer
 from chainlib.eth.address import to_checksum_address
@@ -97,6 +98,8 @@ def init_eth_rpc(
     def rpc_with_tester(url=None, chain_spec=default_chain_spec):
         return rpc_conn
 
-    RPCConnection.register_location('custom', default_chain_spec, tag='default', constructor=rpc_with_tester, exist_ok=True)
-    RPCConnection.register_location('custom', default_chain_spec, tag='signer', constructor=rpc_with_tester, exist_ok=True)
+    RPCConnection.register_constructor(ConnType.CUSTOM, rpc_with_tester, tag='default')
+    RPCConnection.register_constructor(ConnType.CUSTOM, rpc_with_tester, tag='signer')
+    RPCConnection.register_location('custom', default_chain_spec, tag='default', exist_ok=True)
+    RPCConnection.register_location('custom', default_chain_spec, tag='signer', exist_ok=True)
     return None
