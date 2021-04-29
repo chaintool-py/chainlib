@@ -168,6 +168,7 @@ def transaction(hsh):
     o['params'].append(add_0x(hsh))
     return o
 
+
 def transaction_by_block(hsh, idx):
     o = jsonrpc_template()
     o['method'] = 'eth_getTransactionByBlockHashAndIndex'

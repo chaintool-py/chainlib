@@ -19,7 +19,10 @@ from .base import (
         EthTesterSigner,
         TestRPCConnection,
         )
-from chainlib.connection import RPCConnection
+from chainlib.connection import (
+        RPCConnection,
+        ConnType,
+        )
 from chainlib.eth.address import to_checksum_address
 from chainlib.chain import ChainSpec
 
@@ -66,8 +69,10 @@ class EthTesterCase(unittest.TestCase):
         def rpc_with_tester(chain_spec=self.chain_spec, url=None):
             return self.rpc
 
-        RPCConnection.register_location('custom', self.chain_spec, tag='default', constructor=rpc_with_tester, exist_ok=True)
-        RPCConnection.register_location('custom', self.chain_spec, tag='signer', constructor=rpc_with_tester, exist_ok=True)
+        RPCConnection.register_constructor(ConnType.CUSTOM, rpc_with_tester, tag='default')
+        RPCConnection.register_constructor(ConnType.CUSTOM, rpc_with_tester, tag='signer')
+        RPCConnection.register_location('custom', self.chain_spec, tag='default', exist_ok=True)
+        RPCConnection.register_location('custom', self.chain_spec, tag='signer', exist_ok=True)
 
         
 

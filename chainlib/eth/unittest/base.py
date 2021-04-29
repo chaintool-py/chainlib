@@ -27,7 +27,7 @@ from crypto_dev_signer.eth.signer import ReferenceSigner as EIP155Signer
 from crypto_dev_signer.encoding import private_key_to_address
 
 
-logg = logging.getLogger()
+logg = logging.getLogger().getChild(__name__)
 
 test_pk = bytes.fromhex('5087503f0a9cc35b38665955eb830c63f778453dd11b8fa5bd04bc41fd2cc6d6')
 
@@ -99,8 +99,12 @@ class TestRPCConnection(RPCConnection):
 
     def eth_getTransactionByBlock(self, p):
         block = self.eth_getBlockByHash(p)
-        tx_hash = block['transactions'][p[1]]
-        tx = self.eth_getTransaction([tx_hash])
+        try:
+            tx_index = int(p[1], 16)
+        except TypeError:
+            tx_index = int(p[1])
+        tx_hash = block['transactions'][tx_index]
+        tx = self.eth_getTransactionByHash([tx_hash])
         return tx
 
     def eth_getBalance(self, p):
@@ -118,6 +122,14 @@ class TestRPCConnection(RPCConnection):
     def eth_getTransactionByHash(self, p):
         tx = self.backend.get_transaction_by_hash(p[0])
         return tx
+
+
+    def eth_getTransactionByBlockHashAndIndex(self, p):
+        #logg.debug('p {}'.format(p))
+        #block = self.eth_getBlockByHash(p[0])
+        #tx = block.transactions[p[1]]
+        #return eth_getTransactionByHash(tx[0])
+        return self.eth_getTransactionByBlock(p)
 
 
     def eth_getTransactionReceipt(self, p):

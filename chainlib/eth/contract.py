@@ -24,6 +24,7 @@ re_method = r'^[a-zA-Z0-9_]+$'
 class ABIContractType(enum.Enum):
 
     BYTES32 = 'bytes32'
+    BYTES4 = 'bytes4'
     UINT256 = 'uint256'
     ADDRESS = 'address'
     STRING = 'string'
@@ -154,6 +155,12 @@ class ABIContractEncoder:
         self.__log_latest(v)
 
 
+    def bytes4(self, v):
+        self.bytes_fixed(4, v)
+        self.types.append(ABIContractType.BYTES4)
+        self.__log_latest(v)
+
+
     def string(self, v):
         b = v.encode('utf-8')
         l = len(b)
@@ -186,8 +193,7 @@ class ABIContractEncoder:
             v = pad(b.hex(), mx)
         else:
             raise ValueError('invalid input {}'.format(typ))
-        self.contents.append(v)
-
+        self.contents.append(v.ljust(64, '0'))
 
 
     def get_method(self):
