@@ -4,16 +4,22 @@ from hexathon import (
     )
 
 # local imports
-from .contract import (
+from chainlib.eth.contract import (
         ABIContractEncoder,
         ABIContractDecoder,
         ABIContractType,
+        abi_decode_single,
     )
 from chainlib.jsonrpc import jsonrpc_template
+from chainlib.eth.tx import (
+        TxFactory,
+        TxFormat,
+        )
+from chainlib.eth.constant import ZERO_ADDRESS
 
 class EIP173(TxFactory):
 
-    def transfer_ownership(self, contract_address, sender_address, new_owner_address):
+    def transfer_ownership(self, contract_address, sender_address, new_owner_address, tx_format=TxFormat.JSONRPC):
         enc = ABIContractEncoder()
         enc.method('transferOwnership')
         enc.typ(ABIContractType.ADDRESS)
@@ -45,7 +51,7 @@ class EIP173(TxFactory):
 
 class Owned(EIP173):
 
-    def accept_ownership(self, contract_address, sender_address):
+    def accept_ownership(self, contract_address, sender_address, tx_format=TxFormat.JSONRPC):
         enc = ABIContractEncoder()
         enc.method('acceptOwnership')
         data = add_0x(enc.get())
@@ -55,7 +61,7 @@ class Owned(EIP173):
         return tx
 
 
-    def take_ownership(self, contract_address, sender_address, resource_address):
+    def take_ownership(self, contract_address, sender_address, resource_address, tx_format=TxFormat.JSONRPC):
         enc = ABIContractEncoder()
         enc.method('takeOwnership')
         enc.typ(ABIContractType.ADDRESS)

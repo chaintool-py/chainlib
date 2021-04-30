@@ -5,3 +5,5 @@
 	* Add eth subscribe monitor
 	* Add eth erc20 transfer script
 	* Add eth gas send script
+	* Add eth eip165 support
+	* Add eth eip173, custom "owned" support

@@ -12,7 +12,10 @@ from chainlib.eth.tx import (
         TxFactory,
         receipt,
         )
-from chainlib.eth.eip165 import EIP165
+from chainlib.eth.owned import (
+        EIP173,
+        Owned,
+        )
 
 logging.basicConfig(level=logging.DEBUG)
 logg = logging.getLogger()
@@ -45,7 +48,83 @@ class TestOwned(EthTesterCase):
 
     
     def test_owned(self):
-        pass
+        c = EIP173(self.chain_spec)
+        o = c.owner(self.address, sender_address=self.accounts[0])
+        r = self.conn.do(o)
+        owner = c.parse_owner(r)
+        self.assertEqual(owner, self.accounts[0])
+
+
+    def test_transfer_ownership(self):
+        nonce_oracle = RPCNonceOracle(self.accounts[2], self.conn)
+        gas_oracle = OverrideGasOracle(limit=8000000, conn=self.conn)
+        c = EIP173(self.chain_spec, nonce_oracle=nonce_oracle, gas_oracle=gas_oracle, signer=self.signer)
+        (tx_hash_hex, o) = c.transfer_ownership(self.address, self.accounts[2], self.accounts[1])
+        r = self.conn.do(o)
+
+        o = receipt(tx_hash_hex)
+        r = self.conn.do(o)
+        self.assertEqual(r['status'], 0)
+        
+        nonce_oracle = RPCNonceOracle(self.accounts[0], self.conn)
+        c = EIP173(self.chain_spec, nonce_oracle=nonce_oracle, gas_oracle=gas_oracle, signer=self.signer)
+        (tx_hash_hex, o) = c.transfer_ownership(self.address, self.accounts[0], self.accounts[1])
+        r = self.conn.do(o)
+
+        o = receipt(tx_hash_hex)
+        r = self.conn.do(o)
+        self.assertEqual(r['status'], 1)
+       
+
+    def test_accept_ownership(self):
+        nonce_oracle = RPCNonceOracle(self.accounts[0], self.conn)
+        gas_oracle = OverrideGasOracle(limit=8000000, conn=self.conn)
+        c = Owned(self.chain_spec, nonce_oracle=nonce_oracle, gas_oracle=gas_oracle, signer=self.signer)
+        (tx_hash_hex, o) = c.transfer_ownership(self.address, self.accounts[0], self.accounts[1])
+        r = self.conn.do(o)
+
+        nonce_oracle = RPCNonceOracle(self.accounts[2], self.conn)
+        c = Owned(self.chain_spec, nonce_oracle=nonce_oracle, gas_oracle=gas_oracle, signer=self.signer)
+        (tx_hash_hex, o) = c.accept_ownership(self.address, self.accounts[2])
+        r = self.conn.do(o)
+
+        o = receipt(tx_hash_hex)
+        r = self.conn.do(o)
+        self.assertEqual(r['status'], 0)
+
+        nonce_oracle = RPCNonceOracle(self.accounts[1], self.conn)
+        c = Owned(self.chain_spec, nonce_oracle=nonce_oracle, gas_oracle=gas_oracle, signer=self.signer)
+        (tx_hash_hex, o) = c.accept_ownership(self.address, self.accounts[1])
+        r = self.conn.do(o)
+
+        o = receipt(tx_hash_hex)
+        r = self.conn.do(o)
+        self.assertEqual(r['status'], 1)
+
+        o = c.owner(self.address, sender_address=self.accounts[0])
+        r = self.conn.do(o)
+        owner = c.parse_owner(r)
+        self.assertEqual(owner, self.accounts[1])
+
+
+    def test_take_ownership(self):
+        nonce_oracle = RPCNonceOracle(self.accounts[0], self.conn)
+        gas_oracle = OverrideGasOracle(limit=8000000, conn=self.conn)
+        c = Owned(self.chain_spec, nonce_oracle=nonce_oracle, gas_oracle=gas_oracle, signer=self.signer)
+        (tx_hash_hex, o) = c.transfer_ownership(self.address, self.accounts[0], self.address)
+        r = self.conn.do(o)
+
+        (tx_hash_hex, o) = c.take_ownership(self.address, self.accounts[0], self.address)
+        r = self.conn.do(o)
+
+        o = receipt(tx_hash_hex)
+        r = self.conn.do(o)
+        self.assertEqual(r['status'], 1)
+
+        o = c.owner(self.address, sender_address=self.accounts[0])
+        r = self.conn.do(o)
+        owner = c.parse_owner(r)
+        self.assertEqual(owner, self.address)
 
 
 if __name__ == '__main__':
