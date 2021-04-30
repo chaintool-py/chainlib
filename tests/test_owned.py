@@ -20,14 +20,14 @@ logg = logging.getLogger()
 script_dir = os.path.realpath(os.path.dirname(__file__))
 
 
-class TestSupports(EthTesterCase):
+class TestOwned(EthTesterCase):
 
     def setUp(self):
-        super(TestSupports, self).setUp()
+        super(TestOwned, self).setUp()
         self.conn = RPCConnection.connect(self.chain_spec, 'default')
         nonce_oracle = RPCNonceOracle(self.accounts[0], self.conn)
 
-        f = open(os.path.join(script_dir, 'testdata', 'Supports.bin'))
+        f = open(os.path.join(script_dir, 'testdata', 'Owned.bin'))
         code = f.read()
         f.close()
 
@@ -43,19 +43,10 @@ class TestSupports(EthTesterCase):
         r = self.conn.do(o)
         self.address = r['contract_address']
 
+    
+    def test_owned(self):
+        pass
 
-    def test_supports(self):
-        gas_oracle = OverrideGasOracle(limit=100000, conn=self.conn)
-        c = EIP165(self.chain_spec, gas_oracle=gas_oracle)
-        o = c.supports_interface(self.address, '0xdeadbeef', sender_address=self.accounts[0])
-        r = self.conn.do(o)
-        v = c.parse_supports_interface(r)
-        self.assertEqual(v, 1)
-        
-        o = c.supports_interface(self.address, '0xbeeffeed', sender_address=self.accounts[0])
-        r = self.conn.do(o)
-        v = c.parse_supports_interface(r)
-        self.assertEqual(v, 0)
 
 if __name__ == '__main__':
     unittest.main()
