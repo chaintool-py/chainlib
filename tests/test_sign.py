@@ -73,10 +73,6 @@ class Mocket(socket.socket):
             else:
                 tx = Mocket.tx
                 r = Mocket.signer.sign_transaction_to_rlp(tx)
-                #mock_sig = os.urandom(64)
-                #tx.r = mock_sig[:32]
-                #tx.s = mock_sig[32:]
-                #r = add_0x(tx.rlp_serialize().hex())
                 Mocket.tx = None
                 o = jsonrpc_response(Mocket.req_id, add_0x(r.hex()))
             Mocket.req_id = None

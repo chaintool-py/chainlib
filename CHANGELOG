@@ -1,9 +1,11 @@
-- 0.0.1
+- 0.0.3-pending
+	* Remove erc20 module (to new external package)
+- 0.0.2-unreleased
+	* 
+- 0.0.1-unreleased
 	* Add eth tx decode
 	* Add eth balance query with erc20 option
 	* Add eth checksum address
 	* Add eth subscribe monitor
 	* Add eth erc20 transfer script
 	* Add eth gas send script
-	* Add eth eip165 support
-	* Add eth eip173, custom "owned" support
