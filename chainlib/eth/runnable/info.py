@@ -41,7 +41,6 @@ from chainlib.eth.block import (
         Block,
         )
 from chainlib.eth.tx import count
-from chainlib.eth.erc20 import ERC20
 from chainlib.eth.connection import EthHTTPConnection
 from chainlib.eth.gas import (
         OverrideGasOracle,
