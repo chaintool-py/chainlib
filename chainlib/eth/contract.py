@@ -61,6 +61,10 @@ class ABIContractDecoder:
         return bool(self.uint256(v))
 
 
+    def boolean(self, v):
+        return bool(self.uint256(v))
+
+
     def address(self, v):
         a = strip_0x(v)[64-40:]
         return to_checksum_address(a)
@@ -143,6 +147,16 @@ class ABIContractEncoder:
         self.__log_latest(v)
 
 
+    def bool(self, v):
+        return self.boolean(v)
+
+
+    def boolean(self, v):
+        if bool(v):
+            return self.uint256(1)
+        return self.uint256(0)
+
+
     def address(self, v):
         self.bytes_fixed(32, v, 20)
         self.types.append(ABIContractType.ADDRESS)
@@ -159,6 +173,7 @@ class ABIContractEncoder:
         self.bytes_fixed(4, v)
         self.types.append(ABIContractType.BYTES4)
         self.__log_latest(v)
+
 
 
     def string(self, v):
