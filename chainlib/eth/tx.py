@@ -187,7 +187,7 @@ def receipt(hsh):
 def raw(tx_raw_hex):
     o = jsonrpc_template()
     o['method'] = 'eth_sendRawTransaction'
-    o['params'].append(tx_raw_hex)
+    o['params'].append(add_0x(tx_raw_hex))
     return o
 
 

@@ -79,7 +79,7 @@ class ABIContractDecoder:
         length = int.from_bytes(b[cursor:cursor+32], 'big')
         cursor += 32
         content = b[cursor:cursor+length]
-        logg.debug('parsing {}'.format(content))
+        logg.debug('parsing string offset {} length {} content {}'.format(offset, length, content))
         return content.decode('utf-8')
 
 

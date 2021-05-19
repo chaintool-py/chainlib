@@ -38,7 +38,10 @@ from chainlib.eth.gas import (
         RPCGasOracle,
         OverrideGasOracle,
         )
-from chainlib.eth.tx import TxFactory
+from chainlib.eth.tx import (
+        TxFactory,
+        raw,
+        )
 from chainlib.chain import ChainSpec
 from chainlib.eth.runnable.util import decode_for_puny_humans
 
@@ -53,7 +56,8 @@ argparser.add_argument('-p', '--provider', dest='p', default='http://localhost:8
 argparser.add_argument('-w', action='store_true', help='Wait for the last transaction to be confirmed')
 argparser.add_argument('-ww', action='store_true', help='Wait for every transaction to be confirmed')
 argparser.add_argument('-i', '--chain-spec', dest='i', type=str, default='evm:ethereum:1', help='Chain specification string')
-argparser.add_argument('-y', '--key-file', required=True, dest='y', type=str, help='Ethereum keystore file to use for signing')
+argparser.add_argument('-y', '--key-file', dest='y', type=str, help='Ethereum keystore file to use for signing')
+argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Auto-convert address to checksum adddress')
 argparser.add_argument('--env-prefix', default=os.environ.get('CONFINI_ENV_PREFIX'), dest='env_prefix', type=str, help='environment prefix for variables to overwrite configuration')
 argparser.add_argument('--nonce', type=int, help='override nonce')
 argparser.add_argument('--gas-price', dest='gas_price', type=int, help='override gas price')
@@ -63,6 +67,7 @@ argparser.add_argument('-value', type=int, help='gas value of transaction in wei
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
 argparser.add_argument('-s', '--send', dest='s', action='store_true', help='Send to network')
+argparser.add_argument('-l', '--local', dest='l', action='store_true', help='Local contract call')
 argparser.add_argument('data', nargs='?', type=str, help='Transaction data')
 args = argparser.parse_args()
 
@@ -93,24 +98,30 @@ signer = EIP155Signer(keystore)
 
 conn = EthHTTPConnection(args.p)
 
-nonce_oracle = None
-if args.nonce != None:
-    nonce_oracle = OverrideNonceOracle(signer_address, args.nonce)
-else:
-    nonce_oracle = RPCNonceOracle(signer_address, conn)
+send = args.s
 
+local = args.l
+if local:
+    send = False
+
+nonce_oracle = None
 gas_oracle = None
-if args.gas_price or args.gas_limit != None:
-    gas_oracle = OverrideGasOracle(price=args.gas_price, limit=args.gas_limit, conn=conn)
-else:
-    gas_oracle = RPCGasOracle(conn)
+if signer_address != None and not local:
+    if args.nonce != None:
+        nonce_oracle = OverrideNonceOracle(signer_address, args.nonce)
+    else:
+        nonce_oracle = RPCNonceOracle(signer_address, conn)
+
+    if args.gas_price or args.gas_limit != None:
+        gas_oracle = OverrideGasOracle(price=args.gas_price, limit=args.gas_limit, conn=conn)
+    else:
+        gas_oracle = RPCGasOracle(conn)
 
 
 chain_spec = ChainSpec.from_chain_str(args.i)
 
 value = args.value
 
-send = args.s
 
 g = TxFactory(chain_spec, signer=signer, gas_oracle=gas_oracle, nonce_oracle=nonce_oracle)
 
@@ -121,14 +132,43 @@ def main():
         if not args.u and recipient != add_0x(recipient):
             raise ValueError('invalid checksum address')
 
-    tx = g.template(signer_address, recipient, use_nonce=True)
-    if args.data != None:
-        tx = g.set_code(tx, add_0x(args.data))
+    if local:
+        o = jsonrpc_template()
+        o['method'] = 'eth_call'
+        o['params'].append({
+            'to': recipient,
+            'from': signer_address,
+            'value': '0x00',
+            'gas': add_0x(int.to_bytes(8000000, 8, byteorder='big').hex()), # TODO: better get of network gas limit
+            'gasPrice': '0x01',
+            'data': add_0x(args.data),
+            })
+        o['params'].append('latest')
+        r = conn.do(o)
+        print(strip_0x(r))
+        return
 
-    (tx_hash_hex, o) = g.finalize(tx)
+    elif signer_address != None:
+        tx = g.template(signer_address, recipient, use_nonce=True)
+        if args.data != None:
+            tx = g.set_code(tx, add_0x(args.data))
+
+        (tx_hash_hex, o) = g.finalize(tx)
    
-    print(o)
-    print(tx_hash_hex)
+        if send:
+            r = conn.do(o)
+            print(r)
+        else:
+            print(o)
+            print(tx_hash_hex)
+
+    else:
+        o = raw(args.data)
+        if send:
+            r = conn.do(o)
+            print(r)
+        else:
+            print(o)
 
 
 if __name__ == '__main__':
