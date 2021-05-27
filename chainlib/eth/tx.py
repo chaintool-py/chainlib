@@ -354,6 +354,7 @@ class Tx:
 
 
     def apply_receipt(self, rcpt):
+        rcpt = self.src_normalize(rcpt)
         logg.debug('rcpt {}'.format(rcpt))
         try:
             status_number = int(rcpt['status'], 16)

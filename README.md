@@ -2,7 +2,7 @@
 
 Chainlib is a prototype attempt at writing a generalized code library structure in python3 for concepts that are valid across blockchains, either within the same chain technology or across them. If useful and/or successful, it should be considered ported to a more performant language (rust?).
 
-It is primarily aimed at console-environment development.
+It is primarily aimed at (possibly threaded) console-environment development.
 
 It aims to give fine-grained control and transparency to all operations and transformations. 
 
