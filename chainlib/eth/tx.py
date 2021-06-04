@@ -26,6 +26,7 @@ from .constant import (
         MINIMUM_FEE_PRICE,
         ZERO_ADDRESS,
         )
+from .contract import ABIContractEncoder
 from chainlib.jsonrpc import jsonrpc_template
 
 logg = logging.getLogger().getChild(__name__)
@@ -270,6 +271,29 @@ class TxFactory:
             else:
                 logg.debug('using hardcoded gas limit of 8000000 until we have reliable vm executor')
         return tx
+
+    
+    def transact_noarg(self, method, contract_address, sender_address, tx_format=TxFormat.JSONRPC):
+        enc = ABIContractEncoder()
+        enc.method(method)
+        data = enc.get()
+        tx = self.template(sender_address, contract_address, use_nonce=True)
+        tx = self.set_code(tx, data)
+        tx = self.finalize(tx, tx_format)
+        return tx
+
+
+    def call_noarg(self, method, contract_address, sender_address=ZERO_ADDRESS):
+        o = jsonrpc_template()
+        o['method'] = 'eth_call'
+        enc = ABIContractEncoder()
+        enc.method(method)
+        data = add_0x(enc.get())
+        tx = self.template(sender_address, contract_address)
+        tx = self.set_code(tx, data)
+        o['params'].append(self.normalize(tx))
+        o['params'].append('latest')
+        return o
 
 
 class Tx:

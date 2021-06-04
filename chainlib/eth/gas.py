@@ -47,6 +47,7 @@ class Gas(TxFactory):
         tx_raw_hex = add_0x(tx_raw.hex())
         tx_hash_hex = add_0x(keccak256_hex_to_hex(tx_raw_hex))
 
+        o = None
         if tx_format == TxFormat.JSONRPC:
             o = raw(tx_raw_hex)
         elif tx_format == TxFormat.RLP_SIGNED:

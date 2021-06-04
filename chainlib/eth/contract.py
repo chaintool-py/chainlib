@@ -57,6 +57,10 @@ class ABIContractDecoder:
         return int(v, 16)
 
 
+    def bytes32(self, v):
+        return v
+
+
     def bool(self, v):
         return bool(self.uint256(v))
 
