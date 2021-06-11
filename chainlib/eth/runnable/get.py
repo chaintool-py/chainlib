@@ -16,6 +16,7 @@ import json
 import argparse
 import logging
 import enum
+import select
 
 # external imports
 from hexathon import (
@@ -43,7 +44,14 @@ logg = logging.getLogger()
 default_abi_dir = os.environ.get('ETH_ABI_DIR', '/usr/share/local/cic/solidity/abi')
 default_eth_provider = os.environ.get('ETH_PROVIDER', 'http://localhost:8545')
 
-argparser = argparse.ArgumentParser()
+def stdin_arg():
+    h = select.select([sys.stdin], [], [], 0)
+    if len(h[0]) > 0:
+        v = h[0][0].read()
+        return v.rstrip()
+    return None
+
+argparser = argparse.ArgumentParser('eth-get', description='display information about an Ethereum address or transaction', epilog='address/transaction can be provided as an argument or from standard input')
 argparser.add_argument('-p', '--provider', dest='p', default=default_eth_provider, type=str, help='Web3 provider url (http only)')
 argparser.add_argument('-i', '--chain-spec', dest='i', type=str, default='evm:ethereum:1', help='Chain specification string')
 argparser.add_argument('-t', '--token-address', dest='t', type=str, help='Token address. If not set, will return gas balance')
@@ -51,8 +59,11 @@ argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Au
 argparser.add_argument('--abi-dir', dest='abi_dir', type=str, default=default_abi_dir, help='Directory containing bytecode and abi (default {})'.format(default_abi_dir))
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
-argparser.add_argument('item', type=str, help='Item to get information for (address og transaction)')
+argparser.add_argument('item', nargs='?', default=stdin_arg(), type=str, help='Item to get information for (address og transaction)')
 args = argparser.parse_args()
+
+if args.item == None:
+    argparser.error('need first positional argument or value from stdin')
 
 if args.vv:
     logg.setLevel(logging.DEBUG)

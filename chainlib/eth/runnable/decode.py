@@ -15,8 +15,9 @@ import os
 import json
 import argparse
 import logging
+import select
 
-# third-party imports
+# external imports
 from chainlib.eth.tx import unpack
 from chainlib.chain import ChainSpec
 
@@ -30,14 +31,27 @@ logg = logging.getLogger()
 default_abi_dir = os.environ.get('ETH_ABI_DIR', '/usr/share/local/cic/solidity/abi')
 default_eth_provider = os.environ.get('ETH_PROVIDER', 'http://localhost:8545')
 
+def stdin_arg():
+    h = select.select([sys.stdin], [], [], 0)
+    if len(h[0]) > 0:
+        v = h[0][0].read()
+        return v.rstrip()
+    return None
+
 argparser = argparse.ArgumentParser()
-argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-i', '--chain-id', dest='i', default='evm:ethereum:1', type=str, help='Numeric network id')
-argparser.add_argument('tx', type=str, help='hex-encoded signed raw transaction')
+argparser.add_argument('tx', type=str, nargs='?', default=stdin_arg(), help='hex-encoded signed raw transaction')
+argparser.add_argument('-v', action='store_true', help='Be verbose')
+argparser.add_argument('-vv', action='store_true', help='Be more verbose')
 args = argparser.parse_args()
 
-if args.v:
+if args.tx == None:
+    argparser.error('need first positional argument or value from stdin')
+
+if args.vv:
     logg.setLevel(logging.DEBUG)
+elif args.v:
+    logg.setLevel(logging.INFO)
 
 chain_spec = ChainSpec.from_chain_str(args.i)
 
