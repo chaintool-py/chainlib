@@ -1,4 +1,4 @@
-crypto-dev-signer~=0.4.14b3
+crypto-dev-signer~=0.4.14b5
 pysha3==1.0.2
 hexathon~=0.0.1a7
 websocket-client==0.57.0
