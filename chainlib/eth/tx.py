@@ -14,7 +14,6 @@ from rlp import decode as rlp_decode
 from rlp import encode as rlp_encode
 from crypto_dev_signer.eth.transaction import EIP155Transaction
 from crypto_dev_signer.encoding import public_key_to_address
-from crypto_dev_signer.eth.encoding import chain_id_to_v
 from potaahto.symbols import snake_and_camel
 
 
@@ -70,25 +69,6 @@ count_pending = count
 
 def count_confirmed(address):
     return count(address, True)
-
-
-def pack(tx_src, chain_spec):
-    if isinstance(tx_src, Tx):
-        tx_src = tx_src.as_dict()
-    tx = EIP155Transaction(tx_src, tx_src['nonce'], chain_spec.chain_id())
-
-    signature = bytearray(65)
-    cursor = 0
-    for a in [
-            tx_src['r'],
-            tx_src['s'],
-            ]:
-        for b in bytes.fromhex(strip_0x(a)):
-            signature[cursor] = b
-            cursor += 1
-    signature[cursor] = tx_src['v']
-    tx.apply_signature(chain_spec.chain_id(), signature, literal_v=True)
-    return tx.rlp_serialize()
 
 
 def unpack(tx_raw_bytes, chain_spec):
@@ -174,11 +154,10 @@ def __unpack_raw(tx_raw_bytes, chain_id=1):
         'gas': d[2],
         'value': d[4],
         'data': data,
-        'v': v,
-        'recovery_byte': vb,
+        'v': chain_id,
         'r': add_0x(sig[:32].hex()),
         's': add_0x(sig[32:64].hex()),
-        'chainId': vb, #chain_id,
+        'chainId': chain_id,
         'hash': add_0x(signed_hash.hex()),
         'hash_unsigned': add_0x(unsigned_hash.hex()),
             }
@@ -396,10 +375,6 @@ class Tx:
     @classmethod
     def src_normalize(self, src):
         return snake_and_camel(src) 
-
-
-    def as_dict(self):
-        return self.src
 
 
     def apply_receipt(self, rcpt):
