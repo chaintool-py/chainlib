@@ -6,7 +6,6 @@ import os
 import json
 import argparse
 import logging
-import select
 
 # local imports
 from chainlib.eth.address import to_checksum
@@ -15,19 +14,11 @@ from chainlib.eth.tx import count
 from chainlib.chain import ChainSpec
 from crypto_dev_signer.keystore.dict import DictKeystore
 from crypto_dev_signer.eth.signer import ReferenceSigner as EIP155Signer
-from hexathon import add_0x
 
 logging.basicConfig(level=logging.WARNING)
 logg = logging.getLogger()
 
 default_eth_provider = os.environ.get('ETH_PROVIDER', 'http://localhost:8545')
-
-def stdin_arg():
-    h = select.select([sys.stdin], [], [], 0)
-    if len(h[0]) > 0:
-        v = h[0][0].read()
-        return v.rstrip()
-    return None
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument('-p', '--provider', dest='p', default='http://localhost:8545', type=str, help='Web3 provider url (http only)')
@@ -37,16 +28,14 @@ argparser.add_argument('--env-prefix', default=os.environ.get('CONFINI_ENV_PREFI
 argparser.add_argument('-u', '--unsafe', dest='u', action='store_true', help='Auto-convert address to checksum adddress')
 argparser.add_argument('-v', action='store_true', help='Be verbose')
 argparser.add_argument('-vv', action='store_true', help='Be more verbose')
-argparser.add_argument('address', nargs='?', type=str, default=stdin_arg(), help='Ethereum address of recipient')
+argparser.add_argument('address', type=str, help='Ethereum address of recipient')
 args = argparser.parse_args()
-
-if args.address == None:
-    argparser.error('need first positional argument or value from stdin')
 
 if args.vv:
     logg.setLevel(logging.DEBUG)
 elif args.v:
     logg.setLevel(logging.INFO)
+
 
 signer_address = None
 keystore = DictKeystore()
@@ -63,7 +52,7 @@ def main():
     if not args.u and recipient != add_0x(args.address):
         raise ValueError('invalid checksum address')
 
-    o = count(recipient)
+    o = count(args.address)
     print(rpc.do(o))
 
 
