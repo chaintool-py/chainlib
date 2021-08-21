@@ -28,7 +28,7 @@ Chainlib is not compatible with python2, nor is there any reason to expect it wi
 
 Any generalizable structures and code can be found in the base module directory `chainlib/`
 
-Currently the only operational code for available targets is for the `evm` and the `Ethereum` network protocol. This code can be found in `chainlib/eth`.
+Currently the only operational code for available targets is for the `evm` and the `Ethereum` network protocol. This code can be found in the separate package `chainlib-eth`.
 
 Every module will have a subdirectory `runnable` which contains CLI convenience tooling for common operations. Any directory `example` will contain code snippets demonstrating usage.
 
