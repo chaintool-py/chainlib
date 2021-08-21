@@ -1,4 +1,10 @@
-- 0.0.3-pending
+- 0.0.5-pending
+	* Move eth code to separate package
+- 0.0.4-unreleased
+	* Add pack tx from already signed tx struct
+	* Add http auth handling for jsonrpc connections
+	* Add customizable jsonrpc id generator (to allow for buggy server id handling)
+- 0.0.3-unreleased
 	* Remove erc20 module (to new external package)
 - 0.0.2-unreleased
 	* 

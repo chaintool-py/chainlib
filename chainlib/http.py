@@ -1,3 +1,4 @@
+# standard imports
 import urllib
 import base64
 import logging
@@ -8,14 +9,16 @@ logg = logging.getLogger(__name__)
 # THANKS to https://stackoverflow.com/questions/2407126/python-urllib2-basic-auth-problem
 class PreemptiveBasicAuthHandler(urllib.request.HTTPBasicAuthHandler):
     """Handler for basic auth urllib callback.
-
-    :param req: Request payload
-    :type req: str
-    :return: Request payload
-    :rtype: str
     """
 
     def http_request(self, req):
+        """Handler for basic auth urllib callback.
+
+        :param req: Request payload
+        :type req: str
+        :return: Request payload
+        :rtype: str
+        """
         url = req.get_full_url()
         realm = None
         user, pw = self.passwd.find_user_password(realm, url)
