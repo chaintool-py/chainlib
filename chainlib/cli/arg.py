@@ -17,6 +17,13 @@ logg = logging.getLogger(__name__)
 
 
 def stdin_arg():
+    """Retreive input arguments from stdin if they exist.
+
+    Method does not block, and expects arguments to be ready on stdin before being called.
+
+    :rtype: str
+    :returns: Input arguments string
+    """
     h = select.select([sys.stdin], [], [], 0)
     if len(h[0]) > 0:
         v = h[0][0].read()
@@ -25,6 +32,23 @@ def stdin_arg():
 
 
 class ArgumentParser(argparse.ArgumentParser):
+    """Extends the standard library argument parser to construct arguments based on configuration flags.
+
+    The extended class is set up to facilitate piping of single positional arguments via stdin. For this reason, positional arguments should be added using the locally defined add_positional method instead of add_argument.
+
+    Calls chainlib.cli.args.ArgumentParser.process_flags with arg_flags and env arguments, see the method's documentation for further details.
+
+    :param arg_flags: Argument flag bit vector to generate configuration values for.
+    :type arg_flags: chainlib.cli.Flag
+    :param env: Environment variables
+    :type env: dict
+    :param usage: Usage string, passed to parent
+    :type usage: str
+    :param description: Description string, passed to parent
+    :type description: str
+    :param epilog: Epilog string, passed to parent
+    :type epilog: str
+    """
 
     def __init__(self, arg_flags=0x0f, env=os.environ, usage=None, description=None, epilog=None, *args, **kwargs):
         super(ArgumentParser, self).__init__(usage=usage, description=description, epilog=epilog)
@@ -33,10 +57,34 @@ class ArgumentParser(argparse.ArgumentParser):
 
 
     def add_positional(self, name, type=str, help=None, required=True):
+        """Add a positional argument.
+
+        Stdin piping will only be possible in the event a single positional argument is defined.
+
+        If the "required" is set, the resulting parsed arguments must have provided a value either from stdin or excplicitly on the command line.
+
+        :param name: Attribute name of argument
+        :type name: str
+        :param type: Argument type
+        :type type: str
+        :param help: Help string
+        :type help: str
+        :param required: If true, argument will be set to required
+        :type required: bool
+        """
         self.pos_args.append((name, type, help, required,))
 
 
     def parse_args(self, argv=sys.argv[1:]):
+        """Overrides the argparse.ArgumentParser.parse_args method.
+
+        Implements reading arguments from stdin if a single positional argument is defined (and not set to required).
+
+        If the "required" was set for the single positional argument, the resulting parsed arguments must have provided a value either from stdin or excplicitly on the command line.
+
+        :param argv: Argument vector to process
+        :type argv: list
+        """
         if len(self.pos_args) == 1:
             arg = self.pos_args[0]
             self.add_argument(arg[0], nargs='?', type=arg[1], default=stdin_arg(), help=arg[2])
@@ -62,6 +110,20 @@ class ArgumentParser(argparse.ArgumentParser):
 
 
     def process_flags(self, arg_flags, env):
+        """Configures the arguments of the parser using the provided flags.
+
+        Environment variables are used for default values for:
+
+        CONFINI_DIR: -c, --config 
+        CONFINI_ENV_PREFIX: --env-prefix
+        
+        This method is called by the constructor, and is not intended to be called directly.
+
+        :param arg_flags: Argument flag bit vector to generate configuration values for.
+        :type arg_flags: chainlib.cli.Flag
+        :param env: Environment variables
+        :type env: dict
+        """
         if arg_flags & Flag.VERBOSE:
             self.add_argument('-v', action='store_true', help='Be verbose')
             self.add_argument('-vv', action='store_true', help='Be more verbose')
