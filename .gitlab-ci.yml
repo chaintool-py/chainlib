@@ -1,9 +1,9 @@
 stages:
 - build 
-- test 
+- test
 #running the bash script in test 
 
-build_python_deps:
+build_and_push:
   image: registry.gitlab.com/grassrootseconomics/cic-base-images:python-3.8.6-dev
   stage: build
   variables:
@@ -20,7 +20,7 @@ build_python_deps:
   - master 
   - daven/* 
 
-build_python_deps:
+tests:
   image: registry.gitlab.com/grassrootseconomics/cic-base-images:python-3.8.6-dev
   stage: test
   variables:
@@ -32,6 +32,9 @@ build_python_deps:
   only: 
   - master 
   - daven/* 
+
+#   rules:
+# - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 
 
