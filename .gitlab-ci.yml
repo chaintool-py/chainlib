@@ -27,7 +27,8 @@ build_python_deps:
     #CI_DEBUG_TRACE: "true"
     CIC_PACKAGE_REGISTRY_PROJECT_ID: 27624814
   script:
-    ls 
+    - ls
+    - bash  run_tests.sh 
   only: 
   - master 
   - daven/* 
