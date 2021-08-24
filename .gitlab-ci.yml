@@ -1,5 +1,7 @@
 stages:
 - build 
+- test 
+#running the bash script in test 
 
 build_python_deps:
   image: registry.gitlab.com/grassrootseconomics/cic-base-images:python-3.8.6-dev
@@ -17,4 +19,18 @@ build_python_deps:
   only: 
   - master 
   - daven/* 
+
+build_python_deps:
+  image: registry.gitlab.com/grassrootseconomics/cic-base-images:python-3.8.6-dev
+  stage: test
+  variables:
+    #CI_DEBUG_TRACE: "true"
+    CIC_PACKAGE_REGISTRY_PROJECT_ID: 27624814
+  script:
+    ls 
+  only: 
+  - master 
+  - daven/* 
+
+
 
