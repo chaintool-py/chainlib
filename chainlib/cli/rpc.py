@@ -5,14 +5,8 @@ import logging
 from chainlib.chain import ChainSpec
 from chainlib.connection import RPCConnection
 from chainlib.jsonrpc import IntSequenceGenerator
-from chainlib.eth.nonce import (
-        RPCNonceOracle,
-        OverrideNonceOracle,
-        )
-from chainlib.eth.fee import (
-        RPCGasOracle,
-        OverrideGasOracle,
-        )
+from chainlib.nonce import NonceOracle
+from chainlib.fee import FeeOracle
 from chainlib.error import SignerMissingException
 
 logg = logging.getLogger(__name__)
@@ -44,9 +38,8 @@ class Rpc:
 
         The "CHAIN_SPEC" value is used for the chain context of the connection.
 
-        If the sequence flag was set in the confiruation (which generates the configuration key "_SEQ"), a sequential integer generator will be used for rpc ids. Otherwise uuids will be used.
+        If the sequence flag was set in the configuration (which generates the configuration key "_SEQ"), a sequential integer generator will be used for rpc ids. Otherwise uuids will be used.
 
-        If the standard arguments for nonce and fee price/price have been defined (which generate the configuration keys "_NONCE", "_FEE_PRICE" and "_FEE_LIMIT" respectively) , the corresponding overrides for fee and nonce generators will be defined.
 
         :param config: Processed configuration 
         :type config: confini.Config
@@ -64,20 +57,6 @@ class Rpc:
 
         self.chain_spec = config.get('CHAIN_SPEC')
         self.conn = self.constructor(url=config.get('RPC_HTTP_PROVIDER'), chain_spec=self.chain_spec, auth=auth)
-
-        if self.can_sign():
-            nonce = config.get('_NONCE')
-            if nonce != None:
-                self.nonce_oracle = OverrideNonceOracle(self.get_sender_address(), nonce, id_generator=self.id_generator)
-            else:
-                self.nonce_oracle = RPCNonceOracle(self.get_sender_address(), self.conn, id_generator=self.id_generator)
-
-            fee_price = config.get('_FEE_PRICE')
-            fee_limit = config.get('_FEE_LIMIT')
-            if fee_price != None or fee_limit != None:
-                self.fee_oracle = OverrideGasOracle(price=fee_price, limit=fee_limit, conn=self.conn, id_generator=self.id_generator)
-            else:
-                self.fee_oracle = RPCGasOracle(self.conn, id_generator=self.id_generator)
 
         return self.conn
 
