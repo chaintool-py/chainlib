@@ -20,3 +20,25 @@ class ExecutionError(Exception):
 class SignerMissingException(Exception):
     """Raised when attempting to retrieve a signer when none has been added
     """
+
+
+class RPCNonceException(RPCException):
+    """RPC error for invalid nonce in transaction
+    """
+
+
+class DefaultErrorParser:
+    """Base class for parsing RPC error repsonses
+    """
+
+    def translate(self, error):
+        """Interface method called by unspeficied rpc when encountering an error
+
+        This class method should be overriden to provide more fine-grained context for both general and implementation specific errors.
+
+        :param error: RPC error response object
+        :type error: dict
+        :rtype: chainlib.error.JSONRPCException
+        :returns: Descriptiv JSONRPCException 
+        """
+        return RPCException('default parser code {}'.format(error))

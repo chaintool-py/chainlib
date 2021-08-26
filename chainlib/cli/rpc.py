@@ -29,6 +29,7 @@ class Rpc:
         self.wallet = wallet
         self.nonce_oracle = None
         self.fee_oracle = None
+        self.error_parser = None
 
 
     def connect_by_config(self, config):

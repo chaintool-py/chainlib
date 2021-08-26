@@ -137,6 +137,7 @@ class ArgumentParser(argparse.ArgumentParser):
             self.add_argument('--env-prefix', default=env.get('CONFINI_ENV_PREFIX'), dest='env_prefix', type=str, help='environment prefix for variables to overwrite configuration')
         if arg_flags & Flag.PROVIDER:
             self.add_argument('-p', '--provider', dest='p', type=str, help='RPC HTTP(S) provider url')
+            self.add_argument('--rpc-dialect', dest='rpc_dialect', type=str, help='RPC HTTP(S) backend dialect')
             self.add_argument('--height', default='latest', help='Block height to execute against')
         if arg_flags & Flag.CHAIN_SPEC:
             self.add_argument('-i', '--chain-spec', dest='i', type=str, help='Chain specification string')

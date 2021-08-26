@@ -159,6 +159,7 @@ class Config(confini.Config):
 
         if arg_flags & Flag.PROVIDER:
             args_override['RPC_HTTP_PROVIDER'] = getattr(args, 'p')
+            args_override['RPC_DIALECT'] = getattr(args, 'rpc_dialect')
         if arg_flags & Flag.CHAIN_SPEC:
             args_override['CHAIN_SPEC'] = getattr(args, 'i')
         if arg_flags & Flag.KEY_FILE:
