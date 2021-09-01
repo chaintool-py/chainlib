@@ -136,9 +136,12 @@ class ArgumentParser(argparse.ArgumentParser):
         if arg_flags & Flag.ENV_PREFIX:
             self.add_argument('--env-prefix', default=env.get('CONFINI_ENV_PREFIX'), dest='env_prefix', type=str, help='environment prefix for variables to overwrite configuration')
         if arg_flags & Flag.PROVIDER:
-            self.add_argument('-p', '--provider', dest='p', type=str, help='RPC HTTP(S) provider url')
+            self.add_argument('-p', '--rpc-provider', dest='p', type=str, help='RPC HTTP(S) provider url')
             self.add_argument('--rpc-dialect', dest='rpc_dialect', type=str, help='RPC HTTP(S) backend dialect')
             self.add_argument('--height', default='latest', help='Block height to execute against')
+            if arg_flags & Flag.RPC_AUTH:
+                self.add_argument('--rpc-auth', dest='rpc_auth', type=str, help='RPC autentication scheme')
+                self.add_argument('--rpc-credentials', dest='rpc_credentials', type=str, help='RPC autentication credential values')
         if arg_flags & Flag.CHAIN_SPEC:
             self.add_argument('-i', '--chain-spec', dest='i', type=str, help='Chain specification string')
         if arg_flags & Flag.UNSAFE:
@@ -151,8 +154,9 @@ class ArgumentParser(argparse.ArgumentParser):
             self.add_argument('-s', '--send', dest='s', action='store_true', help='Send to network')
         if arg_flags & Flag.RAW:
             self.add_argument('--raw', action='store_true', help='Do not decode output')
-        if arg_flags & Flag.SIGN:
+        if arg_flags & (Flag.SIGN | Flag.NONCE):
             self.add_argument('--nonce', type=int, help='override nonce')
+        if arg_flags & (Flag.SIGN | Flag.FEE):
             self.add_argument('--fee-price', dest='fee_price', type=int, help='override fee price')
             self.add_argument('--fee-limit', dest='fee_limit', type=int, help='override fee limit')
         if arg_flags & argflag_std_target == 0:
@@ -161,4 +165,4 @@ class ArgumentParser(argparse.ArgumentParser):
             self.add_argument('-e', '--exectuable-address', dest='executable_address', type=str, help='contract address')
         if arg_flags & Flag.WALLET:
             self.add_argument('-a', '--recipient', dest='recipient', type=str, help='recipient address')
-
+        

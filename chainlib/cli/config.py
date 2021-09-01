@@ -159,6 +159,7 @@ class Config(confini.Config):
 
         if arg_flags & Flag.PROVIDER:
             args_override['RPC_HTTP_PROVIDER'] = getattr(args, 'p')
+            args_override['RPC_PROVIDER'] = getattr(args, 'p')
             args_override['RPC_DIALECT'] = getattr(args, 'rpc_dialect')
         if arg_flags & Flag.CHAIN_SPEC:
             args_override['CHAIN_SPEC'] = getattr(args, 'i')
@@ -171,15 +172,18 @@ class Config(confini.Config):
             config.add(getattr(args, 'height'), '_HEIGHT')
         if arg_flags & Flag.UNSAFE:
             config.add(getattr(args, 'u'), '_UNSAFE')
-        if arg_flags & Flag.SEND:
+        if arg_flags & (Flag.SIGN | Flag.FEE):
+            config.add(getattr(args, 'fee_price'), '_FEE_PRICE')
             fee_limit = getattr(args, 'fee_limit')
             if fee_limit == None:
                 fee_limit = default_fee_limit
             if fee_limit == None:
                 fee_limit = cls.default_fee_limit
             config.add(fee_limit, '_FEE_LIMIT')
-            config.add(getattr(args, 'fee_price'), '_FEE_PRICE')
+        if arg_flags & (Flag.SIGN | Flag.NONCE):
             config.add(getattr(args, 'nonce'), '_NONCE')
+
+        if arg_flags & Flag.SIGN:
             config.add(getattr(args, 's'), '_RPC_SEND')
 
             # handle wait
@@ -192,6 +196,8 @@ class Config(confini.Config):
             config.add(bool(wait_last), '_WAIT')
             wait_all = wait & Flag.WAIT_ALL
             config.add(bool(wait_all), '_WAIT_ALL')
+
+
         if arg_flags & Flag.SEQ:
             config.add(getattr(args, 'seq'), '_SEQ')
         if arg_flags & Flag.WALLET:
@@ -203,6 +209,10 @@ class Config(confini.Config):
 
         if arg_flags & Flag.CONFIG:
             config.add(getattr(args, 'namespace'), 'CONFIG_USER_NAMESPACE')
+
+        if arg_flags & Flag.RPC_AUTH:
+            config.add(getattr(args, 'rpc_auth'), 'RPC_AUTH')
+            config.add(getattr(args, 'rpc_credentials'), 'RPC_CREDENTIALS')
 
         for k in extra_args.keys():
             v = extra_args[k]

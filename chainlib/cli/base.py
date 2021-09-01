@@ -21,8 +21,10 @@ class Flag(enum.IntEnum):
     SEQ = 128
     # read/write - nibble 3
     KEY_FILE = 256
+    FEE = 512 # this must be defined separately now since some rpcs demand minimum base fee price
+    NONCE = 1024
     # write - nibble 4
-    SIGN = 4096 
+    SIGN = 4096
     NO_TARGET = 8192
     EXEC = 16384
     WALLET = 32768
@@ -30,9 +32,10 @@ class Flag(enum.IntEnum):
     WAIT = 65536
     WAIT_ALL = 131072
     SEND = 262144
+    # rpc extras - nibble 6
+    RPC_AUTH = 1048576
 
-
-argflag_std_read = 0x2fff 
-argflag_std_write = 0xff3fff
+argflag_std_read = 0x23ff 
+argflag_std_write = 0xff31ff
 argflag_std_base = 0x200f
 argflag_std_target = 0x00e000

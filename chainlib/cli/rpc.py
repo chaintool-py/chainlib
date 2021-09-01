@@ -48,9 +48,10 @@ class Rpc:
         :returns: An established rpc connection
         """
         auth = None
-        if config.get('RPC_HTTP_AUTHENTICATION') == 'basic':
+        if config.get('RPC_AUTH') == 'basic':
             from chainlib.auth import BasicAuth
-            auth = BasicAuth(config.get('RPC_HTTP_USERNAME'), config.get('RPC_HTTP_PASSWORD'))
+            auth_parts = config.get('RPC_CREDENTIALS').split(':')
+            auth = BasicAuth(auth_parts[0], auth_parts[1])
             logg.debug('using basic http auth')
         
         if config.get('_SEQ'):

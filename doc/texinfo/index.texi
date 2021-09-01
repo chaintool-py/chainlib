@@ -2,4 +2,7 @@
 
 @chapter Chainlib
 
-@include interface.texi
+@include intro.texi
+@include cli.texi
+@include config.texi
+@include code.texi
