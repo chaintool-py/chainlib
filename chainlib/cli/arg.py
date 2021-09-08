@@ -50,8 +50,9 @@ class ArgumentParser(argparse.ArgumentParser):
     :type epilog: str
     """
 
-    def __init__(self, arg_flags=0x0f, env=os.environ, usage=None, description=None, epilog=None, *args, **kwargs):
-        super(ArgumentParser, self).__init__(usage=usage, description=description, epilog=epilog)
+    def __init__(self, arg_flags=0x0f, env=os.environ, usage=None, description=None, epilog=None):
+        super(ArgumentParser, self).__init__(usage=usage, description=description, epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+    
         self.process_flags(arg_flags, env)
         self.pos_args = []
 
@@ -165,4 +166,3 @@ class ArgumentParser(argparse.ArgumentParser):
             self.add_argument('-e', '--exectuable-address', dest='executable_address', type=str, help='contract address')
         if arg_flags & Flag.WALLET:
             self.add_argument('-a', '--recipient', dest='recipient', type=str, help='recipient address')
-        
