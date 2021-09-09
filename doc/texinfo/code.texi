@@ -1,0 +1,91 @@
+@node chainlib-lib
+
+@section Base library contents
+
+
+@subsection Pluggable method interface
+
+The base chainlib blockchain interface is defined by the @code{chainlib.interface.ChainInterface class}. All of the methods in this class are unimplemented. Together they make up the methods necessary to interface with @emph{any} blockchain RPC.
+
+It is up to the implemenenter to choose which of the methods that are needed in any particular context. The implementer would then connect the method symbols with actual code.
+
+Most methods in this class will return objects that can be passed to an RPC connection that fits the block context.
+
+The available methods are:
+
+@table @code
+@item block_latest
+Retrieve the latest block from the network
+@item block_by_hash
+Retrieve the block corresponding to the given block hash
+@item block_by_number
+Retrieve the block corresponding to the given block number
+@item block_from_src
+Render a chainlib.block.Block derivative object from an architecture-dependent block representation source
+@item block_to_src
+Render an architecture dependent transaction representation from the given Block object
+@item tx_by_hash
+Retrieve the transaction corresponding to the given transaction hash
+@item tx_by_block
+Retrieve the transaction corresponding to the given block hash and transaction index
+@item tx_receipt
+Retrieve the details of a confirmed transaction
+@item tx_raw 
+Generate an RPC query from raw transaction wire data
+@item tx_pack
+Generate raw transaction wire data from an architecture dependent transaction representation
+@item tx_unpack
+Generate architecture dependent transaction representation from raw transaction wire data
+@item tx_from_src
+Render a chainlib.tx.Tx derivative object from an architecture-dependent tx representation source
+@item tx_to_src
+Render an architecture dependent transaction representation from the given Tx object
+@item address_safe
+Generate a checksum-safe network address
+@item address_normal
+Generate an unambiguous network address
+@item src_normalize
+Generate an unambiguous dictionary from the given dictionary. For example, this can mean generating camel-case key equivalents for snake-case values.
+@end table
+
+
+@subsection The RPC interface
+
+@code{chainlib.connection} currently has support for HTTP(S) and UNIX socket RPC connections. Both rely on the Python @emph{standard library} only (@code{urllib} and @code{socket}).
+
+It provides a thread-safe connection factory mechanism where connection constructor and location pairs are associated with string labels.
+
+There is also explicit builtin support for the JSONRPC RPC protocol, which allows for a pluggable error translater that can be customized to every RPC "dialect" that needs to be supported (examples are "geth" and "openethereum" dialects of the Ethereum node fauna). Classes to handle JSONRPC results, requests and errors are defined in the @code{chainlib.jsonrpc} module.
+
+
+@subsection Blocks and transactions
+
+Common block and transaction concepts are represented by the @code{chainlib.block.Block} and @code{chainlib.tx.Tx} objects. These are very minimal base-classes that need to be extended for every blockchain implementation that is to be supported.
+
+When building transactions, implementations of the @code{chainlib.sign.Signer}, @code{chainlib.nonce.NonceOracle} and @code{chainlib.fee.FeeOracle} interfaces will provide the transaction factory object of the implementation with signatures, transaction nonces and transaction fee details respectively.
+
+
+@subsection Other code features
+
+This section lists features that are considered outside the core of the @code{chainlib} package
+
+
+@subsubsection RPC authenticator
+
+If you are relying on an RPC provider instead of running your own node (although, you know you @emph{should} run your own node, right?), then RPC authentication may be relevant.
+
+@code{chainlib.auth} provides two authentication mechanisms for HTTP:
+
+@table @code
+@item BasicAuth
+The HTTP basic Authorization scheme
+@item CustomHeaderTokenAuth
+Define an arbitrary header name and value
+@end table
+
+
+@subsubsection Fee price aggregator
+
+The @code{chainlib.stat.ChainStat} class provides a simple implementation of a running average aggregator for network fee prices. This can be used to generate more precise fee price heuristics that in turn can be fed to a Fee Oracle.
+
+

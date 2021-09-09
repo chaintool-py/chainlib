@@ -1,0 +1,16 @@
+@node chainlib-intro
+
+Chainlib is an attempt at employing a universal interface to manipulate and access blockchains regardless of underlying architecture.
+
+It makes the following assumptions:
+
+@itemize
+@item A block MUST have a interpretable serializable format, and contains zero of more transactions
+@item A transaction MUST have a interpretable serializable format
+@item A transaction MUST have a nonce associated with a sender address. This uniquely identifies the transaction on the network.
+@item A transaction MUST have a fee bid to get the transaction executed on the network (a network that does not care about bids can just ignore this property).
+@item A transaction signature MAY be locked to a particular chain identifier
+@item The sender key of a transaction MAY be recovered by the signature of the transaction
+@end itemize
+
+Chainlib is specifically designed for building command line interface tools. It provides templates for handling configuration, argument parsing and environment variable processing to build RPC connections to chain nodes for network queries and signing operations.

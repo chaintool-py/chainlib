@@ -1,0 +1,101 @@
+@node chainlib-config
+
+@section Rendering configurations
+
+Configurations in @code{chainlib} are processed, rendered and interfaced using the @code{confini} python package.
+
+In short, @code{confini} extends the functionality of Python's standard library @code{configparser} package to allow merging of directives by parsing multiple ini-files from multiple directories.
+
+Furthermore, it employs this same multi-file approach when defining a configuration @emph{schema}, aswell as defining source to @emph{override} the values defined in the schema.
+
+See @url{https://gitlab.com/nolash/python-confini} for further details on @code{confini}.
+
+
+@subsection Configuration schema in chainlib
+
+The chainlib configuration schema is, along with the provided command line arguments and environment variables, designed to cover the settings necessary for most normal chain RPC operations.
+
+
+@subsubsection Configuration mapping
+
+Below follows a mapping of configuration directives to command line arguments and environment variables.
+
+Note that any configuration directives prefixed by @code{"_"} are not defined in the configuration schema, and are not overrideable by environment variables. These are values typically are only valid within the context of a single execution of the implemented tool.
+
+@multitable .40 .30 .30
+@headitem arg
+@tab config
+@tab env
+@item ---
+@tab ---
+@tab CONFINI_DIR @footnote{The @code{CONFINI_DIR} environment variable defines an explicit configuration @emph{schema} path. }
+@item -c. --config @footnote{The @code{-c} flag defines an explicit configuration @emph{override} path.}
+@tab ---
+@tab ---
+@item -i, --chain-spec
+@tab CHAIN_SPEC
+@tab CHAIN_SPEC
+@item --height
+@tab _HEIGHT
+@tab ---
+@item --fee-limit
+@tab _FEE_LIMIT
+@tab ---
+@item --fee-price
+@tab _FEE_PRICE
+@tab ---
+@item -n, --namespace
+@tab CONFIG_USER_NAMESPACE
+@tab CONFIG_USER_NAMESPACE
+@item --nonce
+@tab _NONCE
+@tab ---
+@item -p, --rpc-provider
+@tab RPC_HTTP_PROVIDER
+@tab RPC_HTTP_PROVIDER
+@item -a, -recipient
+@tab _RECIPIENT
+@tab ---
+@item -e, --executable-address
+@tab _EXEC_ADDRESS
+@tab ---
+@item --rpc-auth
+@tab RPC_AUTH
+@tab RPC_AUTH
+@item ---
+@tab RPC_PROVIDER
+@tab RPC_PROVIDER @footnote{RPC_PROVIDER will always be set to the same value as RPC_HTTP_PROVIDER by default.}
+@item ---
+@tab RPC_SCHEME
+@tab RPC_SCHEME @footnote{The RPC_SCHEME configuration directive is always set to 'http' by default.}
+@item --rpc-credentials
+@tab RPC_CREDENTIALS
+@tab RPC_CREDENTIALS
+@item --rpc-dialect
+@tab RPC_DIALECT
+@tab RPC_DIALECT
+@item -s, --send
+@tab _RPC_SEND
+@tab ---
+@item --seq
+@tab _SEQ
+@tab ---
+@item -u, --unsafe
+@tab _UNSAFE
+@tab ---
+@item -w
+@tab _WAIT
+@tab ---
+@item -ww
+@tab _WAIT_ALL
+@tab ---
+@item -y, --key-file
+@tab WALLET_KEY_FILE
+@tab WALLET_KEY_FILE
+@item --- @footnote{This flag is not provided because it is simply not safe to define passphrases as an argument on the command line.}
+@tab WALLET_PASSPHRASE
+@tab WALLET_PASSPHRASE
+@end multitable 
+
+Currently @code{chainlib} only supports HTTP(S) when building RPC connections from command line arguments and configuration.
+
