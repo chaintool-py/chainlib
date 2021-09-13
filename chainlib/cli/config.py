@@ -1,6 +1,7 @@
 # standard imports
 import logging
 import os
+import sys
 
 # external imports
 import confini
@@ -35,7 +36,7 @@ class Config(confini.Config):
     default_fee_limit = 0
 
     @classmethod
-    def from_args(cls, args, arg_flags=0x0f, env=os.environ, extra_args={}, base_config_dir=None, default_config_dir=None, user_config_dir=None, default_fee_limit=None, logger=None, load_callback=logcallback):
+    def from_args(cls, args, arg_flags=0x0f, env=os.environ, extra_args={}, base_config_dir=None, default_config_dir=None, user_config_dir=None, default_fee_limit=None, logger=None, load_callback=logcallback, dump_writer=sys.stdout):
         """Parses arguments in argparse.ArgumentParser instance, then match and override configuration values that match them.
 
         The method processes all known argument flags from chainlib.cli.Flag passed in the "args" argument. 
@@ -155,6 +156,9 @@ class Config(confini.Config):
         config = confini.Config(config_dir, env_prefix=env_prefix, override_dirs=override_config_dirs)
         config.process()
 
+        config.add(getattr(args, 'raw'), '_RAW')
+        
+
         args_override = {}
 
         if arg_flags & Flag.PROVIDER:
@@ -205,8 +209,6 @@ class Config(confini.Config):
         if arg_flags & Flag.EXEC:
             config.add(getattr(args, 'executable_address'), '_EXEC_ADDRESS')
 
-        config.add(getattr(args, 'raw'), '_RAW')
-
         if arg_flags & Flag.CONFIG:
             config.add(getattr(args, 'namespace'), 'CONFIG_USER_NAMESPACE')
 
@@ -226,6 +228,21 @@ class Config(confini.Config):
                 pass
             if existing_r == None or r != None:
                 config.add(r, v, exists_ok=True)
+
+        if getattr(args, 'dumpconfig'):
+            config_keys = config.all()
+            with_values = not config.get('_RAW')
+            for k in config_keys:
+                if k[0] == '_':
+                    continue
+                s = k + '='
+                if with_values:
+                    v = config.get(k)
+                    if v != None:
+                        s += str(v)
+                s += '\n'
+                dump_writer.write(s)
+            sys.exit(0)
 
         if load_callback != None:
             load_callback(config)

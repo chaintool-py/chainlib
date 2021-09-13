@@ -97,6 +97,9 @@ class ArgumentParser(argparse.ArgumentParser):
                     self.add_argument(arg[0], nargs='?', type=arg[1], help=arg[2])
         args = super(ArgumentParser, self).parse_args(args=argv)
 
+        if args.dumpconfig:
+            return args
+
         if len(self.pos_args) == 1:
             arg = self.pos_args[0]
             argname = arg[0]
@@ -131,6 +134,7 @@ class ArgumentParser(argparse.ArgumentParser):
         if arg_flags & Flag.CONFIG:
             self.add_argument('-c', '--config', type=str, default=env.get('CONFINI_DIR'), help='Configuration directory')
             self.add_argument('-n', '--namespace', type=str, help='Configuration namespace')
+            self.add_argument('--dumpconfig', action='store_true', help='Output configuration and quit. Use with --raw to omit values and output schema only.')
         if arg_flags & Flag.WAIT:
             self.add_argument('-w', action='store_true', help='Wait for the last transaction to be confirmed')
             self.add_argument('-ww', action='store_true', help='Wait for every transaction to be confirmed')

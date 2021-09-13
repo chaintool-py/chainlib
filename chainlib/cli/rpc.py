@@ -47,6 +47,9 @@ class Rpc:
         :rtype: chainlib.connection.RPCConnection
         :returns: An established rpc connection
         """
+        if config.get('RPC_SCHEME') != 'http':
+            raise NotImplementedError('Only http(s) scheme is implemented for RPC connections at this time')
+
         auth = None
         if config.get('RPC_AUTH') == 'basic':
             from chainlib.auth import BasicAuth
@@ -58,7 +61,7 @@ class Rpc:
             self.id_generator = IntSequenceGenerator()
 
         self.chain_spec = config.get('CHAIN_SPEC')
-        self.conn = self.constructor(url=config.get('RPC_HTTP_PROVIDER'), chain_spec=self.chain_spec, auth=auth)
+        self.conn = self.constructor(url=config.get('RPC_PROVIDER'), chain_spec=self.chain_spec, auth=auth)
 
         return self.conn
 
