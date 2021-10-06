@@ -50,8 +50,8 @@ class ArgumentParser(argparse.ArgumentParser):
     :type epilog: str
     """
 
-    def __init__(self, arg_flags=0x0f, env=os.environ, usage=None, description=None, epilog=None):
-        super(ArgumentParser, self).__init__(usage=usage, description=description, epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+    def __init__(self, arg_flags=0x0f, env=os.environ, usage=None, description=None, epilog=None, *args, **kwargs):
+        super(ArgumentParser, self).__init__(usage=usage, description=description, epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter, *args, **kwargs)
     
         self.process_flags(arg_flags, env)
         self.pos_args = []

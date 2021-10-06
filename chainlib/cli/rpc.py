@@ -113,3 +113,7 @@ class Rpc:
         :returns: Wallet address in canonical string representation
         """
         return self.wallet.signer_address
+
+
+    def get_signer_address(self):
+        return self.get_sender_address()

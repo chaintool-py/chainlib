@@ -2,7 +2,6 @@
 import enum
 import os
 
-
 script_dir = os.path.dirname(os.path.realpath(__file__))
 
 default_config_dir = os.path.join(script_dir, '..', 'data', 'config')
@@ -39,3 +38,9 @@ argflag_std_read = 0x23ff
 argflag_std_write = 0xff31ff
 argflag_std_base = 0x200f
 argflag_std_target = 0x00e000
+argflag_all = 0xffffff
+
+def reset(flags, v):
+    mask = ~(argflag_all & v)
+    r = flags & mask
+    return r

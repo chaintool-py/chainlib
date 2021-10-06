@@ -35,6 +35,15 @@ class Config(confini.Config):
     default_base_config_dir = default_parent_config_dir
     default_fee_limit = 0
 
+
+    @staticmethod
+    def override_defaults(base_dir=None, default_fee_limit=None):
+        if base_dir != None:
+            Config.default_base_config_dir = os.path.realpath(base_dir)
+        if default_fee_limit != None:
+            Config.default_fee_limit = int(default_fee_limit)
+
+
     @classmethod
     def from_args(cls, args, arg_flags=0x0f, env=os.environ, extra_args={}, base_config_dir=None, default_config_dir=None, user_config_dir=None, default_fee_limit=None, logger=None, load_callback=logcallback, dump_writer=sys.stdout):
         """Parses arguments in argparse.ArgumentParser instance, then match and override configuration values that match them.
@@ -157,7 +166,6 @@ class Config(confini.Config):
         config.process()
 
         config.add(getattr(args, 'raw'), '_RAW')
-        
 
         args_override = {}
 
