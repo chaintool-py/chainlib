@@ -16,12 +16,12 @@ class ChainSpec:
     :param tag: Descriptive tag
     :type tag: str
     """
-    def __init__(self, engine, common_name, network_id, tag=None):
+    def __init__(self, arch, fork, network_id, common_name=None):
         self.o = {
-                'engine': engine,
-                'common_name': common_name,
+                'arch': arch,
+                'fork': fork,
                 'network_id': network_id,
-                'tag': tag,
+                'common_name': common_name,
                 }
 
     def network_id(self):
@@ -48,7 +48,7 @@ class ChainSpec:
         :rtype: str
         :returns: engine
         """
-        return self.o['engine']
+        return self.o['arch']
 
 
     def common_name(self):
@@ -78,10 +78,10 @@ class ChainSpec:
         o = chain_str.split(':')
         if len(o) < 3:
             raise ValueError('Chain string must have three sections, got {}'.format(len(o)))
-        tag = None
+        common_name = None
         if len(o) == 4:
-            tag = o[3]
-        return ChainSpec(o[0], o[1], int(o[2]), tag)
+            common_name = o[3]
+        return ChainSpec(o[0], o[1], int(o[2]), common_name)
 
 
     @staticmethod
@@ -100,7 +100,7 @@ class ChainSpec:
         :rtype: chainlib.chain.ChainSpec
         :returns: Resulting chain spec
         """
-        return ChainSpec(o['engine'], o['common_name'], o['network_id'], tag=o['tag'])
+        return ChainSpec(o['arch'], o['fork'], o['network_id'], common_name=o['common_name'])
 
   
     def asdict(self):
@@ -113,7 +113,7 @@ class ChainSpec:
 
 
     def __str__(self):
-        s = '{}:{}:{}'.format(self.o['engine'], self.o['common_name'], self.o['network_id'])
-        if self.o['tag'] != None:
-            s += ':' + self.o['tag']
+        s = '{}:{}:{}'.format(self.o['arch'], self.o['fork'], self.o['network_id'])
+        if self.o['common_name'] != None:
+            s += ':' + self.o['common_name']
         return s
