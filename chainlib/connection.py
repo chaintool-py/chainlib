@@ -314,7 +314,7 @@ class JSONRPCHTTPConnection(HTTPConnection):
 
         try: 
             r = urlopen(req, data=data.encode('utf-8'))
-        except urllib.error.URLError as e:
+        except URLError as e:
             raise RPCException(e)
 
         result = json.load(r)
