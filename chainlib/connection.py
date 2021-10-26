@@ -23,7 +23,10 @@ from .jsonrpc import (
         ErrorParser,
         )
 from .http import PreemptiveBasicAuthHandler
-from .error import JSONRPCException
+from .error import (
+        JSONRPCException,
+        RPCException,
+        )
 from .auth import Auth
 
 logg = logging.getLogger(__name__)
@@ -308,8 +311,11 @@ class JSONRPCHTTPConnection(HTTPConnection):
                     )
             ho = build_opener(handler)
             install_opener(ho)
-       
-        r = urlopen(req, data=data.encode('utf-8'))
+
+        try: 
+            r = urlopen(req, data=data.encode('utf-8'))
+        except URLError as e:
+            raise RPCException(e)
 
         result = json.load(r)
         logg.debug('(HTTP) recv {}'.format(result))

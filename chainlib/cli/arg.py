@@ -57,7 +57,7 @@ class ArgumentParser(argparse.ArgumentParser):
         self.pos_args = []
 
 
-    def add_positional(self, name, type=str, help=None, required=True):
+    def add_positional(self, name, type=str, help=None, append=False, required=True):
         """Add a positional argument.
 
         Stdin piping will only be possible in the event a single positional argument is defined.
@@ -73,7 +73,7 @@ class ArgumentParser(argparse.ArgumentParser):
         :param required: If true, argument will be set to required
         :type required: bool
         """
-        self.pos_args.append((name, type, help, required,))
+        self.pos_args.append((name, type, help, required, append,))
 
 
     def parse_args(self, argv=sys.argv[1:]):
@@ -88,13 +88,23 @@ class ArgumentParser(argparse.ArgumentParser):
         """
         if len(self.pos_args) == 1:
             arg = self.pos_args[0]
-            self.add_argument(arg[0], nargs='?', type=arg[1], default=stdin_arg(), help=arg[2])
+            if arg[4]:
+                self.add_argument(arg[0], nargs='*', type=arg[1], default=stdin_arg(), help=arg[2])
+            else:
+                self.add_argument(arg[0], nargs='?', type=arg[1], default=stdin_arg(), help=arg[2])
         else:
             for arg in self.pos_args:
                 if arg[3]:
-                    self.add_argument(arg[0], type=arg[1], help=arg[2])
+                    if arg[4]:
+                        logg.debug('argumen')
+                        self.add_argument(arg[0], nargs='+', type=arg[1], help=arg[2])
+                    else:
+                        self.add_argument(arg[0], type=arg[1], help=arg[2])
                 else:
-                    self.add_argument(arg[0], nargs='?', type=arg[1], help=arg[2])
+                    if arg[4]:
+                        self.add_argument(arg[0], nargs='*', type=arg[1], help=arg[2])
+                    else:
+                        self.add_argument(arg[0], type=arg[1], help=arg[2])
         args = super(ArgumentParser, self).parse_args(args=argv)
 
         if args.dumpconfig:
