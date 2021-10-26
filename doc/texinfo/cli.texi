@@ -1,4 +1,5 @@
-@node chainlib-cli
+@node chainlib-cli, chainlib-config, chainlib-intro, Top
+@comment this, next, prev, up
 
 @section Command line interface provisions
 

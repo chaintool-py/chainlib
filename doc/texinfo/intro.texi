@@ -1,4 +1,5 @@
-@node chainlib-intro
+@node chainlib-intro, chainlib-cli,,Top
+@comment this, next, prev, up
 
 Chainlib is an attempt at employing a universal interface to manipulate and access blockchains regardless of underlying architecture.
 

@@ -1,4 +1,5 @@
-@node chainlib-config
+@node chainlib-config, chainlib-lib, chainlib-cli, Top
+@comment this, next, prev, up
 
 @section Rendering configurations
 

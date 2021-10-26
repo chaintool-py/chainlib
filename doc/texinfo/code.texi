@@ -1,4 +1,5 @@
-@node chainlib-lib
+@node chainlib-lib,,chainlib-config,Top
+@comment this, next, prev, up
 
 @section Base library contents
 
