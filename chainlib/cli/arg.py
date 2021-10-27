@@ -107,7 +107,7 @@ class ArgumentParser(argparse.ArgumentParser):
                         self.add_argument(arg[0], type=arg[1], help=arg[2])
         args = super(ArgumentParser, self).parse_args(args=argv)
 
-        if args.dumpconfig:
+        if getattr(args, 'dumpconfig', None) != None:
             return args
 
         if len(self.pos_args) == 1:
