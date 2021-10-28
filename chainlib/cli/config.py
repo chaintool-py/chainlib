@@ -236,7 +236,6 @@ class Config(confini.Config):
             if existing_r == None or r != None:
                 config.add(r, v, exists_ok=True)
 
-        logg.debug('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>' + str(getattr(args, 'dumpconfig')))
         if getattr(args, 'dumpconfig', None):
             config_keys = config.all()
             with_values = not config.get('_RAW')
