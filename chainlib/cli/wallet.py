@@ -27,6 +27,10 @@ class Wallet:
         self.use_checksum = False
 
 
+    def init(self):
+        self.signer = self.signer_constructor(self.keystore)
+
+
     def from_config(self, config):
         """Instantiates a signer from the registered signer class, using parameters from a processed configuration.
 
