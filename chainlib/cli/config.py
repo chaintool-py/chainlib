@@ -224,6 +224,7 @@ class Config(confini.Config):
             config.add(getattr(args, 'rpc_credentials'), 'RPC_CREDENTIALS')
 
         for k in extra_args.keys():
+            logg.debug('extra_agrs {}'.format(k))
             v = extra_args[k]
             if v == None:
                 v = '_' + k.upper()
@@ -235,6 +236,7 @@ class Config(confini.Config):
                 pass
             if existing_r == None or r != None:
                 config.add(r, v, exists_ok=True)
+                logg.debug('added {} to {}'.format(r, v))
 
         if getattr(args, 'dumpconfig', None):
             config_keys = config.all()
