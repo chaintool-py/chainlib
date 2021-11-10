@@ -239,18 +239,26 @@ class Config(confini.Config):
                 logg.debug('added {} to {}'.format(r, v))
 
         if getattr(args, 'dumpconfig', None):
-            config_keys = config.all()
-            with_values = not config.get('_RAW')
-            for k in config_keys:
-                if k[0] == '_':
-                    continue
-                s = k + '='
-                if with_values:
-                    v = config.get(k)
-                    if v != None:
-                        s += str(v)
-                s += '\n'
-                dump_writer.write(s)
+            if args.dumpconfig == 'ini':
+                from confini.export import ConfigExporter
+                exporter = ConfigExporter(config, target=sys.stdout, doc=False)
+                exporter.export(exclude_sections=[config])
+            elif args.dumpconfig == 'env':
+                from confini.env import export_env
+                export_env(config)
+
+#            config_keys = config.all()
+#            with_values = not config.get('_RAW')
+#            for k in config_keys:
+#                if k[0] == '_':
+#                    continue
+#                s = k + '='
+#                if with_values:
+#                    v = config.get(k)
+#                    if v != None:
+#                        s += str(v)
+#                s += '\n'
+#                dump_writer.write(s)
             sys.exit(0)
 
         if load_callback != None:
