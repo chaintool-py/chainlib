@@ -242,7 +242,7 @@ class Config(confini.Config):
             if args.dumpconfig == 'ini':
                 from confini.export import ConfigExporter
                 exporter = ConfigExporter(config, target=sys.stdout, doc=False)
-                exporter.export(exclude_sections=[config])
+                exporter.export(exclude_sections=['config'])
             elif args.dumpconfig == 'env':
                 from confini.env import export_env
                 export_env(config)
