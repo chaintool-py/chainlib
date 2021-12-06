@@ -1,4 +1,6 @@
-- 0.0.5-pending
+- 0.0.14
+	* Add option to skip ssl verification on rpc
+- 0.0.5
 	* Move eth code to separate package
 - 0.0.4-unreleased
 	* Add pack tx from already signed tx struct

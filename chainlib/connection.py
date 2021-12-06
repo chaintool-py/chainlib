@@ -102,10 +102,13 @@ class RPCConnection:
         }
     __constructors_for_chains = {}
 
-    def __init__(self, url=None, chain_spec=None, auth=None):
+    def __init__(self, url=None, chain_spec=None, auth=None, verify_identity=True):
         self.chain_spec = chain_spec
         self.location = None
         self.basic = None
+        self.verify_identity = verify_identity
+        if not self.verify_identity:
+            logg.warning('RPC host identity verification is OFF. Beware, you will be easy to cheat')
         if url == None:
             return
         self.auth = auth
@@ -287,6 +290,11 @@ class JSONRPCHTTPConnection(HTTPConnection):
         :returns: Result value part of JSON RPC response
         :todo: Invalid response exception from invalid json response
         """
+        ssl_ctx = None
+        if not self.verify_identity:
+            import ssl
+            ssl_ctx = ssl.SSLContext()
+            ssl_ctx.verify_mode = ssl.CERT_NONE
         req = Request(
                 self.location,
                 method='POST',
@@ -313,7 +321,11 @@ class JSONRPCHTTPConnection(HTTPConnection):
             install_opener(ho)
 
         try: 
-            r = urlopen(req, data=data.encode('utf-8'))
+            r = urlopen(
+                req,
+                data=data.encode('utf-8'),
+                context=ssl_ctx,
+                )
         except URLError as e:
             raise RPCException(e)
 

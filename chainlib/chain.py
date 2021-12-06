@@ -186,10 +186,17 @@ class ChainSpec:
         return r
 
 
-    def __str__(self):
+    def as_string(self, skip_optional=False):
         s = '{}:{}:{}'.format(self.o['arch'], self.o['fork'], self.o['network_id'])
+        if skip_optional:
+            return s
+
         if self.o.get('common_name'):
             s += ':' + self.o['common_name']
         if self.o.get('custom'):
             s += ':' + ':'.join(self.o['custom'])
         return s
+
+
+    def __str__(self):
+        return self.as_string()        
