@@ -61,7 +61,7 @@ class Rpc:
             self.id_generator = IntSequenceGenerator()
 
         self.chain_spec = config.get('CHAIN_SPEC')
-        self.conn = self.constructor(url=config.get('RPC_PROVIDER'), chain_spec=self.chain_spec, auth=auth)
+        self.conn = self.constructor(url=config.get('RPC_PROVIDER'), chain_spec=self.chain_spec, auth=auth, verify_identity=config.true('RPC_VERIFY'))
 
         return self.conn
 

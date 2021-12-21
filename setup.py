@@ -16,5 +16,12 @@ setup(
         install_requires=requirements,
         extras_require={
              'xdg': "pyxdg~=0.27",
-             }
+             },
+        license_files= ('LICENSE.txt',),
+        python_requires = '>=3.8',
+        include_package_data = True,
+        packages = [
+            'chainlib',
+            'chainlib.cli',
+            ],
     )

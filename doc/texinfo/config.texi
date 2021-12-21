@@ -1,5 +1,4 @@
-@node chainlib-config
-
+@anchor{chainlib-config}
 @section Rendering configurations
 
 Configurations in @code{chainlib} are processed, rendered and interfaced using the @code{confini} python package.

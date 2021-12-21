@@ -30,9 +30,7 @@ class TxHexNormalizer:
 
 
     def __hex_normalize(self, data, context):
-        #r = add_0x(hex_uniform(strip_0x(data)))
         r = hex_uniform(strip_0x(data))
-        logg.debug('normalize {} {} -> {}'.format(context, data, r))
         return r
 
 

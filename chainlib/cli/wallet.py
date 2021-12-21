@@ -1,9 +1,6 @@
 # standard imports
 import logging
 
-# external imports
-from crypto_dev_signer.keystore.dict import DictKeystore
-
 logg = logging.getLogger(__name__)
 
 
@@ -19,7 +16,7 @@ class Wallet:
     :todo: sign_transaction_to_rlp from chainlib-eth must be renamed to sign_transaction_to_wire, and included as part of signer interface
     """
     
-    def __init__(self, signer_cls, keystore=DictKeystore(), checksummer=None):
+    def __init__(self, signer_cls, keystore=None, checksummer=None):
         self.signer_constructor = signer_cls
         self.keystore = keystore
         self.signer = None
@@ -28,6 +25,10 @@ class Wallet:
         self.gas_oracle = None
         self.checksummer = checksummer
         self.use_checksum = False
+
+
+    def init(self):
+        self.signer = self.signer_constructor(self.keystore)
 
 
     def from_config(self, config):

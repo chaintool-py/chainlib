@@ -1,5 +1,4 @@
-@top chainlib
-
+@node chainlib
 @chapter Chainlib
 
 @include intro.texi

@@ -1,5 +1,3 @@
-@node chainlib-lib
-
 @section Base library contents
 
 

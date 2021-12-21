@@ -1,6 +1,7 @@
 # standard imports
 import unittest
 import os
+import logging
 
 # local imports
 import chainlib.cli
@@ -9,6 +10,8 @@ from chainlib.cli.base import argflag_std_base
 script_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = os.path.join(script_dir, 'testdata')
 config_dir = os.path.join(data_dir, 'config')
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 class TestCli(unittest.TestCase):

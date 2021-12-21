@@ -57,7 +57,7 @@ class ArgumentParser(argparse.ArgumentParser):
         self.pos_args = []
 
 
-    def add_positional(self, name, type=str, help=None, required=True):
+    def add_positional(self, name, type=str, help=None, append=False, required=True):
         """Add a positional argument.
 
         Stdin piping will only be possible in the event a single positional argument is defined.
@@ -73,7 +73,7 @@ class ArgumentParser(argparse.ArgumentParser):
         :param required: If true, argument will be set to required
         :type required: bool
         """
-        self.pos_args.append((name, type, help, required,))
+        self.pos_args.append((name, type, help, required, append,))
 
 
     def parse_args(self, argv=sys.argv[1:]):
@@ -88,16 +88,26 @@ class ArgumentParser(argparse.ArgumentParser):
         """
         if len(self.pos_args) == 1:
             arg = self.pos_args[0]
-            self.add_argument(arg[0], nargs='?', type=arg[1], default=stdin_arg(), help=arg[2])
+            if arg[4]:
+                self.add_argument(arg[0], nargs='*', type=arg[1], default=stdin_arg(), help=arg[2])
+            else:
+                self.add_argument(arg[0], nargs='?', type=arg[1], default=stdin_arg(), help=arg[2])
         else:
             for arg in self.pos_args:
                 if arg[3]:
-                    self.add_argument(arg[0], type=arg[1], help=arg[2])
+                    if arg[4]:
+                        logg.debug('argumen')
+                        self.add_argument(arg[0], nargs='+', type=arg[1], help=arg[2])
+                    else:
+                        self.add_argument(arg[0], type=arg[1], help=arg[2])
                 else:
-                    self.add_argument(arg[0], nargs='?', type=arg[1], help=arg[2])
+                    if arg[4]:
+                        self.add_argument(arg[0], nargs='*', type=arg[1], help=arg[2])
+                    else:
+                        self.add_argument(arg[0], type=arg[1], help=arg[2])
         args = super(ArgumentParser, self).parse_args(args=argv)
 
-        if args.dumpconfig:
+        if getattr(args, 'dumpconfig', None) != None:
             return args
 
         if len(self.pos_args) == 1:
@@ -134,7 +144,7 @@ class ArgumentParser(argparse.ArgumentParser):
         if arg_flags & Flag.CONFIG:
             self.add_argument('-c', '--config', type=str, default=env.get('CONFINI_DIR'), help='Configuration directory')
             self.add_argument('-n', '--namespace', type=str, help='Configuration namespace')
-            self.add_argument('--dumpconfig', action='store_true', help='Output configuration and quit. Use with --raw to omit values and output schema only.')
+            self.add_argument('--dumpconfig', type=str, choices=['env', 'ini'], help='Output configuration and quit. Use with --raw to omit values and output schema only.')
         if arg_flags & Flag.WAIT:
             self.add_argument('-w', action='store_true', help='Wait for the last transaction to be confirmed')
             self.add_argument('-ww', action='store_true', help='Wait for every transaction to be confirmed')

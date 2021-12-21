@@ -1,5 +1,3 @@
-@node chainlib-cli
-
 @section Command line interface provisions
 
 The base CLI provisions of @code{chainlib} simplifies the generation of a some base object instances by command line arguments, environment variables and configuration schemas.
