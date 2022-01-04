@@ -133,6 +133,9 @@ class RPCConnection:
         self.location = os.path.join('{}://'.format(url_parsed.scheme), location)
         self.location = urljoin(self.location, url_parsed.path)
 
+        if url_parsed.query != '':
+            self.location = urljoin(self.location, '?' + url_parsed.query)
+
         logg.debug('parsed url {} to location {}'.format(url, self.location))
 
 
@@ -319,7 +322,7 @@ class JSONRPCHTTPConnection(HTTPConnection):
                     )
             ho = build_opener(handler)
             install_opener(ho)
-
+        
         try: 
             r = urlopen(
                 req,
