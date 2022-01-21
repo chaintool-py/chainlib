@@ -2,6 +2,7 @@
 import logging
 import os
 import sys
+import re
 
 # external imports
 import confini
@@ -102,14 +103,51 @@ class Config(confini.Config):
         :rtype: confini.Config
         :return: Processed configuation
         """
+        env_prefix = getattr(args, 'env_prefix', None)
+        env_prefix_str = env_prefix
+        if env_prefix_str == None:
+            env_prefix_str = ''
+        else:
+            env_prefix_str += '_'
+
+        env_loglevel_key_str = env_prefix_str + 'LOGLEVEL'
+        env_loglevel = os.environ.get(env_loglevel_key_str)
+
         if logger == None:
             logger = logging.getLogger()
 
-        if arg_flags & Flag.CONFIG:
+        if env_loglevel != None:
+            env_loglevel = env_loglevel.lower()
+            if env_loglevel == '0' or env_loglevel == 'no' or env_loglevel == 'none' or env_loglevel == 'disable' or env_loglevel == 'disabled' or env_loglevel == 'off':
+                logging.disable()
+            elif env_loglevel == '1' or env_loglevel == 'err' or env_loglevel == 'error':
+                logger.setLevel(logging.ERROR)
+            elif env_loglevel == '2' or env_loglevel == 'warning' or env_loglevel == 'warn':
+                logger.setLevel(logging.WARNING)
+            elif env_loglevel == '3' or env_loglevel == 'info':
+                logger.setLevel(logging.INFO)
+            else:
+                valid_level = False
+                try:
+                    num_loglevel = int(env_loglevel)
+                    valid_level = True
+                except:
+                    if env_loglevel == 'debug':
+                        valid_level = True
+
+                if not valid_level:
+                    raise ValueError('unknown loglevel {} set in environment variable {}'.format(env_loglevel, env_loglevel_key_str))
+
+                logger.setLevel(logging.DEBUG)
+
+
+        if arg_flags & Flag.VERBOSE:
             if args.vv:
                 logger.setLevel(logging.DEBUG)
             elif args.v:
                 logger.setLevel(logging.INFO)
+            if args.no_logs:
+                logging.disable()
    
         override_config_dirs = []
         config_dir = [cls.default_base_config_dir]
@@ -160,7 +198,6 @@ class Config(confini.Config):
         #        default_config_dir = default_parent_config_dir
         #    config_dir = default_config_dir
         #    override_config_dirs = []
-        env_prefix = getattr(args, 'env_prefix', None)
 
         config = confini.Config(config_dir, env_prefix=env_prefix, override_dirs=override_config_dirs)
         config.process()

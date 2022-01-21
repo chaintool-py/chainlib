@@ -1,16 +1,20 @@
+- 0.0.17
+	* Add loglevel environment variable
+- 0.0.16
+	* Allow query string in query url
 - 0.0.14
 	* Add option to skip ssl verification on rpc
 - 0.0.5
 	* Move eth code to separate package
-- 0.0.4-unreleased
+- 0.0.4
 	* Add pack tx from already signed tx struct
 	* Add http auth handling for jsonrpc connections
 	* Add customizable jsonrpc id generator (to allow for buggy server id handling)
-- 0.0.3-unreleased
+- 0.0.3
 	* Remove erc20 module (to new external package)
-- 0.0.2-unreleased
+- 0.0.2
 	* 
-- 0.0.1-unreleased
+- 0.0.1
 	* Add eth tx decode
 	* Add eth balance query with erc20 option
 	* Add eth checksum address
