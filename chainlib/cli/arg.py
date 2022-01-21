@@ -141,7 +141,7 @@ class ArgumentParser(argparse.ArgumentParser):
         if arg_flags & Flag.VERBOSE:
             self.add_argument('--no-logs', dest='no_logs',action='store_true', help='Turn off all logging')
             self.add_argument('-v', action='store_true', help='Be verbose')
-            self.add_argument('-vv', action='store_true', help='Be very verbose')
+            self.add_argument('-vv', action='store_true', help='Be more verbose')
         if arg_flags & Flag.CONFIG:
             self.add_argument('-c', '--config', type=str, default=env.get('CONFINI_DIR'), help='Configuration directory')
             self.add_argument('-n', '--namespace', type=str, help='Configuration namespace')
