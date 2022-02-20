@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 import re
+import stat
 
 # external imports
 import confini
@@ -213,7 +214,14 @@ class Config(confini.Config):
             args_override['CHAIN_SPEC'] = getattr(args, 'i')
         if arg_flags & Flag.KEY_FILE:
             args_override['WALLET_KEY_FILE'] = getattr(args, 'y')
-       
+            fp = getattr(args, 'passphrase_file')
+            if fp != None:
+                st = os.stat(fp)
+                if stat.S_IMODE(st.st_mode) & (stat.S_IRWXO | stat.S_IRWXG) > 0:
+                    logg.warning('others than owner have access on password file')
+                f = open(fp, 'r')
+                args_override['WALLET_PASSPHRASE'] = f.read()
+                f.close()
         config.dict_override(args_override, 'cli args')
 
         if arg_flags & Flag.PROVIDER:

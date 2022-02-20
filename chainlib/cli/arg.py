@@ -166,6 +166,7 @@ class ArgumentParser(argparse.ArgumentParser):
             self.add_argument('--seq', action='store_true', help='Use sequential rpc ids')
         if arg_flags & Flag.KEY_FILE:
             self.add_argument('-y', '--key-file', dest='y', type=str, help='Keystore file to use for signing or address')
+            self.add_argument('--passphrase-file', dest='passphrase_file', type=str, help='File containing passphrase for keystore')
         if arg_flags & Flag.SEND:
             self.add_argument('-s', '--send', dest='s', action='store_true', help='Send to network')
         if arg_flags & Flag.RAW:

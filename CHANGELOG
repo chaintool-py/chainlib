@@ -1,3 +1,7 @@
+- 0.0.19
+	* Passphrase file option to unlock keyfile for CLI tooling
+- 0.0.18
+	* Upgrade hexathon skipping buggy compact hex method
 - 0.0.17
 	* Add loglevel environment variable
 - 0.0.16
