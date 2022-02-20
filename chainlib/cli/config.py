@@ -222,6 +222,7 @@ class Config(confini.Config):
                 f = open(fp, 'r')
                 args_override['WALLET_PASSPHRASE'] = f.read()
                 f.close()
+            config.censor('PASSPHRASE', 'WALLET')
         config.dict_override(args_override, 'cli args')
 
         if arg_flags & Flag.PROVIDER:
