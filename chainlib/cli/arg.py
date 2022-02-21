@@ -5,6 +5,7 @@ import enum
 import os
 import select
 import sys
+import re
 
 # local imports
 from .base import (
@@ -30,16 +31,31 @@ def stdin_arg():
         return v.rstrip()
     return None
 
+_default_long_args = {
+        '-a': '--recipient',
+        '-e': '--executable-address',
+        '-s': '--send',
+        '-y': '--key-file',
+                }
+
+_default_dest = {
+        '-a': 'recipient',
+        '-e': 'executable_address',
+        }
 
 class ArgumentParser(argparse.ArgumentParser):
     """Extends the standard library argument parser to construct arguments based on configuration flags.
 
     The extended class is set up to facilitate piping of single positional arguments via stdin. For this reason, positional arguments should be added using the locally defined add_positional method instead of add_argument.
 
+    Long flag aliases for short flags are editable using the arg_long argument. Editing a non-existent short flag will produce no error and have no effect. Adding a long flag for a short flag that does not have an alias will also not have effect.
+
     Calls chainlib.cli.args.ArgumentParser.process_flags with arg_flags and env arguments, see the method's documentation for further details.
 
     :param arg_flags: Argument flag bit vector to generate configuration values for.
     :type arg_flags: chainlib.cli.Flag
+    :param arg_long: Change long flag alias for given short flags. Example value: {'-a': '--addr', '-e': '--contract'}
+    :type arg_long: dict
     :param env: Environment variables
     :type env: dict
     :param usage: Usage string, passed to parent
@@ -50,11 +66,23 @@ class ArgumentParser(argparse.ArgumentParser):
     :type epilog: str
     """
 
-    def __init__(self, arg_flags=0x0f, env=os.environ, usage=None, description=None, epilog=None, *args, **kwargs):
+    def __init__(self, arg_flags=0x0f, arg_long={}, env=os.environ, usage=None, description=None, epilog=None, *args, **kwargs):
         super(ArgumentParser, self).__init__(usage=usage, description=description, epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter, *args, **kwargs)
     
-        self.process_flags(arg_flags, env)
         self.pos_args = []
+        self.long_args = _default_long_args
+        self.arg_dest = _default_dest
+
+        re_long = r'^--[a-z\-]+$'
+        for k in arg_long.keys():
+            if re.match(re_long, arg_long[k]) == None:
+                raise ValueError('invalid long arg {}'.format(arg_long[k]))
+            self.long_args[k] = arg_long[k]
+            dest = arg_long[k][2:]
+            dest = dest.replace('-', '_')
+            self.arg_dest[k] = dest
+
+        self.process_flags(arg_flags, env)
 
 
     def add_positional(self, name, type=str, help=None, append=False, required=True):
@@ -96,7 +124,6 @@ class ArgumentParser(argparse.ArgumentParser):
             for arg in self.pos_args:
                 if arg[3]:
                     if arg[4]:
-                        logg.debug('argumen')
                         self.add_argument(arg[0], nargs='+', type=arg[1], help=arg[2])
                     else:
                         self.add_argument(arg[0], type=arg[1], help=arg[2])
@@ -165,10 +192,10 @@ class ArgumentParser(argparse.ArgumentParser):
         if arg_flags & Flag.SEQ:
             self.add_argument('--seq', action='store_true', help='Use sequential rpc ids')
         if arg_flags & Flag.KEY_FILE:
-            self.add_argument('-y', '--key-file', dest='y', type=str, help='Keystore file to use for signing or address')
+            self.add_argument('-y', self.long_args['-y'], dest='y', type=str, help='Keystore file to use for signing or address')
             self.add_argument('--passphrase-file', dest='passphrase_file', type=str, help='File containing passphrase for keystore')
         if arg_flags & Flag.SEND:
-            self.add_argument('-s', '--send', dest='s', action='store_true', help='Send to network')
+            self.add_argument('-s', self.long_args['-s'], dest='s', action='store_true', help='Send to network')
         if arg_flags & Flag.RAW:
             self.add_argument('--raw', action='store_true', help='Do not decode output')
         if arg_flags & (Flag.SIGN | Flag.NONCE):
@@ -179,6 +206,6 @@ class ArgumentParser(argparse.ArgumentParser):
         if arg_flags & argflag_std_target == 0:
             arg_flags |= Flag.WALLET
         if arg_flags & Flag.EXEC:
-            self.add_argument('-e', '--exectuable-address', dest='executable_address', type=str, help='contract address')
+            self.add_argument('-e', self.long_args['-e'], dest=self.arg_dest['-e'], type=str, help='contract address')
         if arg_flags & Flag.WALLET:
-            self.add_argument('-a', '--recipient', dest='recipient', type=str, help='recipient address')
+            self.add_argument('-a', self.long_args['-a'], dest=self.arg_dest['-a'], type=str, help='recipient address')
