@@ -1,3 +1,5 @@
+- 0.0.21
+	* Log rpc reply before json parse
 - 0.0.20
 	* Add edit option for some long flag aliases of short flags: -a, -e, -s and -y
 - 0.0.19

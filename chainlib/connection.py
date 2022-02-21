@@ -322,7 +322,8 @@ class JSONRPCHTTPConnection(HTTPConnection):
                     )
             ho = build_opener(handler)
             install_opener(ho)
-        
+       
+        r = None
         try: 
             r = urlopen(
                 req,
@@ -332,8 +333,9 @@ class JSONRPCHTTPConnection(HTTPConnection):
         except URLError as e:
             raise RPCException(e)
 
-        result = json.load(r)
-        logg.debug('(HTTP) recv {}'.format(result))
+        resp = r.read()
+        logg.debug('(HTTP) recv {}'.format(resp.decode('utf-8')))
+        result = json.loads(resp)
         if o['id'] != result['id']:
             raise ValueError('RPC id mismatch; sent {} received {}'.format(o['id'], result['id']))
         return jsonrpc_result(result, error_parser)
