@@ -4,6 +4,18 @@ from .base import (
         argflag_std_target,
         )
 
+def apply_groff(collection, v, arg=None):
+    s = ''
+    for flag in collection:
+        if len(s) > 0:
+            s += ', '
+        s += '\\fB' + flag
+        if arg != None:
+            s += ' \\fI' + arg
+        s += '\\fP'
+    s = "\n.TP\n" + s + "\n" + v
+    return s
+
 
 class DocEntry:
 
@@ -36,20 +48,10 @@ class DocEntry:
 
 
     def get_groff(self):
-        s = ''
-        for flag in self.flags:
-            if len(s) > 0:
-                s += ', '
-            s += '\\fB' + flag
-            if self.v != None:
-                s += ' \\fI' + self.v
-            s += '\\fP'
-
         v = self.groff
         if v == None:
             v = self.plain
-
-        s = "\n.TP\n" + s + "\n" + self.groff
+        s = apply_groff(self.flags, v, arg=self.v) 
         return s
 
 
@@ -59,9 +61,11 @@ class DocEntry:
 
 class DocGenerator:
 
-    def __init__(self, arg_flags):
+    def __init__(self, arg_flags, config):
+        self.config = config
         self.arg_flags = arg_flags
         self.docs = {}
+        self.envs = {}
 
 
     def __str__(self):
@@ -73,7 +77,43 @@ class DocGenerator:
         return s
 
 
-    def process(self):
+    def get_args(self):
+        s = ''
+        ks = list(self.docs.keys())
+        ks.sort()
+        for k in ks:
+            s += str(self.docs[k]) + "\n" 
+        return s
+
+
+    def get_args(self):
+        s = ''
+        ks = list(self.docs.keys())
+        ks.sort()
+        for k in ks:
+            s += str(self.docs[k]) + "\n" 
+        return s
+
+
+    def override_arg(self, k, v, args):
+        o = self.docs[k]
+        #g.docs[v[0]].groff = v[1].rstrip()
+        o.set_groff(v)
+        l = len(args)
+        if l > 0:
+            o.flags = []
+        for i in range(l):
+            o.flags.append(args[i])
+
+
+    def process_env(self):
+        for k in self.config.all():
+            if k[0] == '_':
+                continue
+            self.envs[k] = None
+
+
+    def process_arg(self):
         if self.arg_flags & Flag.VERBOSE:
             o = DocEntry('--no-logs')
             o.set_groff('Turn of logging completely. Negates \\fB-v\\fP and \\fB-vv\\fP')
@@ -98,7 +138,7 @@ class DocGenerator:
             self.docs['n'] = o
            
             o = DocEntry('--dumpconfig', argvalue='format')
-            o.set_groff('Load given configuration namespace. Configuration will be loaded from the immediate configuration subdirectory with the same name.')
+            o.set_groff('Output configuration settings rendered from environment and inputs. Valid arguments are \\fIini\\fP for ini file output, and \\fIenv\\fP for environment variable output')
             self.docs['dumpconfig'] = o
 
 
@@ -211,3 +251,8 @@ class DocGenerator:
             o = DocEntry('-a', '--recipient-address')
             o.set_groff('Network wallet address to operate on. For read calls, this will be the wallet address for which the query is anchored. For transaction calls, it will be the wallet address for which state will be changed.')
             self.docs['a'] = o
+
+
+    def process(self):
+        self.process_arg()
+        self.process_env()

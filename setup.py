@@ -25,6 +25,6 @@ setup(
             'chainlib.cli',
             ],
         scripts = [
-            'scripts/man.py',
+            'scripts/chainlib-man.py',
             ],
     )
