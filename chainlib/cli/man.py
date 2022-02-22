@@ -193,7 +193,7 @@ class DocGenerator:
             self.docs['feeprice'] = o
 
             o = DocEntry('--fee-limit')
-            o.set_groff('Set the limit of execution units for the transaction. If used with \\fB-s\fP this may incur actual network token cost. If \\fB--fee-price\\fP is not explicitly set, the price \\fImay\\fP be retrieved from the network, and multiplied with this value to define the cost.')
+            o.set_groff('Set the limit of execution units for the transaction. If used with \\fB-s\\fP this may incur actual network token cost. If \\fB--fee-price\\fP is not explicitly set, the price \\fImay\\fP be retrieved from the network, and multiplied with this value to define the cost.')
             self.docs['feelimit'] = o
 
         # TODO: this manipulation should be DRYd

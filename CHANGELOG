@@ -1,3 +1,5 @@
+- 0.0.22
+	* Add man page generator script
 - 0.0.21
 	* Log rpc reply before json parse
 - 0.0.20
