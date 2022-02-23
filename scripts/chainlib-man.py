@@ -60,7 +60,6 @@ The source code of the tool this documentation describes is licensed under the G
 
 .SH COPYRIGHT
 
-.P
 Louis Holbrook <dev@holbrook.no> (https://holbrook.no)
 PGP: 59A844A484AC11253D3A3E9DCDCBD24DD1D0E001
 

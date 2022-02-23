@@ -96,7 +96,11 @@ class DocGenerator:
         ks = list(self.docs.keys())
         ks.sort()
         for k in ks:
-            s += str(self.docs[k]) + "\n" 
+            s += str(self.docs[k]) 
+            env = self.envs.get(k)
+            if env != None:
+                s += ' Overrides the \\fI' + env + '\\fP configuration setting.'
+            s += "\n" 
         return s
 
 
