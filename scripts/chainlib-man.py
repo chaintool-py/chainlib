@@ -10,6 +10,7 @@ import shutil
 from hexathon import strip_0x, add_0x
 
 from chainlib.cli.man import (
+        EnvDocGenerator,
         DocGenerator,
         apply_groff,
         )
@@ -28,7 +29,7 @@ argparser.add_argument('-n', help='tool name to use for man filename')
 argparser.add_argument('-d', default='.', help='output directory')
 argparser.add_argument('-v', action='store_true', help='turn on debug logging')
 argparser.add_argument('--overrides-file', dest='overrides_file', help='load options description override from file')
-argparser.add_argument('--overrides-env-file', dest='overrides_env_file', help='load envionment description overrides from file')
+argparser.add_argument('--overrides-env-dir', dest='overrides_env_dir', help='load envionment description override config from directory')
 argparser.add_argument('header_file', help='groff file containing heading, synopsis and description')
 args = argparser.parse_args(sys.argv[1:])
 
@@ -39,9 +40,10 @@ if args.v:
 b = bytes.fromhex(strip_0x(args.b))
 flags = int.from_bytes(b, byteorder='little')
 
-empty_args = ChainlibArgumentParser(flags).parse_args([])
-config = Config.from_args(empty_args, arg_flags=flags)
-g = DocGenerator(flags, config)
+#empty_args = ChainlibArgumentParser(flags).parse_args([])
+#config = Config.from_args(empty_args, arg_flags=flags)
+#g = DocGenerator(flags, config)
+g = DocGenerator(flags)
 
 toolname = args.n
 if toolname == None:
@@ -66,18 +68,8 @@ if args.overrides_file != None:
     f.close()
 
 
-s_env = ''
-if args.overrides_env_file != None:
-    f = open(args.overrides_env_file, 'r')
-    while True:
-        s = f.readline()
-        if len(s) == 0:
-            break
-        (k, description) = s.split('\t', maxsplit=1)
-        v = config.get(k)
-        s_env += apply_groff([k], description)
-
-print(s_env)
+ge = EnvDocGenerator(flags, override=args.overrides_env_dir)
+ge.process()
 
 f = open(args.header_file)
 head = f.read()
@@ -87,6 +79,8 @@ f.close()
 f = os.fdopen(fd, 'w')
 f.write(head)
 f.write(str(g))
+f.write(".SH ENVIRONMENT\n\n")
+f.write(str(ge))
 f.close()
 
 dest = os.path.join(args.d, toolname + '.1')

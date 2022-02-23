@@ -1,29 +1,50 @@
+# standard imports
+import os
+
+# external imports
+import confini
+
 # local imports
 from .base import (
         Flag,
         argflag_std_target,
         )
 
-def apply_groff(collection, v, arg=None):
+script_dir = os.path.dirname(os.path.realpath(__file__))
+data_dir = os.path.join(script_dir, '..', 'data')
+
+
+def apply_groff(collection, v, arg=None, typ='arg'):
     s = ''
     for flag in collection:
         if len(s) > 0:
             s += ', '
-        s += '\\fB' + flag
-        if arg != None:
-            s += ' \\fI' + arg
-        s += '\\fP'
+        s += format_groff(flag, v, arg=arg, typ=typ)
+    return s
+
+
+def format_groff(k, v, arg=None, typ='arg'):
+    s = ''
+    if typ == 'env':
+        s += '\\fI'
+    else:
+        s += '\\fB'
+    s += k
+    if arg != None:
+        s += ' \\fI' + arg
+    s += '\\fP'
     s = "\n.TP\n" + s + "\n" + v
     return s
 
 
 class DocEntry:
 
-    def __init__(self, *args, argvalue=None):
+    def __init__(self, *args, argvalue=None, typ='arg'):
         self.flags = args
         self.v = argvalue
         self.render = self.get_empty
         self.groff = None
+        self.typ = typ
 
 
     def __check_line_default(self, m):
@@ -51,7 +72,7 @@ class DocEntry:
         v = self.groff
         if v == None:
             v = self.plain
-        s = apply_groff(self.flags, v, arg=self.v) 
+        s = apply_groff(self.flags, v, arg=self.v, typ=self.typ) 
         return s
 
 
@@ -61,23 +82,15 @@ class DocEntry:
 
 class DocGenerator:
 
-    def __init__(self, arg_flags, config):
-        self.config = config
+#    def __init__(self, arg_flags, config):
+    def __init__(self, arg_flags):
+        #self.config = config
         self.arg_flags = arg_flags
         self.docs = {}
-        self.envs = {}
+#        self.envs = {}
 
 
     def __str__(self):
-        s = ''
-        ks = list(self.docs.keys())
-        ks.sort()
-        for k in ks:
-            s += str(self.docs[k]) + "\n" 
-        return s
-
-
-    def get_args(self):
         s = ''
         ks = list(self.docs.keys())
         ks.sort()
@@ -105,12 +118,12 @@ class DocGenerator:
         for i in range(l):
             o.flags.append(args[i])
 
-
-    def process_env(self):
-        for k in self.config.all():
-            if k[0] == '_':
-                continue
-            self.envs[k] = None
+#
+#    def process_env(self):
+#        for k in self.config.all():
+#            if k[0] == '_':
+#                continue
+#            self.envs[k] = None
 
 
     def process_arg(self):
@@ -255,4 +268,54 @@ class DocGenerator:
 
     def process(self):
         self.process_arg()
-        self.process_env()
+#        self.process_env()
+
+
+class EnvDocGenerator:
+
+    def __init__(self, arg_flags, override=None):
+        self.arg_flags = arg_flags
+        self.envs = {}
+        env_dir = os.path.join(data_dir, 'env')
+        self.config = confini.Config(env_dir, override_dirs=override)
+        self.config.process()
+
+
+    def __add(self, k):
+        v = format_groff(k, self.config.get(k), None, typ='env')
+        self.envs[k] = v
+
+
+    def process(self):
+        ks = []
+        if self.arg_flags & Flag.PROVIDER:
+            ks += [
+                    'RPC_PROVIDER',
+                    'RPC_DIALECT',
+                    ]
+            if self.arg_flags & Flag.RPC_AUTH:
+                ks += [
+                        'RPC_AUTH',
+                        'RPC_CREDENTIALS',
+                        ]
+
+        if self.arg_flags & Flag.CHAIN_SPEC:
+            ks.append('CHAIN_SPEC')
+
+        if self.arg_flags & Flag.KEY_FILE:
+            ks += [
+                'WALLET_KEY_FILE',
+                'WALLET_PASSPHRASE',
+                    ]
+
+        for k in ks:
+            self.__add(k)
+
+
+    def __str__(self):
+        s = ''
+        ks = list(self.envs.keys())
+        ks.sort()
+        for k in ks:
+            s += str(self.envs[k]) + "\n"  
+        return s
