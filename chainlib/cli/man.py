@@ -20,6 +20,7 @@ def apply_groff(collection, v, arg=None, typ='arg'):
         if len(s) > 0:
             s += ', '
         s += format_groff(flag, v, arg=arg, typ=typ)
+    s = "\n.TP\n" + s + "\n" + v
     return s
 
 
@@ -33,7 +34,6 @@ def format_groff(k, v, arg=None, typ='arg'):
     if arg != None:
         s += ' \\fI' + arg
     s += '\\fP'
-    s = "\n.TP\n" + s + "\n" + v
     return s
 
 
@@ -87,6 +87,7 @@ class DocGenerator:
         #self.config = config
         self.arg_flags = arg_flags
         self.docs = {}
+        self.envs = {}
 #        self.envs = {}
 
 
@@ -151,7 +152,7 @@ class DocGenerator:
             self.docs['n'] = o
            
             o = DocEntry('--dumpconfig', argvalue='format')
-            o.set_groff('Output configuration settings rendered from environment and inputs. Valid arguments are \\fIini\\fP for ini file output, and \\fIenv\\fP for environment variable output')
+            o.set_groff('Output configuration settings rendered from environment and inputs. Valid arguments are \\fIini\\fP for ini file output, and \\fIenv\\fP for environment variable output. See \\fBCONFIGURATION\\fP.')
             self.docs['dumpconfig'] = o
 
 
@@ -175,10 +176,12 @@ class DocGenerator:
             o = DocEntry('-p', '--rpc-provider')
             o.set_groff('Fully-qualified URL of RPC provider.')
             self.docs['p'] = o
+            self.envs['p'] = 'RPC_PROVIDER'
 
             o = DocEntry('--rpc-dialect')
             o.set_groff('RPC backend dialect. If specified it \\fImay\\fP help with encoding and decoding issues.')
             self.docs['rpcdialect'] = o
+            self.envs['rpcdialect'] = 'RPC_DIALECT'
 
             o = DocEntry('--height')
             o.set_groff('Block height at which to query state for. Does not apply to transactions.')
@@ -188,16 +191,19 @@ class DocGenerator:
                 o = DocEntry('--rpc-auth')
                 o.set_groff('RPC endpoint authentication method, e.g. how to handle a HTTP WWW-Authenticate header.')
                 self.docs['rpcauth'] = o
+                self.envs['rpcauth'] = 'RPC_AUTH'
 
                 o = DocEntry('--rpc-credentials')
                 o.set_groff('RPC endpoint authentication data. Format depends on the authentication method defined in \\fB--rpc-auth\\fP.')
-                self.docs['rpcendpoint'] = o
+                self.docs['rpccredentials'] = o
+                self.envs['rpccredentials'] = 'RPC_CREDENTIALS'
 
 
         if self.arg_flags & Flag.CHAIN_SPEC:
             o = DocEntry('-i', '--chain-spec', argvalue='chain_spec')
             o.set_groff('Chain specification string, in the format <engine>:<fork>:<chain_id>:<common_name>. Example: "evm:london:1:ethereum".')
             self.docs['i'] = o
+            self.envs['i'] = 'RPC_CREDENTIALS'
 
 
         if self.arg_flags & Flag.UNSAFE:
@@ -216,6 +222,7 @@ class DocGenerator:
             o = DocEntry('-y', '--key-path', argvalue='path')
             o.set_groff('Path to signing key.')
             self.docs['y'] = o
+            self.envs['y'] = 'WALLET_KEY_FILE'
 
             o = DocEntry('--passphrase-file', argvalue='path')
             o.set_groff('Path to file containing password to unlock key file')
@@ -282,7 +289,8 @@ class EnvDocGenerator:
 
 
     def __add(self, k):
-        v = format_groff(k, self.config.get(k), None, typ='env')
+        #v = format_groff(k, self.config.get(k), None, typ='env')
+        v = apply_groff([k], self.config.get(k), None, typ='env')
         self.envs[k] = v
 
 
