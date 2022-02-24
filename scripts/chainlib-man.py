@@ -79,13 +79,13 @@ https://git.defalsify.org
 argparser = argparse.ArgumentParser()
 argparser.add_argument('-b', default=add_0x(hex(argflag_std_base)), help='argument flag bitmask')
 argparser.add_argument('-c', help='config override directory')
-argparser.add_argument('-n', help='tool name to use for man filename')
+argparser.add_argument('-n', required=True, help='tool name to use for man filename')
 argparser.add_argument('-d', default='.', help='output directory')
 argparser.add_argument('-v', action='store_true', help='turn on debug logging')
-argparser.add_argument('--overrides-file', dest='overrides_file', help='load options description override from file')
+#argparser.add_argument('--overrides-dir', dest='overrides_dir', help='load options description override from file')
 argparser.add_argument('--overrides-env-dir', dest='overrides_env_dir', help='load envionment description override config from directory')
 argparser.add_argument('--overrides-config-file', dest='overrides_config_file', help='load configuration text from file')
-argparser.add_argument('header_file', help='groff file containing heading, synopsis and description')
+argparser.add_argument('source_dir', help='directory containing sources for the tool man page')
 args = argparser.parse_args(sys.argv[1:])
 
 if args.v:
@@ -100,33 +100,50 @@ logg.debug('apply arg flags {}: {}'.format(flags, ', '.join(flags_debug)))
 g = DocGenerator(flags)
 
 toolname = args.n
-if toolname == None:
-    parts = os.path.splitext(os.path.basename(args.header_file))
-    toolname = parts[0]
+#if toolname == None:
+#    parts = os.path.splitext(os.path.basename(args.header_file))
+#    toolname = parts[0]
 g.process()
 
-if args.overrides_file != None:
-    f = open(args.overrides_file, 'r')
-    while True:
-        s = f.readline()
-        if len(s) == 0:
-            break
-        v = s.split('\t', maxsplit=2)
-        fargs = None
-        try:
-            fargs = v[2].rstrip().split(',')
-        except IndexError:
-            fargs = []
-        g.override_arg(v[0], v[1], fargs)
-    f.close()
+def apply_override(g, override_dir):
+    #if args.overrides_dir != None:
+    overrides_file = os.path.join(override_dir, toolname + '.overrides')
+    override = True
+    f = None
+    try:
+        f = open(overrides_file, 'r')
+    except FileNotFoundError:
+        logg.debug('no overrides found for {}'.format(toolname))
+        override = False
 
+    if override:
+        while True:
+            s = f.readline()
+            if len(s) == 0:
+                break
+            v = s.split('\t', maxsplit=2)
+            fargs = None
+            try:
+                fargs = v[2].rstrip().split(',')
+            except IndexError:
+                fargs = []
+            g.override_arg(v[0], v[1], fargs)
+        f.close()
+    return g
+
+g = apply_override(g, args.source_dir)
 
 ge = EnvDocGenerator(flags, override=args.overrides_env_dir)
 ge.process()
 
-f = open(args.header_file)
-head = f.read()
-f.close()
+def get_head(tool_name, source_dir):
+    header_file = os.path.join(source_dir, tool_name + '.head.groff') 
+    f = open(header_file, 'r')
+    head = f.read()
+    f.close()
+    return head
+
+head = get_head(toolname, args.source_dir)
 
 if args.overrides_config_file != None:
     f = open(args.overrides_config_file, 'r')
