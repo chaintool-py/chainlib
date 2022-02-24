@@ -1,5 +1,11 @@
+- 0.0.23
+	* Configuration variable descriptions
+	* Arg flags to names listing method
+	* New flags preset for reads without wallet
+	* Remove pesistent wallet arg flag bug
+	* Rename arg flag reset to flag_reset
 - 0.0.22
-	* Add man page generator script
+	* Man page generator script
 - 0.0.21
 	* Log rpc reply before json parse
 - 0.0.20

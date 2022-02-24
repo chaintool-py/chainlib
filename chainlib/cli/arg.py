@@ -203,8 +203,9 @@ class ArgumentParser(argparse.ArgumentParser):
         if arg_flags & (Flag.SIGN | Flag.FEE):
             self.add_argument('--fee-price', dest='fee_price', type=int, help='override fee price')
             self.add_argument('--fee-limit', dest='fee_limit', type=int, help='override fee limit')
-        if arg_flags & argflag_std_target == 0:
-            arg_flags |= Flag.WALLET
+        # wtf?
+        #if arg_flags & argflag_std_target == 0:
+        #    arg_flags |= Flag.WALLET
         if arg_flags & Flag.EXEC:
             self.add_argument('-e', self.long_args['-e'], dest=self.arg_dest['-e'], type=str, help='contract address')
         if arg_flags & Flag.WALLET:

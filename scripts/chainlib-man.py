@@ -14,9 +14,12 @@ from chainlib.cli.man import (
         DocGenerator,
         apply_groff,
         )
-from chainlib.cli.base import argflag_std_base
+from chainlib.cli.base import (
+        argflag_std_base,
+        flag_names,
+        )
 from chainlib.cli.arg import ArgumentParser as ChainlibArgumentParser
-from chainlib.eth.cli.config import Config
+from chainlib.cli.config import Config
         
 
 logging.basicConfig(level=logging.WARNING)
@@ -88,20 +91,18 @@ args = argparser.parse_args(sys.argv[1:])
 if args.v:
     logg.setLevel(logging.DEBUG)
             
-
 b = bytes.fromhex(strip_0x(args.b))
-flags = int.from_bytes(b, byteorder='little')
+flags = int.from_bytes(b, byteorder='big')
 
-#empty_args = ChainlibArgumentParser(flags).parse_args([])
-#config = Config.from_args(empty_args, arg_flags=flags)
-#g = DocGenerator(flags, config)
+flags_debug= flag_names(flags)
+logg.debug('apply arg flags {}: {}'.format(flags, ', '.join(flags_debug)))
+
 g = DocGenerator(flags)
 
 toolname = args.n
 if toolname == None:
     parts = os.path.splitext(os.path.basename(args.header_file))
     toolname = parts[0]
-
 g.process()
 
 if args.overrides_file != None:

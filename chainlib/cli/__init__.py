@@ -3,7 +3,8 @@ from .base import (
         argflag_std_read,
         argflag_std_write,
         argflag_std_base,
-        reset,
+        argflag_std_base_read,
+        flag_reset,
         )
 from .arg import ArgumentParser
 from .config import Config

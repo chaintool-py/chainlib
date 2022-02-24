@@ -33,14 +33,32 @@ class Flag(enum.IntEnum):
     SEND = 262144
     # rpc extras - nibble 6
     RPC_AUTH = 1048576
+    # upper bound
+    MAX = 1048576
 
 argflag_std_read = 0x23ff 
-argflag_std_write = 0xff31ff
+argflag_std_write = 0x1731ff
 argflag_std_base = 0x200f
+argflag_std_base_read = 0xbf
 argflag_std_target = 0x00e000
-argflag_all = 0xffffff
+argflag_all = 0x17f7ff
 
-def reset(flags, v):
+
+def flag_reset(flags, v):
     mask = ~(argflag_all & v)
     r = flags & mask
     return r
+
+
+def flag_names(flags):
+    flags_debug = []
+    i = Flag.MAX
+    while True:
+        if flags & i > 0:
+            v = Flag(i)
+            flags_debug.append(v.name)
+        i >>= 1
+        if i == 0:
+            break
+    flags_debug.reverse()
+    return flags_debug

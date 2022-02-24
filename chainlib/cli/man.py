@@ -132,6 +132,7 @@ class DocGenerator:
 
 
     def process_arg(self):
+
         if self.arg_flags & Flag.VERBOSE:
             o = DocEntry('--no-logs')
             o.set_groff('Turn of logging completely. Negates \\fB-v\\fP and \\fB-vv\\fP')
@@ -144,7 +145,6 @@ class DocGenerator:
             o = DocEntry('-vv')
             o.set_groff('Very verbose. Show logs with debugging information.')
             self.docs['vv'] = o
-
 
         if self.arg_flags & Flag.CONFIG:
             o = DocEntry('-c', '--config', argvalue='config_dir')
@@ -244,7 +244,6 @@ class DocGenerator:
             o.set_groff('Produce output most optimized for machines.')
             self.docs['raw'] = o
 
-
         if self.arg_flags & (Flag.SIGN | Flag.NONCE):
             o = DocEntry('--nonce')
             o.set_groff('Explicitly set nonce to use for transaction.')
@@ -260,9 +259,10 @@ class DocGenerator:
             o.set_groff('Set the limit of execution units for the transaction. If used with \\fB-s\\fP this may incur actual network token cost. If \\fB--fee-price\\fP is not explicitly set, the price \\fImay\\fP be retrieved from the network, and multiplied with this value to define the cost.')
             self.docs['feelimit'] = o
 
-        # TODO: this manipulation should be DRYd
-        if self.arg_flags & argflag_std_target == 0:
-            self.arg_flags |= Flag.WALLET
+
+#        # TODO: this manipulation should be DRYd
+#        if self.arg_flags & argflag_std_target == 0:
+#            self.arg_flags |= Flag.WALLET
 
 
         if self.arg_flags & Flag.EXEC:
