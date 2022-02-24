@@ -100,9 +100,6 @@ logg.debug('apply arg flags {}: {}'.format(flags, ', '.join(flags_debug)))
 g = DocGenerator(flags)
 
 toolname = args.n
-#if toolname == None:
-#    parts = os.path.splitext(os.path.basename(args.header_file))
-#    toolname = parts[0]
 g.process()
 
 def apply_override(g, override_dir):
@@ -143,7 +140,38 @@ def get_head(tool_name, source_dir):
     f.close()
     return head
 
+
+def get_examples(tool_name, source_dir):
+    example_file = os.path.join(source_dir, tool_name + '.examples.groff')
+    f = None
+    try:
+        f = open(example_file, 'r')
+    except FileNotFoundError:
+        logg.debug('no examples file found for {}'.format(tool_name))
+        return None
+    logg.info('examples file {} found for {}'.format(example_file, tool_name))
+    examples = f.read()
+    f.close()
+    return examples
+
+
+def get_custom(tool_name, source_dir):
+    custom_file = os.path.join(source_dir, tool_name + '.custom.groff')
+    f = None
+    try:
+        f = open(custom_file, 'r')
+    except FileNotFoundError:
+        logg.debug('no custom file found for {}'.format(tool_name))
+        return None
+    logg.info('custom file {} found for {}'.format(custom_file, tool_name))
+    custom = f.read()
+    f.close()
+    return custom
+
+
 head = get_head(toolname, args.source_dir)
+examples = get_examples(toolname, args.source_dir)
+custom = get_custom(toolname, args.source_dir)
 
 if args.overrides_config_file != None:
     f = open(args.overrides_config_file, 'r')
@@ -155,6 +183,14 @@ f = os.fdopen(fd, 'w')
 f.write(head)
 f.write(str(g))
 f.write(configuration_description)
+
+if custom != None:
+    f.write(custom)
+
+if examples != None:
+    f.write(".SH EXAMPLES\n\n")
+    f.write(examples)
+
 f.write(".SH ENVIRONMENT\n\n")
 f.write(str(ge))
 f.write(legal_description)
