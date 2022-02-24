@@ -39,12 +39,12 @@ def format_groff(k, v, arg=None, typ='arg'):
 
 class DocEntry:
 
-    def __init__(self, *args, argvalue=None, typ='arg'):
+    def __init__(self, *args, typ='arg'):
         self.flags = args
-        self.v = argvalue
         self.render = self.get_empty
         self.groff = None
         self.typ = typ
+        self.v = None
 
 
     def __check_line_default(self, m):
@@ -66,6 +66,10 @@ class DocEntry:
     def set_groff(self, v):
         self.__check_line_default(self.get_groff)
         self.groff = v
+
+
+    def set_groff_argvalue(self, argvalue):
+        self.v = '\\fI' + argvalue + '\\fP'
 
 
     def get_groff(self):
@@ -113,10 +117,19 @@ class DocGenerator:
         return s
 
 
-    def override_arg(self, k, v, args):
+    def set_arg(self, k, v, flags, argvalue=None):
+        o = DocEntry(*flags)
+        o.set_groff_argvalue(argvalue)
+        o.set_groff(v)
+        self.docs[k] = o
+
+
+    def override_arg(self, k, v, args, argvalue=None):
         o = self.docs[k]
         #g.docs[v[0]].groff = v[1].rstrip()
         o.set_groff(v)
+        if argvalue != None:
+            o.set_groff_argvalue(argvalue)
         l = len(args)
         if l > 0:
             o.flags = []
@@ -147,16 +160,19 @@ class DocGenerator:
             self.docs['vv'] = o
 
         if self.arg_flags & Flag.CONFIG:
-            o = DocEntry('-c', '--config', argvalue='config_dir')
+            o = DocEntry('-c', '--config')
             o.set_groff('Load configuration files from given directory. All files with an .ini extension will be loaded, of which all must contain valid ini file data.')
+            o.set_groff_argvalue('config_dir')
             self.docs['c'] = o
 
-            o = DocEntry('-n', '--namespace', argvalue='namespace')
+            o = DocEntry('-n', '--namespace')
             o.set_groff('Load given configuration namespace. Configuration will be loaded from the immediate configuration subdirectory with the same name.')
+            o.set_groff_argvalue('namespace')
             self.docs['n'] = o
            
-            o = DocEntry('--dumpconfig', argvalue='format')
+            o = DocEntry('--dumpconfig')
             o.set_groff('Output configuration settings rendered from environment and inputs. Valid arguments are \\fIini\\fP for ini file output, and \\fIenv\\fP for environment variable output. See \\fBCONFIGURATION\\fP.')
+            o.set_groff_argvalue('format')
             self.docs['dumpconfig'] = o
 
 
@@ -204,8 +220,9 @@ class DocGenerator:
 
 
         if self.arg_flags & Flag.CHAIN_SPEC:
-            o = DocEntry('-i', '--chain-spec', argvalue='chain_spec')
+            o = DocEntry('-i', '--chain-spec')
             o.set_groff('Chain specification string, in the format <engine>:<fork>:<chain_id>:<common_name>. Example: "evm:london:1:ethereum".')
+            o.set_groff_argvalue('chain_spec')
             self.docs['i'] = o
             self.envs['i'] = 'RPC_CREDENTIALS'
 
@@ -223,13 +240,15 @@ class DocGenerator:
 
 
         if self.arg_flags & Flag.KEY_FILE:
-            o = DocEntry('-y', '--key-path', argvalue='path')
+            o = DocEntry('-y', '--key-path')
             o.set_groff('Path to signing key.')
+            o.set_groff_argvalue('path')
             self.docs['y'] = o
             self.envs['y'] = 'WALLET_KEY_FILE'
 
-            o = DocEntry('--passphrase-file', argvalue='path')
+            o = DocEntry('--passphrase-file')
             o.set_groff('Path to file containing password to unlock key file')
+            o.set_groff_argvalue('path')
             self.docs['passphrasefile'] = o
 
 

@@ -118,20 +118,23 @@ def apply_override(g, override_dir):
             s = f.readline()
             if len(s) == 0:
                 break
-            v = s.split('\t', maxsplit=2)
+            v = s.split('\t', maxsplit=4)
             fargs = None
             try:
                 fargs = v[2].rstrip().split(',')
             except IndexError:
                 fargs = []
-            g.override_arg(v[0], v[1], fargs)
+            argvalue = None
+            if len(v) == 4:
+                argvalue = v[3]
+            try:
+                g.override_arg(v[0], v[1], fargs, argvalue=argvalue)
+            except KeyError:
+                logg.info('adding not previously registered key {} flags: {}'.format(v[0], ','.join(fargs)))
+                g.set_arg(v[0], v[1], fargs, argvalue=argvalue)
         f.close()
     return g
 
-g = apply_override(g, args.source_dir)
-
-ge = EnvDocGenerator(flags, override=args.overrides_env_dir)
-ge.process()
 
 def get_head(tool_name, source_dir):
     header_file = os.path.join(source_dir, tool_name + '.head.groff') 
@@ -168,6 +171,11 @@ def get_custom(tool_name, source_dir):
     f.close()
     return custom
 
+
+g = apply_override(g, args.source_dir)
+
+ge = EnvDocGenerator(flags, override=args.overrides_env_dir)
+ge.process()
 
 head = get_head(toolname, args.source_dir)
 examples = get_examples(toolname, args.source_dir)
