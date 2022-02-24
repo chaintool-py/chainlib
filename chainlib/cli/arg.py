@@ -43,6 +43,10 @@ _default_dest = {
         '-e': 'executable_address',
         }
 
+
+_default_fmt = 'human'
+
+
 class ArgumentParser(argparse.ArgumentParser):
     """Extends the standard library argument parser to construct arguments based on configuration flags.
 
@@ -66,12 +70,13 @@ class ArgumentParser(argparse.ArgumentParser):
     :type epilog: str
     """
 
-    def __init__(self, arg_flags=0x0f, arg_long={}, env=os.environ, usage=None, description=None, epilog=None, *args, **kwargs):
+    def __init__(self, arg_flags=0x0f, arg_long={}, env=os.environ, usage=None, description=None, epilog=None, default_format=_default_fmt, *args, **kwargs):
         super(ArgumentParser, self).__init__(usage=usage, description=description, epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter, *args, **kwargs)
     
         self.pos_args = []
         self.long_args = _default_long_args
         self.arg_dest = _default_dest
+        self.default_format = default_format
 
         re_long = r'^--[a-z\-]+$'
         for k in arg_long.keys():
@@ -210,3 +215,12 @@ class ArgumentParser(argparse.ArgumentParser):
             self.add_argument('-e', self.long_args['-e'], dest=self.arg_dest['-e'], type=str, help='contract address')
         if arg_flags & Flag.WALLET:
             self.add_argument('-a', self.long_args['-a'], dest=self.arg_dest['-a'], type=str, help='recipient address')
+        if arg_flags & (Flag.FMT_HUMAN | Flag.FMT_WIRE | Flag.FMT_RPC):
+            format_choices = []
+            if arg_flags & Flag.FMT_HUMAN:
+                format_choices.append('human')
+            if arg_flags & Flag.FMT_WIRE:
+                format_choices.append('bin')
+            if arg_flags & Flag.FMT_RPC:
+                format_choices.append('rpc')
+            self.add_argument('-f', '--format', type=str, choices=format_choices, help='output formatting (default: {})'.format(self.default_format))

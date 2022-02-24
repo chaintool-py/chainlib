@@ -5,6 +5,7 @@ from .base import (
         argflag_std_base,
         argflag_std_base_read,
         flag_reset,
+        flag_set,
         )
 from .arg import ArgumentParser
 from .config import Config

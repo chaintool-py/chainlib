@@ -205,7 +205,7 @@ class Config(confini.Config):
         config.add(getattr(args, 'raw'), '_RAW')
 
         args_override = {}
-
+   
         if arg_flags & Flag.PROVIDER:
             args_override['RPC_PROVIDER'] = getattr(args, 'p')
             args_override['RPC_DIALECT'] = getattr(args, 'rpc_dialect')
@@ -222,7 +222,7 @@ class Config(confini.Config):
                 args_override['WALLET_PASSPHRASE'] = f.read()
                 f.close()
             config.censor('PASSPHRASE', 'WALLET')
-        config.dict_override(args_override, 'cli args')
+        config.dict_override(args_override, 'cli args', allow_empty=True)
 
         if arg_flags & Flag.PROVIDER:
             config.add(getattr(args, 'height'), '_HEIGHT')

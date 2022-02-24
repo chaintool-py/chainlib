@@ -33,6 +33,10 @@ class Flag(enum.IntEnum):
     SEND = 262144
     # rpc extras - nibble 6
     RPC_AUTH = 1048576
+    # formatting - nibble 7
+    FMT_HUMAN = 16777216
+    FMT_WIRE = 33554432
+    FMT_RPC = 67108864
     # upper bound
     MAX = 1048576
 
@@ -40,14 +44,18 @@ argflag_std_read = 0x23ff
 argflag_std_write = 0x1731ff
 argflag_std_base = 0x200f
 argflag_std_base_read = 0xbf
-argflag_std_target = 0x00e000
-argflag_all = 0x17f7ff
+argflag_std_target = 0x0000e000
+argflag_all = 0x0317f7ff
 
 
 def flag_reset(flags, v):
     mask = ~(argflag_all & v)
     r = flags & mask
     return r
+
+
+def flag_set(flags, v):
+    return flags | v
 
 
 def flag_names(flags):
