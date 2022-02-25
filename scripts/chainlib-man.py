@@ -172,6 +172,20 @@ def get_custom(tool_name, source_dir):
     return custom
 
 
+def get_seealso(tool_name, source_dir):
+    seealso_file = os.path.join(source_dir, tool_name + '.seealso.groff')
+    f = None
+    try:
+        f = open(seealso_file, 'r')
+    except FileNotFoundError:
+        logg.debug('no seealso file found for {}'.format(tool_name))
+        return None
+    logg.info('seealso file {} found for {}'.format(seealso_file, tool_name))
+    seealso = f.read()
+    f.close()
+    return seealso
+
+
 g = apply_override(g, args.source_dir)
 
 ge = EnvDocGenerator(flags, override=args.overrides_env_dir)
@@ -180,6 +194,7 @@ ge.process()
 head = get_head(toolname, args.source_dir)
 examples = get_examples(toolname, args.source_dir)
 custom = get_custom(toolname, args.source_dir)
+seealso = get_seealso(toolname, args.source_dir)
 
 if args.overrides_config_file != None:
     f = open(args.overrides_config_file, 'r')
@@ -199,8 +214,14 @@ if examples != None:
     f.write(".SH EXAMPLES\n\n")
     f.write(examples)
 
-f.write(".SH ENVIRONMENT\n\n")
-f.write(str(ge))
+
+if seealso != None:
+    seealso_description = seealso
+
+if len(ge) > 0:
+    f.write(".SH ENVIRONMENT\n\n")
+    f.write(str(ge))
+
 f.write(legal_description)
 f.write(source_description)
 f.write(seealso_description)

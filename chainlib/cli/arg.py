@@ -186,7 +186,8 @@ class ArgumentParser(argparse.ArgumentParser):
         if arg_flags & Flag.PROVIDER:
             self.add_argument('-p', '--rpc-provider', dest='p', type=str, help='RPC HTTP(S) provider url')
             self.add_argument('--rpc-dialect', dest='rpc_dialect', type=str, help='RPC HTTP(S) backend dialect')
-            self.add_argument('--height', default='latest', help='Block height to execute against')
+            if arg_flags & Flag.NO_TARGET == 0:
+                self.add_argument('--height', default='latest', help='Block height to execute against')
             if arg_flags & Flag.RPC_AUTH:
                 self.add_argument('--rpc-auth', dest='rpc_auth', type=str, help='RPC autentication scheme')
                 self.add_argument('--rpc-credentials', dest='rpc_credentials', type=str, help='RPC autentication credential values')

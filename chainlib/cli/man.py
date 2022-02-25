@@ -203,9 +203,10 @@ class DocGenerator:
             self.docs['rpcdialect'] = o
             self.envs['rpcdialect'] = 'RPC_DIALECT'
 
-            o = DocEntry('--height')
-            o.set_groff('Block height at which to query state for. Does not apply to transactions.')
-            self.docs['height'] = o
+            if self.arg_flags & Flag.NO_TARGET == 0:
+                o = DocEntry('--height')
+                o.set_groff('Block height at which to query state for. Does not apply to transactions.')
+                self.docs['height'] = o
 
             if self.arg_flags & Flag.RPC_AUTH:
                 o = DocEntry('--rpc-auth')
@@ -341,6 +342,10 @@ class EnvDocGenerator:
 
         for k in ks:
             self.__add(k)
+
+
+    def __len__(self):
+        return len(self.envs)
 
 
     def __str__(self):

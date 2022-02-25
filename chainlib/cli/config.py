@@ -224,7 +224,7 @@ class Config(confini.Config):
             config.censor('PASSPHRASE', 'WALLET')
         config.dict_override(args_override, 'cli args', allow_empty=True)
 
-        if arg_flags & Flag.PROVIDER:
+        if arg_flags & (Flag.PROVIDER | Flag.NO_TARGET) == Flag.PROVIDER:
             config.add(getattr(args, 'height'), '_HEIGHT')
         if arg_flags & Flag.UNSAFE:
             config.add(getattr(args, 'u'), '_UNSAFE')

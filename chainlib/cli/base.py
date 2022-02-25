@@ -40,10 +40,10 @@ class Flag(enum.IntEnum):
     # upper bound
     MAX = 1048576
 
-argflag_std_read = 0x23ff 
-argflag_std_write = 0x1731ff
-argflag_std_base = 0x200f
-argflag_std_base_read = 0xbf
+argflag_std_read = 0x000023ff
+argflag_std_write = 0x001731ff
+argflag_std_base = 0x0000200f
+argflag_std_base_read = 0x000000bf
 argflag_std_target = 0x0000e000
 argflag_all = 0x0317f7ff
 
