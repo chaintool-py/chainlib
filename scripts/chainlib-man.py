@@ -214,7 +214,6 @@ if examples != None:
     f.write(".SH EXAMPLES\n\n")
     f.write(examples)
 
-
 if seealso != None:
     seealso_description = seealso
 
