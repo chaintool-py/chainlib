@@ -102,7 +102,8 @@ class RPCConnection:
         }
     __constructors_for_chains = {}
 
-    def __init__(self, url=None, chain_spec=None, auth=None, verify_identity=True):
+    def __init__(self, url=None, chain_spec=None, auth=None, verify_identity=True, timeout=1.0):
+        self.timeout = timeout
         self.chain_spec = chain_spec
         self.location = None
         self.basic = None
@@ -329,6 +330,7 @@ class JSONRPCHTTPConnection(HTTPConnection):
                 req,
                 data=data.encode('utf-8'),
                 context=ssl_ctx,
+                timeout=self.timeout,
                 )
         except URLError as e:
             raise RPCException(e)

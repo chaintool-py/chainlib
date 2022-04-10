@@ -8,7 +8,7 @@ class Tx:
     """
 
     def __init__(self, src, block=None):
-        self.txs = []
         self.src = src
         self.block = block
         self.block_src = None
+        self.index = None
