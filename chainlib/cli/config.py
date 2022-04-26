@@ -46,7 +46,7 @@ class Config(confini.Config):
 
 
     @classmethod
-    def from_args(cls, args, arg_flags=0x0f, env=os.environ, extra_args={}, base_config_dir=None, default_config_dir=None, user_config_dir=None, default_fee_limit=None, logger=None, load_callback=logcallback, dump_writer=sys.stdout):
+    def from_args(cls, args, arg_flags=0x0f, env=os.environ, extra_args={}, base_config_dir=None, default_config_dir=None, user_config_dir=None, default_fee_limit=None, logger=None, load_callback=None, dump_writer=sys.stdout):
         """Parses arguments in argparse.ArgumentParser instance, then match and override configuration values that match them.
 
         The method processes all known argument flags from chainlib.cli.Flag passed in the "args" argument. 
