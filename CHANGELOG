@@ -1,3 +1,9 @@
+- 0.1.2
+	* Upgrade hexathon dep
+- 0.1.1
+	* Add settings object
+- 0.1.0
+	* Upgrade deps
 - 0.0.23
 	* Configuration variable descriptions
 	* Arg flags to names listing method

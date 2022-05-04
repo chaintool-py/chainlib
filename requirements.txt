@@ -1,4 +1,4 @@
 funga~=0.5.2
 pysha3==1.0.2
-hexathon~=0.1.5
+hexathon~=0.1.6
 confini~=0.6.0
