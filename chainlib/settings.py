@@ -4,7 +4,7 @@ from .chain import ChainSpec
 
 class ChainSettings:
 
-    def __init__(self, include_sync=False, include_queue=False):
+    def __init__(self):
         self.o = {}
         self.get = self.o.get
 
