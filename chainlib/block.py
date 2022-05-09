@@ -21,7 +21,6 @@ class Block(Src):
 
     def __init__(self, src):
         self.number = None
-        self.hash = None
         self.txs = []
         self.author = None
 

@@ -78,4 +78,7 @@ class TxResult(Src):
 
     def __init__(self, src):
         self.status = Status.UNKNOWN
-        super(TxResult, self).__init__(src)
+        self.tx_index = None
+        self.block_hash = None
+        self.fee_cost = 0
+        super(TxResult, self).__init__(src=src)
