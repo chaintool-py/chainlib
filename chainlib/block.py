@@ -47,18 +47,6 @@ class Block(Src):
                 return tx
         return -1
 
-#
-#
-#    def tx_src(self, idx):
-#        """Return implementation specific transaction representation for transaction data at given index
-#
-#        :param idx: Transaction index
-#        :type idx: int
-#        :rtype: chainlib.tx.Tx
-#        :returns: Transaction representation
-#        """
-#        return self.txs[idx]
-
 
     def __str__(self):
         return 'block {} {} ({} txs)'.format(self.number, self.hash, len(self.txs))
