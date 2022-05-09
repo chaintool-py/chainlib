@@ -47,12 +47,14 @@ class Tx(Src):
         self.block = block
 
 
+    @property
     def status(self):
         if self.result == None:
             return None
         return self.result.status
 
-
+    
+    @property
     def status_name(self):
         if self.result == None:
             return None
