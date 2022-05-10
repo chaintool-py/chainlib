@@ -1,3 +1,5 @@
+- 0.2.1
+	* Fix bug in wire format generation for tx
 - 0.2.0
 	* Consolidate genertic blcok, tx and tx result objects
 - 0.1.3

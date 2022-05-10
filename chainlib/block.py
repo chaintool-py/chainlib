@@ -19,7 +19,7 @@ class Block(Src):
  
     tx_generator = Tx
 
-    def __init__(self, src):
+    def __init__(self, src=None):
         self.number = None
         self.txs = []
         self.author = None
@@ -27,7 +27,7 @@ class Block(Src):
         self.get_tx = self.tx_index_by_hash
         self.tx = self.tx_by_index
 
-        super(Block, self).__init__(src)
+        super(Block, self).__init__(src=src)
 
 
     def tx_by_index(self, idx):

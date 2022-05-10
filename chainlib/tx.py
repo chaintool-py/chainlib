@@ -28,8 +28,6 @@ class Tx(Src):
 
         self.result = None
     
-        self.generate_wire = self.wire
-
         super(Tx, self).__init__(src)
 
         if block != None:
@@ -61,9 +59,9 @@ class Tx(Src):
         return self.result.status.name
 
 
-    def wire(self):
-        raise NotImplementedError()
-
+    def generate_wire(self, chain_spec):
+        pass
+   
 
     def as_dict(self):
         raise NotImplementedError()
@@ -78,7 +76,7 @@ class Tx(Src):
 
 class TxResult(Src):
 
-    def __init__(self, src):
+    def __init__(self, src=None):
         self.status = Status.UNKNOWN
         self.tx_index = None
         self.block_hash = None
