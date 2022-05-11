@@ -359,6 +359,12 @@ def process_config(config, arg, args, flags):
         config.censor('PASSPHRASE', 'WALLET')
     config.dict_override(args_override, 'cli args', allow_empty=True)
 
+    if arg.match('provider', flags):
+        
+        config.add(getattr(args, 'height'), '_HEIGHT')
+    #if flags & (Flag.PROVIDER | Flag.NO_TARGET) == Flag.PROVIDER:
+    #    config.add(getattr(args, 'height'), '_HEIGHT')
+
     config.process()
 
     return config
