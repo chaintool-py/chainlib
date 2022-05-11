@@ -110,6 +110,21 @@ class TestCli(unittest.TestCase):
         self.assertEqual(config.get('CHAIN_SPEC'), 'foo:foo:666:foo')
 
 
+    def test_all_args(self):
+        ap = ArgumentParser()
+        flags = self.flags.all
+        process_args(ap, self.arg, flags)
+
+        args = ap.parse_args([
+            '-y', 'foo',
+            '-i', 'foo:bar:42:baz',
+            ])
+
+        config = Config()
+        config = process_config(config, self.arg, args, flags)
+        print(config)
+
+
 #    def test_args_process_extra(self):
 #        ap = ArgumentParser()
 #        flags = self.flags.VERBOSE | self.flags.CONFIG
