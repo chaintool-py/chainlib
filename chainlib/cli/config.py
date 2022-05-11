@@ -202,7 +202,8 @@ class Config(confini.Config):
         config = confini.Config(config_dir, env_prefix=env_prefix, override_dirs=override_config_dirs)
         config.process()
 
-        config.add(getattr(args, 'raw'), '_RAW')
+        if arg_flags & Flag.RAW > 0:
+            config.add(getattr(args, 'raw'), '_RAW')
 
         args_override = {}
    
