@@ -290,7 +290,7 @@ class Arg(BaseArg):
         self.set_long('n', 'namespace', dest='namespace')
         self.add('c', 'config', dest='config', help='Configuration directory')
         self.set_long('c', 'config')
-        self.add_long('dumpconfig', 'config', typ=bool, help='Output configuration and quit. Use with --raw to omit values and output schema only.')
+        self.add_long('dumpconfig', 'config', help='Output configuration and quit. Use with --raw to omit values and output schema only.')
 
         self.add('w', 'wait', typ=bool, help='Wait for the last transaction to be confirmed')
         self.add('ww', 'wait', check=False, typ=bool, help='Wait for every transaction to be confirmed')
