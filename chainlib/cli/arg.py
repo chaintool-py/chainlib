@@ -55,7 +55,6 @@ class ArgFlag(BaseArgFlag):
         self.add('key_file')
         self.add('fee')
         self.add('nonce')
-        self.add('sign')
         self.add('no_target')
         self.add('exec')
         self.add('wallet')
@@ -68,10 +67,11 @@ class ArgFlag(BaseArgFlag):
         self.add('fmt_rpc')
         self.add('veryverbose')
 
+        self.alias('sign', 'key_file', 'send')
         self.alias('std_base', 'verbose', 'config', 'raw', 'env', 'no_target')
         self.alias('std_base_read', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'seq')
         self.alias('std_read', 'std_base', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'fee', 'no_target')
-        self.alias('std_write', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'sign', 'no_target', 'wait', 'wait_all', 'send', 'rpc_auth')
+        self.alias('std_write', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'sign', 'no_target', 'wait', 'wait_all', 'send', 'rpc_auth', 'nonce', 'fee')
         self.alias('std_target', 'no_target', 'exec', 'wallet')
 
 
@@ -90,6 +90,9 @@ class Arg(BaseArg):
         self.add('c', 'config', dest='config', help='Configuration directory')
         self.set_long('c', 'config')
         self.add_long('dumpconfig', 'config', help='Output configuration and quit. Use with --raw to omit values and output schema only.')
+
+        self.add('a', 'wallet', dest='recipient', help='Recipient address')
+        self.set_long('a', 'recipient')
 
         self.add('w', 'wait', typ=bool, help='Wait for the last transaction to be confirmed')
         self.add('ww', 'wait', check=False, typ=bool, help='Wait for every transaction to be confirmed')
@@ -116,7 +119,7 @@ class Arg(BaseArg):
         self.add_long('seq', 'seq', typ=bool, help='Use sequential rpc ids')
 
         self.add('y', 'key_file', help='Keystore file to use for signing or address')
-        self.set_long('y', 'key-file')
+        self.set_long('y', 'key_file')
         self.add_long('passphrase-file', 'key_file', help='Keystore file to use for signing or address')
 
         self.add('s', 'send', typ=bool, help='Send to network')

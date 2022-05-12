@@ -95,20 +95,17 @@ def process_config(config, arg, args, flags):
         config.add(getattr(args, 'u'), '_UNSAFE')
 
     if arg.match('sign', flags):
+        config.add(getattr(args, 's'), '_RPC_SEND')
 
         if arg.match('fee', flags):
             config.add(getattr(args, 'fee_price'), '_FEE_PRICE')
             fee_limit = getattr(args, 'fee_limit')
             if fee_limit == None:
-                fee_limit = default_fee_limit
-            if fee_limit == None:
-                fee_limit = cls.default_fee_limit
+                fee_limit = config.get('CHAIN_MIN_FEE')
             config.add(fee_limit, '_FEE_LIMIT')
 
         if arg.match('nonce', flags):
             config.add(getattr(args, 'nonce'), '_NONCE')
-
-        config.add(getattr(args, 's'), '_RPC_SEND')
 
         if args.ww:
             config.add(True, '_WAIT_ALL')
