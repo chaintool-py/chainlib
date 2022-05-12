@@ -27,6 +27,10 @@ class Block(Src):
         self.get_tx = self.tx_index_by_hash
         self.tx = self.tx_by_index
 
+        self.fee_limit = 0
+        self.fee_cost = 0
+        self.parent_hash = None
+
         super(Block, self).__init__(src=src)
 
 
