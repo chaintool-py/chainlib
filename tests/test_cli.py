@@ -122,34 +122,6 @@ class TestCli(unittest.TestCase):
 
         config = Config()
         config = process_config(config, self.arg, args, flags)
-        print(config)
-
-
-#    def test_args_process_extra(self):
-#        ap = ArgumentParser()
-#        flags = self.flags.VERBOSE | self.flags.CONFIG
-#        process_args(ap, self.arg, flags)
-#        ap.add_argument('--foo', type=str)
-#        argv = [
-#            '--foo',
-#            'bar',
-#                ]
-#        args = ap.parse_args(argv)
-#        extra_args = {
-#            'foo': None,
-#            }
-#
-#        config = Config()
-#        config = process_config(config, self.arg, args, flags)
-#        self.assertEqual(config.get('_FOO'), 'bar')
-#
-#        extra_args = {
-#            'foo': 'FOOFOO',
-#            }
-#
-#        config = Config()
-#        config = process_config(config, self.arg, args, flags)
-#        self.assertEqual(config.get('FOOFOO'), 'bar')
 
 
 if __name__ == '__main__':

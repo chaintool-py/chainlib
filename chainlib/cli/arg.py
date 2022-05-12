@@ -11,6 +11,7 @@ import sys
 from aiee.arg import (
         ArgFlag as BaseArgFlag,
         Arg as BaseArg,
+        process_args,
         )
 
 logg = logging.getLogger(__name__)
@@ -98,6 +99,8 @@ class Arg(BaseArg):
         self.add('p', 'provider', help='RPC HTTP(S) provider url')
         self.set_long('p', 'provider')
         self.add_long('rpc-dialect', 'provider', help='RPC HTTP(S) backend dialect')
+        self.add_long('rpc-timeout', 'provider',  help='RPC autentication credential values')
+        self.add_long('rpc-proxy', 'provider',  help='RPC autentication credential values')
 
         self.add_long('height', 'no_target', default='latest', help='Block height to execute against')
         

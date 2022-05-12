@@ -115,8 +115,8 @@ def process_config(config, arg, args, flags):
             config.add(True, '_WAIT')
         elif args.w:
             config.add(True, '_WAIT')
-
-    if arg.match('seq', flags):    
+    
+    if arg.match('seq', flags):
         config.add(getattr(args, 'seq'), '_SEQ')
 
     if arg.match('wallet', flags):    
