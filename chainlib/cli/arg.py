@@ -50,6 +50,7 @@ class ArgFlag(BaseArgFlag):
         self.add('env')
         self.add('provider')
         self.add('chain_spec')
+        self.add('target')
         self.add('unsafe')
         self.add('seq')
         self.add('key_file')
@@ -68,10 +69,10 @@ class ArgFlag(BaseArgFlag):
         self.add('veryverbose')
 
         self.alias('sign', 'key_file', 'send')
-        self.alias('std_base', 'verbose', 'config', 'raw', 'env', 'no_target')
+        self.alias('std_base', 'verbose', 'config', 'raw', 'env', 'target')
         self.alias('std_base_read', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'seq')
-        self.alias('std_read', 'std_base', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'fee', 'no_target')
-        self.alias('std_write', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'sign', 'no_target', 'wait', 'wait_all', 'send', 'rpc_auth', 'nonce', 'fee')
+        self.alias('std_read', 'std_base', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'fee', 'target')
+        self.alias('std_write', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'sign', 'target', 'wait', 'wait_all', 'send', 'rpc_auth', 'nonce', 'fee')
         self.alias('std_target', 'no_target', 'exec', 'wallet')
 
 
@@ -94,6 +95,9 @@ class Arg(BaseArg):
         self.add('a', 'wallet', dest='recipient', help='Recipient address')
         self.set_long('a', 'recipient')
 
+        self.add('e', 'exec', dest='executable_address', help='Recipient address')
+        self.set_long('e', 'executable')
+
         self.add('w', 'wait', typ=bool, help='Wait for the last transaction to be confirmed')
         self.add('ww', 'wait', check=False, typ=bool, help='Wait for every transaction to be confirmed')
 
@@ -105,7 +109,8 @@ class Arg(BaseArg):
         self.add_long('rpc-timeout', 'provider',  help='RPC autentication credential values')
         self.add_long('rpc-proxy', 'provider',  help='RPC autentication credential values')
 
-        self.add_long('height', 'no_target', default='latest', help='Block height to execute against')
+        #self.add_long('height', 'no_target', default='latest', help='Block height to execute against')
+        self.add_long('height', 'target', default='latest', help='Block height to execute against')
         
         self.add_long('rpc-auth', 'rpc_auth', help='RPC autentication scheme')
         self.add_long('rpc-credentials', 'rpc_auth',  help='RPC autentication credential values')

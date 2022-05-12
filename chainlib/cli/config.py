@@ -88,7 +88,7 @@ def process_config(config, arg, args, flags):
     config.dict_override(args_override, 'cli args', allow_empty=True)
 
     if arg.match('provider', flags):
-        if arg.match('no_target', flags, negate=True):    
+        if arg.match('target', flags):
             config.add(getattr(args, 'height'), '_HEIGHT')
     
     if arg.match('unsafe', flags):
@@ -101,7 +101,7 @@ def process_config(config, arg, args, flags):
             config.add(getattr(args, 'fee_price'), '_FEE_PRICE')
             fee_limit = getattr(args, 'fee_limit')
             if fee_limit == None:
-                fee_limit = config.get('CHAIN_MIN_FEE')
+                fee_limit = int(config.get('CHAIN_MIN_FEE'))
             config.add(fee_limit, '_FEE_LIMIT')
 
         if arg.match('nonce', flags):
