@@ -110,7 +110,7 @@ class Arg(BaseArg):
         self.add('i', 'chain_spec', help='Chain specification string')
         self.set_long('i', 'chain-spec')
 
-        self.add('u', 'unsafe', help='Do not verify address checksums')
+        self.add('u', 'unsafe', typ=bool, help='Do not verify address checksums')
         self.set_long('u', 'unsafe')
 
         self.add_long('seq', 'seq', typ=bool, help='Use sequential rpc ids')
