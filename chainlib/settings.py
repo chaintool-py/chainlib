@@ -9,12 +9,8 @@ class ChainSettings:
         self.get = self.o.get
 
 
-    def process_common(self, config):
-        self.o['CHAIN_SPEC'] = ChainSpec.from_chain_str(config.get('CHAIN_SPEC'))
-
-
-    def process(self, config):
-        self.process_common(config)
+    def set(self, k, v):
+        self.o[k] = v
 
 
     def __str__(self):
@@ -24,3 +20,14 @@ class ChainSettings:
         for k in ks:
             s += '{}: {}\n'.format(k, self.o.get(k))
         return s
+
+
+def process_settings_common(settings, config):
+    chain_spec = ChainSpec.from_chain_str(config.get('CHAIN_SPEC'))
+    settings.set('CHAIN_SPEC', chain_spec)
+    return settings
+
+
+def process_settings(settings, config):
+    settings = process_settings_common(settings, config)
+    return settings
