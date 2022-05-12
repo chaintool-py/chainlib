@@ -1,3 +1,6 @@
+- 0.3.0
+	* Implement arg handling from aiee
+	* Implement value argument handling from aiee
 - 0.2.1
 	* Fix bug in wire format generation for tx
 - 0.2.0
