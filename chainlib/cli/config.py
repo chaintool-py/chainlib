@@ -85,6 +85,12 @@ def process_config(config, arg, args, flags):
             f.close()
         config.censor('PASSPHRASE', 'WALLET')
 
+    if arg.match('backend', flags):
+        args_override['STATE_BACKEND'] = getattr(args, 'backend')
+
+    if arg.match('path', flags):
+        args_override['STATE_PATH'] = getattr(args, 'state_path')
+
     config.dict_override(args_override, 'cli args', allow_empty=True)
 
     if arg.match('provider', flags):
@@ -126,5 +132,6 @@ def process_config(config, arg, args, flags):
     if arg.match('rpc_auth', flags):
         config.add(getattr(args, 'rpc_auth'), 'RPC_AUTH')
         config.add(getattr(args, 'rpc_credentials'), 'RPC_CREDENTIALS')
+
 
     return config

@@ -67,6 +67,8 @@ class ArgFlag(BaseArgFlag):
         self.add('fmt_wire')
         self.add('fmt_rpc')
         self.add('veryverbose')
+        self.add('path')
+        self.add('backend')
 
         self.alias('sign', 'key_file', 'send')
         self.alias('std_base', 'verbose', 'config', 'raw', 'env', 'target')
@@ -74,7 +76,7 @@ class ArgFlag(BaseArgFlag):
         self.alias('std_read', 'std_base', 'provider', 'chain_spec', 'unsafe', 'seq', 'sign', 'fee', 'target')
         self.alias('std_write', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'sign', 'target', 'wait', 'wait_all', 'send', 'rpc_auth', 'nonce', 'fee')
         self.alias('std_target', 'no_target', 'exec', 'wallet')
-
+        self.alias('state', 'backend', 'path')
 
 class Arg(BaseArg):
     
@@ -109,7 +111,6 @@ class Arg(BaseArg):
         self.add_long('rpc-timeout', 'provider',  help='RPC autentication credential values')
         self.add_long('rpc-proxy', 'provider',  help='RPC autentication credential values')
 
-        #self.add_long('height', 'no_target', default='latest', help='Block height to execute against')
         self.add_long('height', 'target', default='latest', help='Block height to execute against')
         
         self.add_long('rpc-auth', 'rpc_auth', help='RPC autentication scheme')
@@ -136,3 +137,7 @@ class Arg(BaseArg):
         self.add_long('nonce', 'nonce', typ=int, help='override nonce')
         self.add_long('fee-price', 'fee', typ=int, help='override fee price')
         self.add_long('fee-limit', 'fee', typ=int, help='override fee limit')
+
+        self.add_long('state-path', 'path', help='Path to store state data under')
+        self.add_long('runtime-path', 'path', help='Path to store volatile data under')
+        self.add_long('backend', 'backend', help='Backend to use for data storage')
