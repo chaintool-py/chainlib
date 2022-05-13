@@ -107,11 +107,12 @@ def process_config(config, arg, args, flags):
         if arg.match('nonce', flags):
             config.add(getattr(args, 'nonce'), '_NONCE')
 
-        if args.ww:
-            config.add(True, '_WAIT_ALL')
-            config.add(True, '_WAIT')
-        elif args.w:
-            config.add(True, '_WAIT')
+        if arg.match('wait', flags):
+            if args.ww:
+                config.add(True, '_WAIT_ALL')
+                config.add(True, '_WAIT')
+            elif args.w:
+                config.add(True, '_WAIT')
     
     if arg.match('seq', flags):
         config.add(getattr(args, 'seq'), '_SEQ')
