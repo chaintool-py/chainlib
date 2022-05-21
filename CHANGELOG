@@ -1,3 +1,5 @@
+- 0.3.1
+	* Make pending flag for nonce at rpc bootstrap settable
 - 0.3.0
 	* Implement arg handling from aiee
 	* Implement value argument handling from aiee
