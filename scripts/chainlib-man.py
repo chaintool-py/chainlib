@@ -14,10 +14,11 @@ from chainlib.cli.man import (
         DocGenerator,
         apply_groff,
         )
-from chainlib.cli.base import (
-        argflag_std_base,
-        flag_names,
-        )
+from chainlib.cli.arg import ArgFlag
+#from chainlib.cli.base import (
+#        argflag_std_base,
+#        flag_names,
+#        )
 from chainlib.cli.arg import ArgumentParser as ChainlibArgumentParser
 from chainlib.cli.config import Config
         
@@ -76,8 +77,10 @@ https://git.defalsify.org
 
 """
 
+argflag = ArgFlag()
+
 argparser = argparse.ArgumentParser()
-argparser.add_argument('-b', default=add_0x(hex(argflag_std_base)), help='argument flag bitmask')
+argparser.add_argument('-b', default=add_0x(hex(argflag.get('std_base'))), help='argument flag bitmask')
 argparser.add_argument('-c', help='config override directory')
 argparser.add_argument('-n', required=True, help='tool name to use for man filename')
 argparser.add_argument('-d', default='.', help='output directory')
@@ -90,11 +93,11 @@ args = argparser.parse_args(sys.argv[1:])
 
 if args.v:
     logg.setLevel(logging.DEBUG)
-            
+
 b = bytes.fromhex(strip_0x(args.b))
 flags = int.from_bytes(b, byteorder='big')
+flags_debug = argflag.names(flags)
 
-flags_debug= flag_names(flags)
 logg.debug('apply arg flags {}: {}'.format(flags, ', '.join(flags_debug)))
 
 g = DocGenerator(flags)

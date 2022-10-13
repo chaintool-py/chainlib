@@ -5,10 +5,11 @@ import os
 import confini
 
 # local imports
-from .base import (
-        Flag,
-        argflag_std_target,
-        )
+#from .base import (
+#        Flag,
+#        argflag_std_target,
+#        )
+from chainlib.cli.arg import ArgFlag
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 data_dir = os.path.join(script_dir, '..', 'data')
@@ -92,6 +93,7 @@ class DocGenerator:
         self.arg_flags = arg_flags
         self.docs = {}
         self.envs = {}
+        self.__argflag_list = ArgFlag()
 #        self.envs = {}
 
 
@@ -146,7 +148,7 @@ class DocGenerator:
 
     def process_arg(self):
 
-        if self.arg_flags & Flag.VERBOSE:
+        if self.arg_flags & self.__argflag_list.VERBOSE:
             o = DocEntry('--no-logs')
             o.set_groff('Turn of logging completely. Negates \\fB-v\\fP and \\fB-vv\\fP')
             self.docs['nologs'] = o
@@ -159,7 +161,7 @@ class DocGenerator:
             o.set_groff('Very verbose. Show logs with debugging information.')
             self.docs['vv'] = o
 
-        if self.arg_flags & Flag.CONFIG:
+        if self.arg_flags & self.__argflag_list.CONFIG:
             o = DocEntry('-c', '--config')
             o.set_groff('Load configuration files from given directory. All files with an .ini extension will be loaded, of which all must contain valid ini file data.')
             o.set_groff_argvalue('config_dir')
@@ -176,7 +178,7 @@ class DocGenerator:
             self.docs['dumpconfig'] = o
 
 
-        if self.arg_flags & Flag.WAIT:
+        if self.arg_flags & self.__argflag_list.WAIT:
             o = DocEntry('-w')
             o.set_groff('Wait for the last transaction to be confirmed on the network. Will generate an error if the EVM execution fails.')
             self.docs['w'] = o
@@ -186,13 +188,13 @@ class DocGenerator:
             self.docs['ww'] = o
 
 
-        if self.arg_flags & Flag.ENV_PREFIX:
+        if self.arg_flags & self.__argflag_list.ENV:
             o = DocEntry('--env-prefix')
             o.set_groff('Environment prefix for variables to overwrite configuration. Example: If \\fB--env-prefix\\fP is set to \\fBFOO\\fP then configuration variable \\fBBAR_BAZ\\fP would be set by environment variable \\fBFOO_BAZ_BAR\\fP. Also see \\fBENVIRONMENT\\fP.')
             self.docs['envprefix'] = o
 
         
-        if self.arg_flags & Flag.PROVIDER:
+        if self.arg_flags & self.__argflag_list.PROVIDER:
             o = DocEntry('-p', '--rpc-provider')
             o.set_groff('Fully-qualified URL of RPC provider.')
             self.docs['p'] = o
@@ -203,12 +205,12 @@ class DocGenerator:
             self.docs['rpcdialect'] = o
             self.envs['rpcdialect'] = 'RPC_DIALECT'
 
-            if self.arg_flags & Flag.NO_TARGET == 0:
+            if self.arg_flags & self.__argflag_list.NO_TARGET == 0:
                 o = DocEntry('--height')
                 o.set_groff('Block height at which to query state for. Does not apply to transactions.')
                 self.docs['height'] = o
 
-            if self.arg_flags & Flag.RPC_AUTH:
+            if self.arg_flags & self.__argflag_list.RPC_AUTH:
                 o = DocEntry('--rpc-auth')
                 o.set_groff('RPC endpoint authentication method, e.g. how to handle a HTTP WWW-Authenticate header.')
                 self.docs['rpcauth'] = o
@@ -220,7 +222,7 @@ class DocGenerator:
                 self.envs['rpccredentials'] = 'RPC_CREDENTIALS'
 
 
-        if self.arg_flags & Flag.CHAIN_SPEC:
+        if self.arg_flags & self.__argflag_list.CHAIN_SPEC:
             o = DocEntry('-i', '--chain-spec')
             o.set_groff('Chain specification string, in the format <engine>:<fork>:<chain_id>:<common_name>. Example: "evm:london:1:ethereum".')
             o.set_groff_argvalue('chain_spec')
@@ -228,19 +230,19 @@ class DocGenerator:
             self.envs['i'] = 'RPC_CREDENTIALS'
 
 
-        if self.arg_flags & Flag.UNSAFE:
+        if self.arg_flags & self.__argflag_list.UNSAFE:
             o = DocEntry('-u', '--unsafe')
             o.set_groff('Allow addresses that do not pass checksum.')
             self.docs['u'] = o
 
         
-        if self.arg_flags & Flag.SEQ:
+        if self.arg_flags & self.__argflag_list.SEQ:
             o = DocEntry('--seq')
             o.set_groff('Use numeric sequencial jsonrpc query ids. Useful for buggy server implementations who expects such.')
             self.docs['seq'] = o
 
 
-        if self.arg_flags & Flag.KEY_FILE:
+        if self.arg_flags & self.__argflag_list.KEY_FILE:
             o = DocEntry('-y', '--key-path')
             o.set_groff('Path to signing key.')
             o.set_groff_argvalue('path')
@@ -253,24 +255,24 @@ class DocGenerator:
             self.docs['passphrasefile'] = o
 
 
-        if self.arg_flags & Flag.SEND:
+        if self.arg_flags & self.__argflag_list.SEND:
             o = DocEntry('-s')
             o.set_groff('Send to network. If set, network state may change. This means tokens may be spent and so on. Use with care. Only applies to transactions.')
             self.docs['s'] = o
 
 
-        if self.arg_flags & Flag.RAW:
+        if self.arg_flags & self.__argflag_list.RAW:
             o = DocEntry('--raw')
             o.set_groff('Produce output most optimized for machines.')
             self.docs['raw'] = o
 
-        if self.arg_flags & (Flag.SIGN | Flag.NONCE):
+        if self.arg_flags & (self.__argflag_list.SIGN | self.__argflag_list.NONCE):
             o = DocEntry('--nonce')
             o.set_groff('Explicitly set nonce to use for transaction.')
             self.docs['nonce'] = o
 
 
-        if self.arg_flags & (Flag.SIGN | Flag.FEE):
+        if self.arg_flags & (self.__argflag_list.SIGN | self.__argflag_list.FEE):
             o = DocEntry('--fee-price')
             o.set_groff('Set fee unit price to offer for the transaction. If used with \\fB-s\\fP this may incur actual network token cost.')
             self.docs['feeprice'] = o
@@ -282,20 +284,21 @@ class DocGenerator:
 
 #        # TODO: this manipulation should be DRYd
 #        if self.arg_flags & argflag_std_target == 0:
-#            self.arg_flags |= Flag.WALLET
+#            self.arg_flags |= self.__argflag_list.WALLET
 
 
-        if self.arg_flags & Flag.EXEC:
+        if self.arg_flags & self.__argflag_list.EXEC:
             o = DocEntry('-e', '--executable-address')
             o.set_groff('Address of an executable code point on the network.')
             self.docs['e'] = o
 
         
-        if self.arg_flags & Flag.WALLET:
+        if self.arg_flags & self.__argflag_list.WALLET:
             o = DocEntry('-a', '--recipient-address')
             o.set_groff('Network wallet address to operate on. For read calls, this will be the wallet address for which the query is anchored. For transaction calls, it will be the wallet address for which state will be changed.')
             self.docs['a'] = o
-
+        
+        print("docs {}".format(self.docs.keys()))
 
     def process(self):
         self.process_arg()
@@ -307,6 +310,7 @@ class EnvDocGenerator:
     def __init__(self, arg_flags, override=None):
         self.arg_flags = arg_flags
         self.envs = {}
+        self.__argflag_list = ArgFlag()
         env_dir = os.path.join(data_dir, 'env')
         self.config = confini.Config(env_dir, override_dirs=override)
         self.config.process()
@@ -320,21 +324,21 @@ class EnvDocGenerator:
 
     def process(self):
         ks = []
-        if self.arg_flags & Flag.PROVIDER:
+        if self.arg_flags & self.__argflag_list.PROVIDER:
             ks += [
                     'RPC_PROVIDER',
                     'RPC_DIALECT',
                     ]
-            if self.arg_flags & Flag.RPC_AUTH:
+            if self.arg_flags & self.__argflag_list.RPC_AUTH:
                 ks += [
                         'RPC_AUTH',
                         'RPC_CREDENTIALS',
                         ]
 
-        if self.arg_flags & Flag.CHAIN_SPEC:
+        if self.arg_flags & self.__argflag_list.CHAIN_SPEC:
             ks.append('CHAIN_SPEC')
 
-        if self.arg_flags & Flag.KEY_FILE:
+        if self.arg_flags & self.__argflag_list.KEY_FILE:
             ks += [
                 'WALLET_KEY_FILE',
                 'WALLET_PASSPHRASE',
