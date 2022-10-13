@@ -1,3 +1,5 @@
+- 0.3.2
+	* Add missing "confirmed" arg to nonce oracle, expected by chainlib-eth test
 - 0.3.1
 	* Update man page generation script to use new cli flag builder
 - 0.3.0
