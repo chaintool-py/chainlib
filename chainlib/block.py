@@ -2,7 +2,8 @@
 import enum
 
 # local imports
-from chainlib.tx import Tx
+from .tx import Tx
+from .src import Src
 
 
 class BlockSpec(enum.IntEnum):
@@ -12,23 +13,28 @@ class BlockSpec(enum.IntEnum):
     LATEST = 0
 
 
-class Block:
+class Block(Src):
     """Base class to extend for implementation specific block object.
     """
  
     tx_generator = Tx
 
+    def __init__(self, src=None):
+        self.number = None
+        self.txs = []
+        self.author = None
 
-    def src(self):
-        """Return implementation specific block representation.
+        self.get_tx = self.tx_index_by_hash
+        self.tx = self.tx_by_index
 
-        :rtype: dict
-        :returns: Block representation
-        """
-        return self.block_src
+        self.fee_limit = 0
+        self.fee_cost = 0
+        self.parent_hash = None
+
+        super(Block, self).__init__(src=src)
 
 
-    def tx(self, idx):
+    def tx_by_index(self, idx):
         """Return transaction object for transaction data at given index.
 
         :param idx: Transaction index
@@ -39,28 +45,12 @@ class Block:
         return self.tx_generator(self.txs[idx], self)
 
 
-    def tx_src(self, idx):
-        """Return implementation specific transaction representation for transaction data at given index
-
-        :param idx: Transaction index
-        :type idx: int
-        :rtype: chainlib.tx.Tx
-        :returns: Transaction representation
-        """
-        return self.txs[idx]
+    def tx_index_by_hash(self, hsh):
+        for tx in self.tx:
+            if tx == hsh:
+                return tx
+        return -1
 
 
     def __str__(self):
         return 'block {} {} ({} txs)'.format(self.number, self.hash, len(self.txs))
-
-
-    @classmethod
-    def from_src(cls, src):
-        """Instantiate an implementation specific block object from the given block representation.
-
-        :param src: Block representation
-        :type src: dict
-        :rtype: chainlib.block.Block
-        :returns: Block object
-        """
-        return cls(src)

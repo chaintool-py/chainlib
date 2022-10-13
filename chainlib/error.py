@@ -11,13 +11,18 @@ class JSONRPCException(RPCException):
     pass
 
 
+class InitializationError(Exception):
+    """Base error for errors occurring while processing settings
+    """
+    pass
+
 class ExecutionError(Exception):
     """Base error for transaction execution failures
     """
     pass
 
 
-class SignerMissingException(Exception):
+class SignerMissingException(InitializationError):
     """Raised when attempting to retrieve a signer when none has been added
     """
 

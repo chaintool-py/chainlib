@@ -1,3 +1,20 @@
+- 0.3.1
+	* Update man page generation script to use new cli flag builder
+- 0.3.0
+	* Implement arg handling from aiee
+	* Implement value argument handling from aiee
+- 0.2.1
+	* Fix bug in wire format generation for tx
+- 0.2.0
+	* Consolidate genertic blcok, tx and tx result objects
+- 0.1.3
+	* Remove superfluous arguments for chain settings instantiation
+- 0.1.2
+	* Upgrade hexathon dep
+- 0.1.1
+	* Add settings object
+- 0.1.0
+	* Upgrade deps
 - 0.0.23
 	* Configuration variable descriptions
 	* Arg flags to names listing method
