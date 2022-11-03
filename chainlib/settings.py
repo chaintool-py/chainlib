@@ -39,6 +39,7 @@ def process_settings_value(settings, config):
         return settings
 
     value = postfix_to_int(config.get('_VALUE'))
+
     settings.set('VALUE', value)
     return settings
 

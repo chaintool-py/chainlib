@@ -123,6 +123,9 @@ def process_config(config, arg, args, flags):
     if arg.match('wallet', flags):    
         config.add(getattr(args, 'recipient'), '_RECIPIENT')
 
+    if arg.match('value', flags):
+        config.add(getattr(args, 'total'), '_TOTAL')
+
     if arg.match('exec', flags):
         config.add(getattr(args, 'executable_address'), '_EXEC_ADDRESS')
 

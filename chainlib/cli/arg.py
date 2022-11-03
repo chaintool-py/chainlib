@@ -76,6 +76,7 @@ class ArgFlag(BaseArgFlag):
         self.add('veryverbose')
         self.add('path')
         self.add('backend')
+        self.add('value')
 
         self.alias('sign', 'key_file', 'send')
         self.alias('std_base', 'verbose', 'config', 'raw', 'env', 'target')
@@ -145,6 +146,8 @@ class Arg(BaseArg):
         self.add_long('nonce', 'nonce', typ=int, help='override nonce')
         self.add_long('fee-price', 'fee', typ=int, help='override fee price')
         self.add_long('fee-limit', 'fee', typ=int, help='override fee limit')
+
+        self.add_long('total', 'value', typ=bool, help='Deduct calculated fee from value')
 
         self.add_long('state-path', 'path', help='Path to store state data under')
         self.add_long('runtime-path', 'path', help='Path to store volatile data under')
