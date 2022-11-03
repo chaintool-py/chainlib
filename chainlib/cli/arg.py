@@ -1,9 +1,8 @@
 # standard imports
 import logging
-import argparse
-#import enum
+import argparse #import enum
 #import os
-#import select
+import select
 import sys
 #import re
 
@@ -17,26 +16,34 @@ from aiee.arg import (
 logg = logging.getLogger(__name__)
 
 
-#def stdin_arg():
-#    """Retreive input arguments from stdin if they exist.
-#
-#    Method does not block, and expects arguments to be ready on stdin before being called.
-#
-#    :rtype: str
-#    :returns: Input arguments string
-#    """
-#    h = select.select([sys.stdin], [], [], 0)
-#    if len(h[0]) > 0:
-#        v = h[0][0].read()
-#        return v.rstrip()
-#    return None
+def stdin_arg():
+    """Retreive input arguments from stdin if they exist.
+
+    Method does not block, and expects arguments to be ready on stdin before being called.
+
+    :rtype: str
+    :returns: Input arguments string
+    """
+    h = select.select([sys.stdin], [], [])
+    if len(h[0]) > 0:
+        v = h[0][0].read()
+        return v.rstrip()
+    return None
+
 
 class ArgumentParser(argparse.ArgumentParser):
 
     def parse_args(self, argv=sys.argv[1:]):
         if '--dumpconfig' in argv:
             argv = [argv[0], '--dumpconfig']
-        return super(ArgumentParser, self).parse_args(args=argv)
+        arg = super(ArgumentParser, self).parse_args(args=argv)
+        return arg
+
+
+    def add_argument(self, *args, **kwargs):
+        if args[0][0] != '-':
+            kwargs['nargs'] = '*'
+        super(ArgumentParser, self).add_argument(*args, **kwargs)
 
 
 class ArgFlag(BaseArgFlag):
@@ -131,7 +138,8 @@ class Arg(BaseArg):
         self.add('s', 'send', typ=bool, help='Send to network')
         self.set_long('s', 'send')
 
-        self.add_long('raw', 'raw', typ=bool, help='Do not decode output')
+        self.add('r', 'raw', typ=bool, help='Do not decode output')
+        self.set_long('r', 'raw')
         self.add('0', 'raw', typ=bool, help='Omit newline to output')
 
         self.add_long('nonce', 'nonce', typ=int, help='override nonce')

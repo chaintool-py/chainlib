@@ -61,7 +61,7 @@ def process_config(config, arg, args, flags):
     args_override = {}
 
     if arg.match('raw', flags):
-        config.add(getattr(args, 'raw', None), '_RAW')
+        config.add(getattr(args, 'r', None), '_RAW')
  
     if arg.match('provider', flags):
         args_override['RPC_PROVIDER'] = getattr(args, 'p')
@@ -132,6 +132,5 @@ def process_config(config, arg, args, flags):
     if arg.match('rpc_auth', flags):
         config.add(getattr(args, 'rpc_auth'), 'RPC_AUTH')
         config.add(getattr(args, 'rpc_credentials'), 'RPC_CREDENTIALS')
-
 
     return config
