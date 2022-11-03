@@ -7,11 +7,8 @@ import stat
 # external imports
 import confini
 
-# local imports
-from .base import (
-        Flag,
-        default_config_dir as default_parent_config_dir,
-        )
+script_dir = os.path.dirname(os.path.realpath(__file__))
+default_parent_config_dir = os.path.join(script_dir, '..', 'data', 'config')
 
 logg = logging.getLogger(__name__)
 
