@@ -2,6 +2,7 @@
 	* Reinstate stdin_arg
 	* Add -r alias to --raw
 	* Remove old dead arg selector code
+	* Add universal config key for first positional argument
 - 0.3.2
 	* Add missing "confirmed" arg to nonce oracle, expected by chainlib-eth test
 - 0.3.1

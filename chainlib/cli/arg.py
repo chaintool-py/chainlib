@@ -90,7 +90,6 @@ class Arg(BaseArg):
     
     def __init__(self, flags):
         super(Arg, self).__init__(flags)
-        
         self.add_long('no-logs', 'verbose', typ=bool, help='Turn off all logging')
         self.add('v', 'verbose', typ=bool, help='Be verbose')
         self.add('vv', 'verbose', check=False, typ=bool, help='Be more verbose')

@@ -48,7 +48,7 @@ class Config(confini.Config):
         return super(Config, self).add_override_dir(v)
 
 
-def process_config(config, arg, args, flags):
+def process_config(config, arg, args, flags, positional_name=None):
 
     if arg.match('env', flags):
         config.set_env_prefix(getattr(args, 'env_prefix'))
@@ -132,5 +132,11 @@ def process_config(config, arg, args, flags):
     if arg.match('rpc_auth', flags):
         config.add(getattr(args, 'rpc_auth'), 'RPC_AUTH')
         config.add(getattr(args, 'rpc_credentials'), 'RPC_CREDENTIALS')
+
+    if positional_name != None:
+        config.add(None, '_POSARG', False)
+        pos_arg = getattr(args, positional_name)
+        if len(pos_arg) > 0:
+            config.add(pos_arg[0], '_POSARG', True)
 
     return config
