@@ -1,4 +1,4 @@
-- 0.3.3
+- 0.4.0
 	* Reinstate stdin_arg
 	* Add -r alias to --raw
 	* Remove old dead arg selector code
