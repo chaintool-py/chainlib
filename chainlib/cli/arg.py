@@ -77,6 +77,7 @@ class ArgFlag(BaseArgFlag):
         self.add('path')
         self.add('backend')
         self.add('value')
+        self.add('tab')
 
         self.alias('sign', 'key_file', 'send')
         self.alias('std_base', 'verbose', 'config', 'raw', 'env', 'target')
@@ -151,3 +152,6 @@ class Arg(BaseArg):
         self.add_long('state-path', 'path', help='Path to store state data under')
         self.add_long('runtime-path', 'path', help='Path to store volatile data under')
         self.add_long('backend', 'backend', help='Backend to use for data storage')
+
+        self.add('o', 'tab', typ=str, action='append', help='Include output by key name')
+        self.set_long('o', 'output-key')

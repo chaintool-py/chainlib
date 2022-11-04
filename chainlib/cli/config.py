@@ -59,6 +59,7 @@ def process_config(config, arg, args, flags, positional_name=None):
 
     if arg.match('raw', flags):
         config.add(getattr(args, 'r', None), '_RAW')
+        config.add(getattr(args, '0', None), '_NOLINE')
  
     if arg.match('provider', flags):
         args_override['RPC_PROVIDER'] = getattr(args, 'p')
@@ -138,5 +139,8 @@ def process_config(config, arg, args, flags, positional_name=None):
         pos_arg = getattr(args, positional_name)
         if len(pos_arg) > 0:
             config.add(pos_arg[0], '_POSARG', True)
+
+    if arg.match('tab', flags):
+        config.add(args.o, '_OUTARG', False)
 
     return config
