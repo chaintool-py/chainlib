@@ -87,14 +87,12 @@ class DocEntry:
 
 class DocGenerator:
 
-#    def __init__(self, arg_flags, config):
     def __init__(self, arg_flags):
         #self.config = config
         self.arg_flags = arg_flags
         self.docs = {}
         self.envs = {}
         self.__argflag_list = ArgFlag()
-#        self.envs = {}
 
 
     def __str__(self):
@@ -265,6 +263,22 @@ class DocGenerator:
             o = DocEntry('--raw')
             o.set_groff('Produce output most optimized for machines.')
             self.docs['raw'] = o
+
+            o = DocEntry('-0')
+            o.set_groff('Omit newline to output')
+            self.docs['0'] = o
+
+        if self.arg_flags & self.__argflag_list.VALUE:
+            o = DocEntry('--total')
+            o.set_groff('Deduct calculated fee from value.')
+            self.docs['total'] = o
+
+
+        if self.arg_flags & self.__argflag_list.TAB:
+            o = DocEntry('-o', '--output-key')
+            o.set_groff('Include output by key name')
+            self.docs['o'] = o
+
 
         if self.arg_flags & (self.__argflag_list.SIGN | self.__argflag_list.NONCE):
             o = DocEntry('--nonce')

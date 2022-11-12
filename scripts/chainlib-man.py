@@ -100,6 +100,7 @@ flags_debug = argflag.names(flags)
 
 logg.debug('apply arg flags {}: {}'.format(flags, ', '.join(flags_debug)))
 
+# TODO: unfortunately, if arguments are added in chainlib/cli/arg.py  they still also have to be manually added in chainlib/cli/man.py
 g = DocGenerator(flags)
 
 toolname = args.n
