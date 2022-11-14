@@ -18,7 +18,7 @@ setup(
              'xdg': "pyxdg~=0.27",
              },
         license_files= ('LICENSE',),
-        python_requires = '>=3.8',
+        python_requires = '>=3.7',
         include_package_data = True,
         packages = [
             'chainlib',
