@@ -40,5 +40,5 @@ There are no (exhaustive) tutorial planned for chainlib. All you need to know sh
 
 ## See also
 
-* The [chainsyncer](https://gitlab.com/chaintool/chainsyncer) project, which provides a simple chain syncer framework allowing for an arbitrary amount of pluggable code to be executed for each block transaction.
-* The [chainqueue](https://gitlab.com/chaintool/chainqueue) project, which provides a transaction queueing daemon that handles conditional submisssion and resubmission of transactions to the network.
+* The [chainsyncer](https://git.defalsify.org/chainsyncer) project, which provides a simple chain syncer framework allowing for an arbitrary amount of pluggable code to be executed for each block transaction.
+* The [chainqueue](https://git.defalsify.org/chainqueue) project, which provides a transaction queueing daemon that handles conditional submisssion and resubmission of transactions to the network.
