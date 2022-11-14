@@ -1,3 +1,7 @@
+- 0.4.2
+	* Change license to AGPL3 and copyright waived to public domain
+- 0.4.1 
+	* Add newly added flags to man page generator
 - 0.4.0
 	* Reinstate stdin_arg
 	* Add -r alias to --raw
