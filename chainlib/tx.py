@@ -12,7 +12,7 @@ class Tx(Src):
     :type block: chainlib.block.Block
     """
 
-    def __init__(self, src=None, block=None, result=None, strict=False):
+    def __init__(self, src=None, block=None, result=None, strict=False, dialect_filter=None):
         self.block = block
         self.index = -1
 
@@ -28,20 +28,20 @@ class Tx(Src):
 
         self.result = None
     
-        super(Tx, self).__init__(src)
+        super(Tx, self).__init__(src, dialect_filter=dialect_filter)
 
         if block != None:
-            self.apply_block(block)
+            self.apply_block(block, dialect_filter=dialect_filter)
 
         if result != None:
-            self.apply_result(result)
+            self.apply_result(result, dialect_filter=dialect_filter)
 
 
-    def apply_result(self, result):
+    def apply_result(self, result, dialect_filter=None):
         self.result = result
 
 
-    def apply_block(self, block):
+    def apply_block(self, block, dialect_filter=None):
         self.block = block
 
 

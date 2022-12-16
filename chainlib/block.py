@@ -19,7 +19,7 @@ class Block(Src):
  
     tx_generator = Tx
 
-    def __init__(self, src=None):
+    def __init__(self, src=None, dialect_filter=None):
         self.number = None
         self.txs = []
         self.author = None
@@ -31,7 +31,15 @@ class Block(Src):
         self.fee_cost = 0
         self.parent_hash = None
 
-        super(Block, self).__init__(src=src)
+        self.extra = {}
+
+        super(Block, self).__init__(src=src, dialect_filter=dialect_filter)
+
+        self.load_src(dialect_filter=dialect_filter)
+
+
+    def load_src(self, dialect_filter=None):
+        raise NotImplementedError()
 
 
     def tx_by_index(self, idx):

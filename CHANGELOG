@@ -1,3 +1,7 @@
+- 0.4.4
+	* Add support for dialect differences in tx and block processing
+- 0.4.3
+	* Fix license classifier string
 - 0.4.2
 	* Change license to AGPL3 and copyright waived to public domain
 - 0.4.1 
