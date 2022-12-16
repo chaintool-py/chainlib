@@ -38,10 +38,6 @@ class Block(Src):
         self.load_src(dialect_filter=dialect_filter)
 
 
-    def load_src(self, dialect_filter=None):
-        raise NotImplementedError()
-
-
     def tx_by_index(self, idx):
         """Return transaction object for transaction data at given index.
 

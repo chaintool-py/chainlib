@@ -30,6 +30,8 @@ class Tx(Src):
     
         super(Tx, self).__init__(src, dialect_filter=dialect_filter)
 
+        self.load_src(dialect_filter=dialect_filter)
+
         if block != None:
             self.apply_block(block, dialect_filter=dialect_filter)
 
@@ -76,9 +78,11 @@ class Tx(Src):
 
 class TxResult(Src):
 
-    def __init__(self, src=None):
+    def __init__(self, src=None, dialect_filter=None):
         self.status = Status.UNKNOWN
         self.tx_index = None
         self.block_hash = None
         self.fee_cost = 0
         super(TxResult, self).__init__(src=src)
+
+        self.load_src(dialect_filter=dialect_filter)
