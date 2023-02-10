@@ -81,7 +81,7 @@ class ArgFlag(BaseArgFlag):
 
         self.alias('sign', 'key_file', 'send')
         self.alias('std_base', 'verbose', 'config', 'raw', 'env', 'target')
-        self.alias('std_base_read', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'seq')
+        self.alias('std_base_read', 'unsafe', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'seq')
         self.alias('std_read', 'std_base', 'provider', 'chain_spec', 'unsafe', 'seq', 'sign', 'fee', 'target')
         self.alias('std_write', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'sign', 'target', 'wait', 'wait_all', 'send', 'rpc_auth', 'nonce', 'fee')
         self.alias('std_target', 'no_target', 'exec', 'wallet')
