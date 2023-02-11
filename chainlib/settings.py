@@ -25,6 +25,14 @@ class ChainSettings:
         return s
 
 
+def process_settings_dialect(settings, config):
+    if config.get('RPC_DIALECT') != 'default':
+        import importlib
+        m = importlib.import_module(config.get('RPC_DIALECT'))
+        settings.set('RPC_DIALECT_FILTER', m.DialectFilter())
+    return settings
+
+
 def process_settings_common(settings, config):
     chain_spec = ChainSpec.from_chain_str(config.get('CHAIN_SPEC'))
     settings.set('CHAIN_SPEC', chain_spec)
@@ -47,4 +55,5 @@ def process_settings_value(settings, config):
 def process_settings(settings, config):
     settings = process_settings_common(settings, config)
     settings = process_settings_value(settings, config)
+    settings = process_settings_dialect(settings, config)
     return settings
