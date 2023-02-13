@@ -1,8 +1,13 @@
+# standard imports
+import logging
+
 # external imports
 from aiee.numbers import postfix_to_int
 
 # local imports
 from .chain import ChainSpec
+
+logg = logging.getLogger(__name__)
 
 
 class ChainSettings:
@@ -39,6 +44,12 @@ def process_settings_common(settings, config):
     return settings
 
 
+def process_settings_signer_check(settings, config):
+    if config.get('WALLET_KEY_FILE') != None and config.get('_UNSIGNED_SENDER_ADDRESS') != None:
+        logg.warning('misconfigured client has both wallet key file and signed sender options set')
+    return settings
+
+
 def process_settings_value(settings, config):
     value = None
     try:
@@ -56,4 +67,5 @@ def process_settings(settings, config):
     settings = process_settings_common(settings, config)
     settings = process_settings_value(settings, config)
     settings = process_settings_dialect(settings, config)
+    settings = process_settings_signer_check(settings, config)
     return settings

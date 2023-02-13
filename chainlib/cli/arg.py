@@ -1,10 +1,8 @@
 # standard imports
 import logging
 import argparse #import enum
-#import os
 import select
 import sys
-#import re
 
 # external imports 
 from aiee.arg import (
@@ -78,11 +76,13 @@ class ArgFlag(BaseArgFlag):
         self.add('backend')
         self.add('value')
         self.add('tab')
+        self.add('sender')
 
         self.alias('sign', 'key_file', 'send')
         self.alias('std_base', 'verbose', 'config', 'raw', 'env', 'target')
         self.alias('std_base_read', 'unsafe', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'seq')
-        self.alias('std_read', 'std_base', 'provider', 'chain_spec', 'unsafe', 'seq', 'sign', 'fee', 'target')
+        self.alias('std_read', 'std_base', 'provider', 'chain_spec', 'unsafe', 'seq', 'fee', 'target', 'sign', 'sender')
+        self.alias('std_read_noex', 'std_base', 'provider', 'chain_spec', 'seq', 'target')
         self.alias('std_write', 'verbose', 'config', 'raw', 'env', 'provider', 'chain_spec', 'unsafe', 'seq', 'key_file', 'sign', 'target', 'wait', 'wait_all', 'send', 'rpc_auth', 'nonce', 'fee')
         self.alias('std_target', 'no_target', 'exec', 'wallet')
         self.alias('state', 'backend', 'path')
@@ -138,6 +138,9 @@ class Arg(BaseArg):
 
         self.add('s', 'send', typ=bool, help='Send to network')
         self.set_long('s', 'send')
+
+        self.add('f', 'sender', type=str, help='Unsigned sender')
+        self.set_long('f', 'from')
 
         self.add('r', 'raw', typ=bool, help='Do not decode output')
         self.set_long('r', 'raw')

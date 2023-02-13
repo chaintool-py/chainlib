@@ -20,6 +20,8 @@ class Rpc:
     :param wallet: Add wallet backend to instance
     :type wallet: chainlib.cli.wallet.Wallet
     """
+
+    default_sender_address = None
     
     def __init__(self, cls, wallet=None):
         self.constructor = cls
@@ -30,6 +32,7 @@ class Rpc:
         self.nonce_oracle = None
         self.fee_oracle = None
         self.error_parser = None
+        self.sender_address = self.default_sender_address
 
 
     def connect_by_config(self, config):
@@ -63,6 +66,17 @@ class Rpc:
         self.chain_spec = config.get('CHAIN_SPEC')
         self.conn = self.constructor(url=config.get('RPC_PROVIDER'), chain_spec=self.chain_spec, auth=auth, verify_identity=config.true('RPC_VERIFY'), timeout=float(config.get('RPC_TIMEOUT')))
 
+        if self.wallet.signer != None:
+            self.sender_address = self.wallet.signer_address
+        elif config.get('_UNSIGNED_SENDER_ADDRESS') != None:
+            try:
+                self.sender_address = config.get('_UNSIGNED_SENDER_ADDRESS')
+            except KeyError:
+                pass
+            except ValueError:
+                pass
+        logg.debug('default sender address {} {}'.format(self.default_sender_address, self.sender_address))
+    
         return self.conn
 
 
@@ -112,8 +126,10 @@ class Rpc:
         :rtype: str
         :returns: Wallet address in canonical string representation
         """
-        return self.wallet.signer_address
+        return self.sender_address
 
 
     def get_signer_address(self):
+        if self.wallet == None:
+            return None
         return self.get_sender_address()

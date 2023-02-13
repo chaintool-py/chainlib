@@ -103,10 +103,6 @@ def process_config(config, arg, args, flags, positional_name=None):
 
         if arg.match('fee', flags):
             config.add(getattr(args, 'fee_price'), '_FEE_PRICE')
-            fee_limit = getattr(args, 'fee_limit')
-            if fee_limit == None:
-                fee_limit = int(config.get('CHAIN_MIN_FEE'))
-            config.add(fee_limit, '_FEE_LIMIT')
 
         if arg.match('nonce', flags):
             config.add(getattr(args, 'nonce'), '_NONCE')
@@ -117,7 +113,13 @@ def process_config(config, arg, args, flags, positional_name=None):
                 config.add(True, '_WAIT')
             elif args.w:
                 config.add(True, '_WAIT')
-    
+ 
+    if arg.match('fee', flags):
+        fee_limit = getattr(args, 'fee_limit')
+        if fee_limit == None:
+            fee_limit = int(config.get('CHAIN_MIN_FEE'))
+        config.add(fee_limit, '_FEE_LIMIT')
+   
     if arg.match('seq', flags):
         config.add(getattr(args, 'seq'), '_SEQ')
 
@@ -133,6 +135,9 @@ def process_config(config, arg, args, flags, positional_name=None):
     if arg.match('rpc_auth', flags):
         config.add(getattr(args, 'rpc_auth'), 'RPC_AUTH')
         config.add(getattr(args, 'rpc_credentials'), 'RPC_CREDENTIALS')
+
+    if arg.match('sender', flags):
+        config.add(getattr(args, 'f'), '_UNSIGNED_SENDER_ADDRESS')
 
     if positional_name != None:
         config.add(None, '_POSARG', False)
