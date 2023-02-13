@@ -23,6 +23,7 @@ setup(
         packages = [
             'chainlib',
             'chainlib.cli',
+            'chainlib.runnable',
             ],
         scripts = [
             'scripts/chainlib-man.py',

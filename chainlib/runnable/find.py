@@ -12,11 +12,11 @@ logg = logging.getLogger()
 
 
 ap = argparse.ArgumentParser()
-ap.add_argument('-m', '--module', type=str, action='append', help='module name to add to filter (default all modules match)')
+ap.add_argument('--cmd', type=str, help='command to execute on module. default command will be executed if not specified')
 ap.add_argument('--arg', type=str, action='append', help='argument for command to execute')
 ap.add_argument('-v', action='store_true', help='verbose logging')
 ap.add_argument('-vv', action='store_true', help='very verbose logging')
-ap.add_argument('command', type=str, nargs='?', help='command to pass to module execution handler')
+ap.add_argument('module', type=str, help='module to locate and execute')
 args = ap.parse_args(sys.argv[1:])
 
 if args.vv:
@@ -36,7 +36,7 @@ def default_handler(m, cmd, args):
 
 
 def main():
-    find_chainlib_modules(fltr=args.module, cmd=args.command, args=args.arg, handler=default_handler)
+    find_chainlib_modules(fltr=[args.module], cmd=args.cmd, args=args.arg, handler=default_handler)
 
 
 if __name__ == '__main__':
