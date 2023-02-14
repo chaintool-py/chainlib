@@ -28,10 +28,16 @@ elif args.v:
 def default_handler(m, cmd, args):
     r = None
     if cmd == None:
-        r = m.default(args)
+        if args == None:
+            r = m.default()
+        else:
+            r = m.default(*args)
     else:
         fn = getattr(m, cmd)
-        r = fn(args)
+        if args == None:
+            r = fn()
+        else:
+            r = fn(*args)
     print(r)
 
 

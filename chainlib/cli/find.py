@@ -24,7 +24,7 @@ def execute_for_path(d, fltr=None, cmd=None, args=None, handler=None):
         return None
     __mf[s] = d
     logg.info('found chainlib module {} in {}'.format(s, d))
-    m = import_module(s + '._clf')
+    m = import_module(s)
     handler(m, cmd, args)
 
 
