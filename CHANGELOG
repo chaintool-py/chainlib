@@ -1,3 +1,10 @@
+- 0.4.8
+	* Introduce scheme to detect chainlib 'capable' modules.
+	* Add chainlib-gen tool to generate contract bytecode, constructor bytecode and other contract context data from chainlib modules.
+- 0.4.7
+	* Enable setting of unsigned sender from cli arguments
+- 0.4.6
+	* Load dialect module in settings
 - 0.4.5
 	* Add unsafe flag to base read field
 - 0.4.4
