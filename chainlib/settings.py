@@ -45,7 +45,12 @@ def process_settings_common(settings, config):
 
 
 def process_settings_signer_check(settings, config):
-    if config.get('WALLET_KEY_FILE') != None and config.get('_UNSIGNED_SENDER_ADDRESS') != None:
+    unsigned_address = None
+    try:
+        unsigned_address = config.get('_UNSIGNED_SENDER_ADDRESS')
+    except KeyError:
+        pass
+    if config.get('WALLET_KEY_FILE') != None and unsigned_address != None:
         logg.warning('misconfigured client has both wallet key file and signed sender options set')
     return settings
 
