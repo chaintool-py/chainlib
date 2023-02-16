@@ -68,15 +68,14 @@ class Rpc:
 
         if self.wallet.signer != None:
             self.sender_address = self.wallet.signer_address
-        elif config.get('_UNSIGNED_SENDER_ADDRESS') != None:
+        else:
             try:
                 self.sender_address = config.get('_UNSIGNED_SENDER_ADDRESS')
+                logg.debug('default sender address {}'.format(self.sender_address))
             except KeyError:
                 pass
             except ValueError:
-                pass
-        logg.debug('default sender address {} {}'.format(self.default_sender_address, self.sender_address))
-    
+                pass 
         return self.conn
 
 
