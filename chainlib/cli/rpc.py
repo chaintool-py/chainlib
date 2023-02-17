@@ -66,16 +66,20 @@ class Rpc:
         self.chain_spec = config.get('CHAIN_SPEC')
         self.conn = self.constructor(url=config.get('RPC_PROVIDER'), chain_spec=self.chain_spec, auth=auth, verify_identity=config.true('RPC_VERIFY'), timeout=float(config.get('RPC_TIMEOUT')))
 
+        self.sender_address = self.default_sender_address
+        sender_address = None
+        try:
+            sender_address = config.get('_UNSIGNED_SENDER_ADDRESS')
+        except KeyError:
+            pass
+        except ValueError:
+            pass
+
         if self.wallet.signer != None:
             self.sender_address = self.wallet.signer_address
-        else:
-            try:
-                self.sender_address = config.get('_UNSIGNED_SENDER_ADDRESS')
-                logg.debug('default sender address {}'.format(self.sender_address))
-            except KeyError:
-                pass
-            except ValueError:
-                pass 
+        elif sender_address != None:
+            self.sender_address = sender_address
+
         return self.conn
 
 
