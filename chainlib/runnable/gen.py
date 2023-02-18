@@ -118,7 +118,9 @@ def main():
                 raise ValueError('command required for key query')
             is_key_query = True
 
-    find_chainlib_modules(fltr=module, cmd=args.command, args=arg, handler=hndlr, is_key_query=is_key_query)
+    r = find_chainlib_modules(fltr=module, cmd=args.command, args=arg, handler=hndlr, is_key_query=is_key_query)
+    if len(r) == 0:
+        sys.exit(1)
 
 
 if __name__ == '__main__':
