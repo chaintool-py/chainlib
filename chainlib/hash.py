@@ -3,6 +3,21 @@ import sha3
 from hexathon import strip_0x
 
 
+def keccak256(s):
+    """Binary representation of Keccak256 hash of utf-8 string content.
+
+    :param s: utf-8 string to hash
+    :type s: str
+    :rtype: str
+    :returns: Hex-value of keccak256 hash
+    """
+    h = sha3.keccak_256()
+    if (type(s).__name__ == 'str'):
+        s = s.encode('utf-8')
+    h.update(s)
+    return h.digest()
+
+
 def keccak256_hex(s):
     """Hex representation of Keccak256 hash of utf-8 string content.
 
@@ -11,9 +26,7 @@ def keccak256_hex(s):
     :rtype: str
     :returns: Hex-value of keccak256 hash
     """
-    h = sha3.keccak_256()
-    h.update(s.encode('utf-8'))
-    return h.digest().hex()
+    return keccak256(s).hex()
 
 
 def keccak256_string_to_hex(s):
