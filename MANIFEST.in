@@ -1,1 +1,1 @@
-include *requirements.txt LICENSE WAIVER WAIVER.asc chainlib/data/config/* chainlib/data/env/*
+include *requirements.txt LICENSE WAIVER WAIVER.asc chainlib/data/config/* chainlib/data/env/* man/build/**

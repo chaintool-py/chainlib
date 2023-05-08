@@ -28,4 +28,5 @@ setup(
         scripts = [
             'scripts/chainlib-man.py',
             ],
+        data_files=[("man/man1", ['man/build/chainlib-gen.1'],)],
     )
