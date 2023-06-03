@@ -31,6 +31,7 @@ class ChainSettings:
 
 
 def process_settings_dialect(settings, config):
+    settings.set('RPC_DIALECT_FILTER', None)
     if config.get('RPC_DIALECT') != 'default':
         import importlib
         m = importlib.import_module(config.get('RPC_DIALECT'))

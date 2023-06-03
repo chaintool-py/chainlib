@@ -75,7 +75,7 @@ class Src:
 
 
     @classmethod
-    def from_src(cls, src):
+    def from_src(cls, src, dialect_filter=None):
         """Instantiate an implementation specific block object from the given block representation.
 
         :param src: Block representation
@@ -83,7 +83,7 @@ class Src:
         :rtype: chainlib.block.Block
         :returns: Block object
         """
-        return cls(src)
+        return cls(src, dialect_filter=dialect_filter)
 
 
     def __repr__(self):

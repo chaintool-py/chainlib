@@ -20,7 +20,7 @@ class ChainInterface:
         raise NotImplementedError()
 
 
-    def __init__(self):
+    def __init__(self, dialect_filter=None):
         self._block_latest = self.__unimplemented
         self._block_by_hash = self.__unimplemented
         self._block_by_number = self.__unimplemented
@@ -37,6 +37,7 @@ class ChainInterface:
         self._address_safe = self.__unimplemented
         self._address_normal = self.__unimplemented
         self._src_normalize = self.__unimplemented
+        self._dialect_filter = dialect_filter
 
 
     def block_latest(self, *args, **kwargs):
@@ -84,7 +85,7 @@ class ChainInterface:
         :rtype: chainlib.block.Block
         :returns: Block object
         """
-        return self._block_from_src(src)
+        return self._block_from_src(src, dialect_filter=self._dialect_filter)
 
 
     def block_to_src(self, block):
