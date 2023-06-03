@@ -1,7 +1,7 @@
-@section Base library contents
+@chapter Base library contents
 
 
-@subsection Pluggable method interface
+@section Pluggable method interface
 
 The base chainlib blockchain interface is defined by the @code{chainlib.interface.ChainInterface class}. All of the methods in this class are unimplemented. Together they make up the methods necessary to interface with @emph{any} blockchain RPC.
 
@@ -47,7 +47,7 @@ Generate an unambiguous dictionary from the given dictionary. For example, this 
 @end table
 
 
-@subsection The RPC interface
+@section The RPC interface
 
 @code{chainlib.connection} currently has support for HTTP(S) and UNIX socket RPC connections. Both rely on the Python @emph{standard library} only (@code{urllib} and @code{socket}).
 
@@ -56,19 +56,19 @@ It provides a thread-safe connection factory mechanism where connection construc
 There is also explicit builtin support for the JSONRPC RPC protocol, which allows for a pluggable error translater that can be customized to every RPC "dialect" that needs to be supported (examples are "geth" and "openethereum" dialects of the Ethereum node fauna). Classes to handle JSONRPC results, requests and errors are defined in the @code{chainlib.jsonrpc} module.
 
 
-@subsection Blocks and transactions
+@section Blocks and transactions
 
 Common block and transaction concepts are represented by the @code{chainlib.block.Block} and @code{chainlib.tx.Tx} objects. These are very minimal base-classes that need to be extended for every blockchain implementation that is to be supported.
 
 When building transactions, implementations of the @code{chainlib.sign.Signer}, @code{chainlib.nonce.NonceOracle} and @code{chainlib.fee.FeeOracle} interfaces will provide the transaction factory object of the implementation with signatures, transaction nonces and transaction fee details respectively.
 
 
-@subsection Other code features
+@section Other code features
 
 This section lists features that are considered outside the core of the @code{chainlib} package
 
 
-@subsubsection RPC authenticator
+@subsection RPC authenticator
 
 If you are relying on an RPC provider instead of running your own node (although, you know you @emph{should} run your own node, right?), then RPC authentication may be relevant.
 
@@ -82,7 +82,7 @@ Define an arbitrary header name and value
 @end table
 
 
-@subsubsection Fee price aggregator
+@subsection Fee price aggregator
 
 The @code{chainlib.stat.ChainStat} class provides a simple implementation of a running average aggregator for network fee prices. This can be used to generate more precise fee price heuristics that in turn can be fed to a Fee Oracle.
 

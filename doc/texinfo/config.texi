@@ -1,5 +1,5 @@
 @anchor{chainlib-config}
-@section Rendering configurations
+@chapter Rendering configurations
 
 Configurations in @code{chainlib} are processed, rendered and interfaced using the @code{confini} python package.
 
@@ -10,12 +10,12 @@ Furthermore, it employs this same multi-file approach when defining a configurat
 See @url{https://gitlab.com/nolash/python-confini} for further details on @code{confini}.
 
 
-@subsection Configuration schema in chainlib
+@section Configuration schema in chainlib
 
 The chainlib configuration schema is, along with the provided command line arguments and environment variables, designed to cover the settings necessary for most normal chain RPC operations.
 
 
-@subsubsection Configuration mapping
+@subsection Configuration mapping
 
 Below follows a mapping of configuration directives to command line arguments and environment variables.
 

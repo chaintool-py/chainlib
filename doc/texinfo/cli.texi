@@ -1,4 +1,4 @@
-@section Command line interface provisions
+@chapter Command line interface provisions
 
 The base CLI provisions of @code{chainlib} simplifies the generation of a some base object instances by command line arguments, environment variables and configuration schemas.
 
@@ -18,7 +18,7 @@ Create wallet from configuration
 Any chain implementation building on @code{chainlib} should extend one or more of the classes in these modules as needed, for example order to add more configuration directives or command line argument flags.
 
 
-@subsection Arguments
+@section Arguments
 
 @code{chainlib} defines a set of arguments that are common concepts for interfacing with blockchain RPCs. Which arguments to use for a specific instantiation can be defined using flags or symbols that define groups of flags.
 
@@ -27,34 +27,34 @@ This functionality is provided by the @code{chainlib.cli.args.ArgumentParser} cl
 Following is a description of all pre-defined arguments that are available with @code{chainlib}.
 
 
-@subsubsection -c, --config
+@subsection -c, --config
 
 Override configuration directives by reading ini-files in the given directory.
 
 Only configuration directives defined in the schema may be overridden. @xref{chainlib-config}.
 
 
-@subsubsection --env-prefix
+@subsection --env-prefix
 
 Prepend the given string to configuration directives when overriding by environment variables
 
 Normally, if a configuration directive @code{FOO_BAR} exists, the environment variable @code{FOO_BAR} will override its value. If @code{--env-prefix BAZ} is passed, the environment variable @code{BAZ_FOO_BAR} will be used instead to override the configuration directive @code{FOO_BAR}. The environment variable @code{FOO_BAR} will in this case @emph{not} be used.
 
 
-@subsubsection --height
+@subsection --height
 
 Query the chain RPC for results at a specific block height.
 
 Applies to @emph{read} operations only.
 
 
-@subsubsection -i, --chain-spec
+@subsection -i, --chain-spec
 
 Chain specification string for the blockchain connection.
 
 This informs the implementing code about the architecture and deployment of the blockchain network. It can also be relevant when creating signatures for the network (e.g. the EIP155 signature scheme for EVM).
 
-@subsubsection --fee-limit
+@subsection --fee-limit
 
 Use the exact given fee multiplier to calculate the final bid to get transaction executed on the network.
 
@@ -63,7 +63,7 @@ How the fee semantics are employed depend on the chain implementation, but the f
 If @emph{not} defined, the multiplier will be retrieved using the fees provider defined by the implementation.
 
 
-@subsubsection --fee-price
+@subsection --fee-price
 
 Use the exact given fee price as factor to calculate bid to get transaction executed on the network.
 
@@ -72,67 +72,67 @@ How the fee semantics are employed depend on the chain implementation, but the f
 If @emph{not} defined, the current recommended price will be retrieved from the fees provider defined by the implementation.
 
 
-@subsubsection -n, --namespace
+@subsection -n, --namespace
 
 Append the given namespace to implicit configuration override paths.
 
 For example, if linux xdg-basedir path is used, a namespace argument of @code{foo} in implementation domain @code{bar} will result in the configuration override path @code{$HOME/.config/bar/foo}.
 
 
-@subsubsection --nonce
+@subsection --nonce
 
 Start at the exact given nonce for the query.
 
 If @emph{not} defined, the next nonce will be retrieved from the nonce provider defined by the implementation.
 
 
-@subsubsection -p, --provider
+@subsection -p, --provider
 
 URL of the chain RPC provider.
 
 
-@subsubsection -s, --send
+@subsection -s, --send
 
 CLI tools building on chainlib should @emph{never} submit to the network by default. Instead, resulting transactions ready for network submission should be output to terminal.
 
 If the implementation wishes to allow the user to directly send to the network, the @code{-s}  flag @emph{must} be used for this purpose.
 
 
-@subsubsection --seq
+@subsection --seq
 
 By default, a random RPC id will be generated for every RPC call.
 
 However, some RPCs will only allow sequential serial numbers to be used as RPC ids, in which case this flag should be used.
 
 
-@subsubsection --raw
+@subsection --raw
 
 Generate output suitable for passing to another command (e.g. UNIX pipes).
 
 
-@subsubsection --rpc-auth
+@subsection --rpc-auth
 
 Tells the implementer which RPC authentication scheme to use (e.g. "basic" for http basic).
 
 
-@subsubsection --rpc-credentials
+@subsection --rpc-credentials
 
 Tells the implemented wich RPC authentication credentials to use for selected rpc authentication scheme (e.g. "foo:bar" for user foo pass bar in scheme "basic" a.k.a. http basic).
 
 Credentials may for example also be a single value, like a private key, depending on the scheme and implementation.
 
 
-@subsubsection --rpc-dialect
+@subsection --rpc-dialect
 
 Tells the implementer to optimize query, result and error reporting for the specific chain RPC backend dialect.
 
 
-@subsubsection -u, --unsafe
+@subsection -u, --unsafe
 
 Allow arguments with blockchain addresses that are not checksum protected.
 
 
-@subsubsection -v, -vv
+@subsection -v, -vv
 
 Defines logging verbosity.
 
@@ -141,7 +141,7 @@ Specifically, @code{-v} will set loglevel to @code{INFO}, wheres @code{-vv} will
 Default loglevel is up to the implementer, but it is advisable to keep it at @code{WARNING}.
 
 
-@subsubsection -w, -ww
+@subsection -w, -ww
 
 Toggles blocking in relation to chain RPC calls.
 
@@ -154,7 +154,7 @@ If the implementation consists of a single transaction, the effect of @code{-w} 
 If neither flag is set, the typical consequence is that the network transaction hash of the last transaction will be returned.
 
 
-@subsubsection -y, --key-file
+@subsection -y, --key-file
 
 Read private key from the given key file.
 

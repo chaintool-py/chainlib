@@ -1,4 +1,4 @@
-@section Overview
+@chapter Overview
 
 Chainlib is an attempt at employing a universal interface to manipulate and access blockchains regardless of underlying architecture.
 

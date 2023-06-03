@@ -12,6 +12,10 @@ while True:
     requirements.append(l.rstrip())
 f.close()
 
+f = open('README.md', 'r')
+description = f.read()
+f.close()
+
 setup(
         install_requires=requirements,
         extras_require={
@@ -29,4 +33,6 @@ setup(
             'scripts/chainlib-man.py',
             ],
         data_files=[("man/man1", ['man/build/chainlib-gen.1'],)],
+        long_description=description,
+        long_description_content_type='text/markdown',
     )

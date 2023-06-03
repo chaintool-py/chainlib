@@ -1,0 +1,63 @@
+.TH chainlib-gen 1
+
+.SH NAME
+chainlib-gen \- Generate bytecode and arguments from modules implementing chainlib
+
+
+.SH SYNOPSIS
+
+.SY chainlib-gen
+-l
+.YS
+
+.SY chainlib-gen
+<module> <command> -k
+.YS
+
+.SY chainlib-gen
+<module> <command> [args...]
+.YS
+
+
+.SH DESCRIPTION
+.P
+chainlib-gen can be used to generate inputs necessary for publishing executable code for blockchain environments.
+.P
+A python module is considered to support chainlib-gen if the file \fI<package_dir>/data/.chainlib\fP exists.
+
+
+.SH Top-level options
+
+.TP
+.TQ
+.B -h
+.TQ
+.B --help
+Command help summary.
+
+.TP
+.B -v
+Verbose logging
+
+.TP
+.B -vv
+Very verbose logging
+
+
+.TP
+.B -l
+List supported module names
+
+
+.SH DISCOVERING MODULES
+.P
+Using the \fI-l\fP flag, chainlib-gen will list the names all supporing modules found in its search path.
+
+
+.SH Command options
+.P
+A supporting module will implement one or more commands, and will also define a default command that will be executed if no command is specified.
+
+.TP
+\fB-k\fP
+List required and optional arguments for <command> under <module>.

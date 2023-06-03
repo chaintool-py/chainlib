@@ -19,3 +19,13 @@ man:
 	#./scripts/chainlib-man.py -v -n chainlib-gen -d $(BUILD_DIR)/ man
 	cp -v man/chainlib-gen.groff man/build/chainlib-gen.1
 
+readme:
+	make -C doc/texinfo readme
+	pandoc -f docbook -t gfm doc/texinfo/build/docbook.xml > README.md
+
+python: build
+
+doc:
+	make -C doc/texinfo
+
+

@@ -1,3 +1,9 @@
+- 0.4.16
+	* Add long description to python package
+- 0.4.15
+	* Include rpc dialect in chain interface constructor
+- 0.4.14
+	* Add chainlib-gen man page in python package
 - 0.4.13
 	* Expose string to bytes keccak hash
 - 0.4.12
