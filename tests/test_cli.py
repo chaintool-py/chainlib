@@ -118,6 +118,7 @@ class TestCli(unittest.TestCase):
         args = ap.parse_args([
             '-y', 'foo',
             '-i', 'foo:bar:42:baz',
+            '-z',
             ])
 
         config = Config()
