@@ -338,9 +338,17 @@ class JSONRPCHTTPConnection(HTTPConnection):
         resp = r.read()
         logg.debug('(HTTP) recv {}'.format(resp.decode('utf-8')))
         result = json.loads(resp)
-        if o['id'] != result['id']:
-            raise ValueError('RPC id mismatch; sent {} received {}'.format(o['id'], result['id']))
-        return jsonrpc_result(result, error_parser)
+        if type(result).__name__ != 'list':
+            if o['id'] != result['id']:
+                raise ValueError('RPC id mismatch; sent {} received {}'.format(o['id'], result['id']))
+            return jsonrpc_result(result, error_parser)
+
+        results = []
+        for i in range(len(o)):
+            if o[i]['id'] != result[i]['id']:
+                raise ValueError('RPC id mismatch; sent {} received {}'.format(o[i]['id'], result[i]['id']))
+            results.append(jsonrpc_result(result[i], error_parser))
+        return results
 
 
 class JSONRPCUnixConnection(UnixConnection):

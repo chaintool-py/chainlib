@@ -20,7 +20,8 @@ class ChainInterface:
         raise NotImplementedError()
 
 
-    def __init__(self, dialect_filter=None):
+    def __init__(self, dialect_filter=None, batch_limit=1):
+        self.batch_limit = batch_limit
         self._block_latest = self.__unimplemented
         self._block_by_hash = self.__unimplemented
         self._block_by_number = self.__unimplemented

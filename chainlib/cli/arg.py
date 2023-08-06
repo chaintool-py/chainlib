@@ -159,3 +159,5 @@ class Arg(BaseArg):
 
         self.add('o', 'tab', typ=str, action='append', help='Include output by key name')
         self.set_long('o', 'output-key')
+
+        self.add_long('rpc-batch-limit', 'provider', typ=int, help='limit of bundled rpc requests (0 = no limit, 1 = default)')

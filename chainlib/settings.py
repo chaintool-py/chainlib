@@ -39,6 +39,11 @@ def process_settings_dialect(settings, config):
     return settings
 
 
+def process_settings_batch(settings, config):
+    settings.set('RPC_BATCH_LIMIT', int(config.get('RPC_BATCH_LIMIT')))
+    return settings
+
+
 def process_settings_common(settings, config):
     chain_spec = ChainSpec.from_chain_str(config.get('CHAIN_SPEC'))
     settings.set('CHAIN_SPEC', chain_spec)
@@ -72,6 +77,7 @@ def process_settings_value(settings, config):
 def process_settings(settings, config):
     settings = process_settings_common(settings, config)
     settings = process_settings_value(settings, config)
+    settings = process_settings_batch(settings, config)
     settings = process_settings_dialect(settings, config)
     settings = process_settings_signer_check(settings, config)
     return settings

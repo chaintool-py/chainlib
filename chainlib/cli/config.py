@@ -64,6 +64,7 @@ def process_config(config, arg, args, flags, positional_name=None):
     if arg.match('provider', flags):
         args_override['RPC_PROVIDER'] = getattr(args, 'p')
         args_override['RPC_DIALECT'] = getattr(args, 'rpc_dialect')
+        args_override['RPC_BATCH_LIMIT'] = getattr(args, 'rpc_batch_limit')
 
     if arg.match('chain_spec', flags):
         args_override['CHAIN_SPEC'] = getattr(args, 'i')
