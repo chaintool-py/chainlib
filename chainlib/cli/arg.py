@@ -133,7 +133,7 @@ class Arg(BaseArg):
         self.add_long('seq', 'seq', typ=bool, help='Use sequential rpc ids')
 
         self.add('y', 'key_file', help='Keystore file to use for signing or address')
-        self.set_long('y', 'key_file')
+        self.set_long('y', 'key-file')
         self.add('z', 'key_file', typ=bool, help='No password to unlock keystore file')
         self.add_long('passphrase-file', 'key_file', help='Keystore file to use for signing or address')
 

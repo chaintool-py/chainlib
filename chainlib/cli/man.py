@@ -203,6 +203,12 @@ class DocGenerator:
             self.docs['rpcdialect'] = o
             self.envs['rpcdialect'] = 'RPC_DIALECT'
 
+            o = DocEntry('--rpc-batch-limit')
+            o.set_groff('Set number of RPC requests that can be set to the RPC provider as a batch request. This is made available through settings to any request builder implementing batch requests. A value of 1 means no batch will be used. A value of 0 indicates that the limit is not relevant. Any other positive value signals the maximum number of requests to be batched together.')
+            self.docs['rpcbatchlimit'] = o
+            self.envs['rpcbatchlimit'] = 'RPC_BATCH_LIMIT'
+
+
             if self.arg_flags & self.__argflag_list.NO_TARGET == 0:
                 o = DocEntry('--height')
                 o.set_groff('Block height at which to query state for. Does not apply to transactions.')
@@ -342,6 +348,7 @@ class EnvDocGenerator:
             ks += [
                     'RPC_PROVIDER',
                     'RPC_DIALECT',
+                    'RPC_BATCH_LIMIT',
                     ]
             if self.arg_flags & self.__argflag_list.RPC_AUTH:
                 ks += [
