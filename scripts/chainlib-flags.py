@@ -12,7 +12,6 @@ def value_int(v):
 
 def value_hex(v):
     sz = math.log(v, 2)
-    print("sz v {} {}".format(sz, v))
     if v == 0:
         return "00"
     sz = math.floor(sz)
