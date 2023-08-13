@@ -38,7 +38,7 @@ class Block(Src):
         self.load_src(dialect_filter=dialect_filter)
 
 
-    def tx_by_index(self, idx):
+    def tx_by_index(self, idx, dialect_filter=None):
         """Return transaction object for transaction data at given index.
 
         :param idx: Transaction index
@@ -46,7 +46,11 @@ class Block(Src):
         :rtype: chainlib.tx.Tx
         :returns: Transaction object
         """
-        return self.tx_generator(self.txs[idx], self)
+        return self.tx_generator(self.txs[idx], self, dialect_filter=dialect_filter)
+
+
+    def tx_src_by_index(self, idx):
+        return self.txs[idx]
 
 
     def tx_index_by_hash(self, hsh):

@@ -27,7 +27,7 @@ class Tx(Src):
         self.payload = None
 
         self.result = None
-    
+       
         super(Tx, self).__init__(src, dialect_filter=dialect_filter)
 
         self.load_src(dialect_filter=dialect_filter)
@@ -66,6 +66,10 @@ class Tx(Src):
    
 
     def as_dict(self):
+        raise NotImplementedError()
+
+
+    def load_src(self, dialect_filter=None):
         raise NotImplementedError()
 
 

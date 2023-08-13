@@ -22,6 +22,7 @@ class ChainInterface:
 
     def __init__(self, dialect_filter=None, batch_limit=1):
         self.batch_limit = batch_limit
+        self.dialect_filter = dialect_filter
         self._block_latest = self.__unimplemented
         self._block_by_hash = self.__unimplemented
         self._block_by_number = self.__unimplemented
@@ -38,7 +39,6 @@ class ChainInterface:
         self._address_safe = self.__unimplemented
         self._address_normal = self.__unimplemented
         self._src_normalize = self.__unimplemented
-        self._dialect_filter = dialect_filter
 
 
     def block_latest(self, *args, **kwargs):
@@ -86,7 +86,7 @@ class ChainInterface:
         :rtype: chainlib.block.Block
         :returns: Block object
         """
-        return self._block_from_src(src, dialect_filter=self._dialect_filter)
+        return self._block_from_src(src, dialect_filter=self.dialect_filter)
 
 
     def block_to_src(self, block):
@@ -194,7 +194,7 @@ class ChainInterface:
         :rtype: chainlib.tx.Tx
         :returns: Transaction object
         """
-        return self._tx_from_src(src, block)
+        return self._tx_from_src(src, block, dialect_filter=self.dialect_filter)
 
 
     def tx_to_src(self, tx):

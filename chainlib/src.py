@@ -92,5 +92,3 @@ class Src:
 
     def load_src(self, dialect_filter=None):
         raise NotImplementedError()
-
-

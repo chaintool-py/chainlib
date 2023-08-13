@@ -1,3 +1,7 @@
+- 0.5.2
+	* Expose dialect filter property in chain interface
+	* Pass dialect filter to from_src methods in chain interface
+	* Add aiee arg flag generation script
 - 0.5.1
 	* Add man page entry for batch requests.
 - 0.5.0
