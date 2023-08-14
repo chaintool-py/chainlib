@@ -82,7 +82,7 @@ def process_config(config, arg, args, flags, positional_name=None):
             f = open(fp, 'r')
             args_override['WALLET_PASSPHRASE'] = f.read()
             f.close()
-        elif not args.z:
+        elif not args.z and bool(args.y):
             import getpass
             args_override['WALLET_PASSPHRASE'] = getpass.getpass('wallet passphrase: ')
         config.censor('PASSPHRASE', 'WALLET')

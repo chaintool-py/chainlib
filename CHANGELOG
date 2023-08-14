@@ -1,3 +1,5 @@
+- 0.5.3
+	* Skip wallet passphrase prompt when no wallet keyfile specified
 - 0.5.2
 	* Expose dialect filter property in chain interface
 	* Pass dialect filter to from_src methods in chain interface
